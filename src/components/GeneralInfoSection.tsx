@@ -26,6 +26,20 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
     updateData({ monthlyFee: formatted });
   };
 
+  // Calculate fee per square meter
+  const calculateFeePerSqm = () => {
+    if (data.monthlyFee && data.size) {
+      const fee = parseInt(data.monthlyFee.replace(/\s/g, ''));
+      const size = parseInt(data.size);
+      if (fee && size) {
+        return Math.round(fee / size);
+      }
+    }
+    return null;
+  };
+
+  const feePerSqm = calculateFeePerSqm();
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -106,16 +120,29 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           />
         </Card>
 
-        {data.size && data.price && (
-          <Card className="p-4 bg-emerald-50 border-emerald-200">
-            <div className="text-center">
-              <p className="text-sm text-emerald-700 mb-1">Pris per kvm</p>
-              <p className="text-2xl font-bold text-emerald-900">
-                {Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toLocaleString()} SEK
-              </p>
-            </div>
-          </Card>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {data.size && data.price && (
+            <Card className="p-4 bg-emerald-50 border-emerald-200">
+              <div className="text-center">
+                <p className="text-sm text-emerald-700 mb-1">Pris per kvm</p>
+                <p className="text-2xl font-bold text-emerald-900">
+                  {Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toLocaleString()} SEK
+                </p>
+              </div>
+            </Card>
+          )}
+
+          {feePerSqm && (
+            <Card className="p-4 bg-blue-50 border-blue-200">
+              <div className="text-center">
+                <p className="text-sm text-blue-700 mb-1">Avgift per kvm</p>
+                <p className="text-2xl font-bold text-blue-900">
+                  {feePerSqm.toLocaleString()} SEK/månad
+                </p>
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );

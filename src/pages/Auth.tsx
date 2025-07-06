@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Home, Mail, Lock, User } from 'lucide-react';
+import { Home, Mail, Lock, User, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -15,6 +16,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
   const { signUp, signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -35,13 +37,19 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
-        toast({
-          title: isSignUp ? "Konto skapat" : "Inloggad",
-          description: isSignUp 
-            ? "Välkommen! Du kan nu börja använda appen." 
-            : "Välkommen tillbaka!",
-        });
-        navigate('/');
+        if (isSignUp) {
+          setShowEmailVerification(true);
+          toast({
+            title: "Konto skapat",
+            description: "Kontrollera din e-post för att verifiera ditt konto.",
+          });
+        } else {
+          toast({
+            title: "Inloggad",
+            description: "Välkommen tillbaka!",
+          });
+          navigate('/');
+        }
       }
     } catch (error) {
       toast({
@@ -53,6 +61,41 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-6 bg-white shadow-lg">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Mail className="h-8 w-8 text-blue-900" />
+              <h1 className="text-2xl font-bold text-blue-900">Verifiera din e-post</h1>
+            </div>
+            <Alert className="mb-4 bg-blue-50 border-blue-200">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Vi har skickat en verifieringslänk till <strong>{email}</strong>. 
+                Klicka på länken i e-postmeddelandet för att aktivera ditt konto.
+              </AlertDescription>
+            </Alert>
+            <p className="text-gray-600 mb-4">
+              Kontrollera även din skräppost om du inte ser e-postmeddelandet.
+            </p>
+            <Button
+              onClick={() => {
+                setShowEmailVerification(false);
+                setIsSignUp(false);
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              Tillbaka till inloggning
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -122,6 +165,15 @@ const Auth = () => {
               className="mt-1"
             />
           </div>
+
+          {isSignUp && (
+            <Alert className="bg-yellow-50 border-yellow-200">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Efter registrering kommer du att få ett e-postmeddelande för att verifiera ditt konto.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <Button
             type="submit"
