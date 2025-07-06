@@ -110,7 +110,6 @@ const EvaluationForm = () => {
             <CurrentSectionComponent 
               data={apartmentData} 
               updateData={updateData}
-              userId={user?.id}
             />
           </div>
         </Card>
