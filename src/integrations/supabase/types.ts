@@ -9,7 +9,114 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      apartment_evaluations: {
+        Row: {
+          address: string | null
+          annual_report_url: string | null
+          apartment_url: string | null
+          balcony: number | null
+          bathroom: number | null
+          bedrooms: number | null
+          cashflow_per_sqm: number | null
+          comments: string | null
+          created_at: string
+          debt_per_sqm: number | null
+          fee_per_sqm: number | null
+          förvaring: number | null
+          id: string
+          kitchen: number | null
+          ljusinsläpp: number | null
+          monthly_fee: number | null
+          owns_land: boolean | null
+          planlösning: number | null
+          price: number | null
+          rooms: string | null
+          size: number | null
+          surfaces: number | null
+          underhållsplan: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          annual_report_url?: string | null
+          apartment_url?: string | null
+          balcony?: number | null
+          bathroom?: number | null
+          bedrooms?: number | null
+          cashflow_per_sqm?: number | null
+          comments?: string | null
+          created_at?: string
+          debt_per_sqm?: number | null
+          fee_per_sqm?: number | null
+          förvaring?: number | null
+          id?: string
+          kitchen?: number | null
+          ljusinsläpp?: number | null
+          monthly_fee?: number | null
+          owns_land?: boolean | null
+          planlösning?: number | null
+          price?: number | null
+          rooms?: string | null
+          size?: number | null
+          surfaces?: number | null
+          underhållsplan?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          annual_report_url?: string | null
+          apartment_url?: string | null
+          balcony?: number | null
+          bathroom?: number | null
+          bedrooms?: number | null
+          cashflow_per_sqm?: number | null
+          comments?: string | null
+          created_at?: string
+          debt_per_sqm?: number | null
+          fee_per_sqm?: number | null
+          förvaring?: number | null
+          id?: string
+          kitchen?: number | null
+          ljusinsläpp?: number | null
+          monthly_fee?: number | null
+          owns_land?: boolean | null
+          planlösning?: number | null
+          price?: number | null
+          rooms?: string | null
+          size?: number | null
+          surfaces?: number | null
+          underhållsplan?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
