@@ -48,8 +48,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
       </div>
 
       <div className="grid gap-4">
-        <Card className="p-4">
-          <Label htmlFor="address" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+        <Card className="p-4 bg-blue-900 border-blue-800">
+          <Label htmlFor="address" className="flex items-center gap-2 text-white font-medium mb-2">
             <MapPin className="h-4 w-4" />
             Adress
           </Label>
@@ -58,13 +58,13 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             value={data.address}
             onChange={(e) => updateData({ address: e.target.value })}
             placeholder="Storgatan 15, Stockholm"
-            className="text-lg"
+            className="text-lg bg-white"
           />
         </Card>
 
         <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4">
-            <Label htmlFor="size" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+          <Card className="p-4 bg-blue-900 border-blue-800">
+            <Label htmlFor="size" className="flex items-center gap-2 text-white font-medium mb-2">
               <Home className="h-4 w-4" />
               Storlek (kvm)
             </Label>
@@ -74,11 +74,12 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               value={data.size}
               onChange={(e) => updateData({ size: e.target.value })}
               placeholder="75"
+              className="bg-white"
             />
           </Card>
 
-          <Card className="p-4">
-            <Label htmlFor="rooms" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+          <Card className="p-4 bg-blue-900 border-blue-800">
+            <Label htmlFor="rooms" className="flex items-center gap-2 text-white font-medium mb-2">
               <Users className="h-4 w-4" />
               Antal rum
             </Label>
@@ -88,12 +89,13 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               value={data.rooms}
               onChange={(e) => updateData({ rooms: e.target.value })}
               placeholder="3"
+              className="bg-white"
             />
           </Card>
         </div>
 
-        <Card className="p-4">
-          <Label htmlFor="price" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+        <Card className="p-4 bg-blue-900 border-blue-800">
+          <Label htmlFor="price" className="flex items-center gap-2 text-white font-medium mb-2">
             <CreditCard className="h-4 w-4" />
             Pris (SEK)
           </Label>
@@ -102,12 +104,12 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             value={data.price}
             onChange={handlePriceChange}
             placeholder="4 500 000"
-            className="text-lg font-semibold"
+            className="text-lg font-semibold bg-white"
           />
         </Card>
 
-        <Card className="p-4">
-          <Label htmlFor="monthlyFee" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+        <Card className="p-4 bg-blue-900 border-blue-800">
+          <Label htmlFor="monthlyFee" className="flex items-center gap-2 text-white font-medium mb-2">
             <CreditCard className="h-4 w-4" />
             Månadsavgift (SEK)
           </Label>
@@ -116,16 +118,16 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             value={data.monthlyFee}
             onChange={handleFeeChange}
             placeholder="4 200"
-            className="text-lg"
+            className="text-lg bg-white"
           />
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.size && data.price && (
-            <Card className="p-4 bg-emerald-50 border-emerald-200">
+            <Card className="p-4 bg-blue-50 border-blue-200">
               <div className="text-center">
-                <p className="text-sm text-emerald-700 mb-1">Pris per kvm</p>
-                <p className="text-2xl font-bold text-emerald-900">
+                <p className="text-sm text-blue-700 mb-1">Pris per kvm</p>
+                <p className="text-2xl font-bold text-blue-900">
                   {Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toLocaleString()} SEK
                 </p>
               </div>

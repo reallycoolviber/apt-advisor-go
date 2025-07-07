@@ -19,6 +19,12 @@ const EvaluationForm = () => {
     apartmentUrl: '',
     annualReportUrl: '',
     
+    // User info
+    name: '',
+    buyerType: '',
+    phone: '',
+    notes: '',
+    
     // General info
     address: '',
     size: '',
@@ -52,6 +58,7 @@ const EvaluationForm = () => {
 
   const sections = [
     { title: 'Automatisk indata', component: AutoInputSection },
+    { title: 'Användarinfo', component: UserInfoSection },
     { title: 'Allmän information', component: GeneralInfoSection },
     { title: 'Fysisk bedömning', component: PhysicalAssessmentSection },
     { title: 'Ekonomi', component: FinancialSection },
@@ -110,6 +117,7 @@ const EvaluationForm = () => {
             <CurrentSectionComponent 
               data={apartmentData} 
               updateData={updateData}
+              userId={user?.id}
             />
           </div>
         </Card>
@@ -141,5 +149,62 @@ const EvaluationForm = () => {
     </div>
   );
 };
+
+const UserInfoSection = ({ data, updateData }: { data: any; updateData: (data: any) => void }) => (
+  <div className="space-y-6">
+    <div className="text-center mb-6">
+      <h2 className="text-2xl font-bold text-blue-900 mb-2">Användarinformation</h2>
+      <p className="text-gray-600">Fyll i dina uppgifter (valfritt)</p>
+    </div>
+
+    <div className="grid gap-4">
+      <Card className="p-4 bg-blue-50 border-blue-200">
+        <label className="block text-blue-900 font-medium mb-2">Namn</label>
+        <input
+          type="text"
+          value={data.name}
+          onChange={(e) => updateData({ name: e.target.value })}
+          placeholder="Ditt fullständiga namn"
+          className="w-full p-3 border rounded-lg"
+        />
+      </Card>
+
+      <Card className="p-4 bg-blue-50 border-blue-200">
+        <label className="block text-blue-900 font-medium mb-2">Roll</label>
+        <select
+          value={data.buyerType}
+          onChange={(e) => updateData({ buyerType: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+        >
+          <option value="">Välj roll</option>
+          <option value="buyer">Köpare</option>
+          <option value="agent">Mäklare</option>
+          <option value="investor">Investerare</option>
+        </select>
+      </Card>
+
+      <Card className="p-4 bg-blue-50 border-blue-200">
+        <label className="block text-blue-900 font-medium mb-2">Telefonnummer</label>
+        <input
+          type="tel"
+          value={data.phone}
+          onChange={(e) => updateData({ phone: e.target.value })}
+          placeholder="070-123 45 67"
+          className="w-full p-3 border rounded-lg"
+        />
+      </Card>
+
+      <Card className="p-4 bg-blue-50 border-blue-200">
+        <label className="block text-blue-900 font-medium mb-2">Anteckningar</label>
+        <textarea
+          value={data.notes}
+          onChange={(e) => updateData({ notes: e.target.value })}
+          placeholder="Eventuella anteckningar eller särskilda önskemål..."
+          className="w-full p-3 border rounded-lg h-24 resize-none"
+        />
+      </Card>
+    </div>
+  </div>
+);
 
 export default EvaluationForm;

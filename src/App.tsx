@@ -56,7 +56,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.PROD ? '/apt-advisor-go' : '/'}>
           <Routes>
             <Route path="/auth" element={
               <PublicRoute>
