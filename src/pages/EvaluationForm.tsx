@@ -117,7 +117,6 @@ const EvaluationForm = () => {
             <CurrentSectionComponent 
               data={apartmentData} 
               updateData={updateData}
-              userId={user?.id}
             />
           </div>
         </Card>
@@ -158,8 +157,8 @@ const UserInfoSection = ({ data, updateData }: { data: any; updateData: (data: a
     </div>
 
     <div className="grid gap-4">
-      <Card className="p-4 bg-blue-50 border-blue-200">
-        <label className="block text-blue-900 font-medium mb-2">Namn</label>
+      <Card className="p-4 bg-blue-900 border-blue-800">
+        <label className="block text-white font-medium mb-2">Namn</label>
         <input
           type="text"
           value={data.name}
@@ -169,8 +168,8 @@ const UserInfoSection = ({ data, updateData }: { data: any; updateData: (data: a
         />
       </Card>
 
-      <Card className="p-4 bg-blue-50 border-blue-200">
-        <label className="block text-blue-900 font-medium mb-2">Roll</label>
+      <Card className="p-4 bg-blue-900 border-blue-800">
+        <label className="block text-white font-medium mb-2">Roll</label>
         <select
           value={data.buyerType}
           onChange={(e) => updateData({ buyerType: e.target.value })}
@@ -183,8 +182,8 @@ const UserInfoSection = ({ data, updateData }: { data: any; updateData: (data: a
         </select>
       </Card>
 
-      <Card className="p-4 bg-blue-50 border-blue-200">
-        <label className="block text-blue-900 font-medium mb-2">Telefonnummer</label>
+      <Card className="p-4 bg-blue-900 border-blue-800">
+        <label className="block text-white font-medium mb-2">Telefonnummer</label>
         <input
           type="tel"
           value={data.phone}
@@ -194,8 +193,8 @@ const UserInfoSection = ({ data, updateData }: { data: any; updateData: (data: a
         />
       </Card>
 
-      <Card className="p-4 bg-blue-50 border-blue-200">
-        <label className="block text-blue-900 font-medium mb-2">Anteckningar</label>
+      <Card className="p-4 bg-blue-900 border-blue-800">
+        <label className="block text-white font-medium mb-2">Anteckningar</label>
         <textarea
           value={data.notes}
           onChange={(e) => updateData({ notes: e.target.value })}
