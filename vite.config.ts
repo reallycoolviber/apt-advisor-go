@@ -6,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/apt-advisor-go/' : '/',
+  base: "/apt-advisor-go/",
   server: {
     host: "::",
     port: 8080,
