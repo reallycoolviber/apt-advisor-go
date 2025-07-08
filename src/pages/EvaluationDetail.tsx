@@ -39,7 +39,7 @@ const EvaluationDetail = () => {
   const { toast } = useToast();
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentSection, setCurrentSection] = useState(4); // Start with summary (index 4)
+  const [currentSection, setCurrentSection] = useState(3); // Start with summary (index 3)
 
   const sections = [
     { title: 'Allmän information', component: 'general' },
