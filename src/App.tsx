@@ -9,7 +9,6 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
 import Evaluations from "./pages/Evaluations";
-import EvaluationDetail from "./pages/EvaluationDetail";
 import Compare from "./pages/Compare";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -78,11 +77,6 @@ const App = () => (
             <Route path="/evaluations" element={
               <ProtectedRoute>
                 <Evaluations />
-              </ProtectedRoute>
-            } />
-            <Route path="/evaluations/:id" element={
-              <ProtectedRoute>
-                <EvaluationDetail />
               </ProtectedRoute>
             } />
             <Route path="/compare" element={
