@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,8 +31,6 @@ interface Evaluation {
   comments: string | null;
 }
 
-type SortCriteria = 'physical_rating' | 'price_per_sqm' | 'monthly_fee' | 'size' | 'price' | 'created_at';
-
 const Compare = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -41,7 +38,6 @@ const Compare = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortCriteria, setSortCriteria] = useState<SortCriteria>('physical_rating');
 
   useEffect(() => {
     const fetchEvaluations = async () => {
@@ -96,39 +92,6 @@ const Compare = () => {
     return evaluation.price / evaluation.size;
   };
 
-  const getSortedEvaluations = () => {
-    const sorted = [...evaluations].sort((a, b) => {
-      switch (sortCriteria) {
-        case 'physical_rating':
-          return calculatePhysicalAverage(b) - calculatePhysicalAverage(a);
-        case 'price_per_sqm':
-          const pricePerSqmA = calculatePricePerSqm(a);
-          const pricePerSqmB = calculatePricePerSqm(b);
-          if (pricePerSqmA === null && pricePerSqmB === null) return 0;
-          if (pricePerSqmA === null) return 1;
-          if (pricePerSqmB === null) return -1;
-          return pricePerSqmA - pricePerSqmB;
-        case 'monthly_fee':
-          const feeA = a.monthly_fee || 0;
-          const feeB = b.monthly_fee || 0;
-          return feeA - feeB;
-        case 'size':
-          const sizeA = a.size || 0;
-          const sizeB = b.size || 0;
-          return sizeB - sizeA;
-        case 'price':
-          const priceA = a.price || 0;
-          const priceB = b.price || 0;
-          return priceA - priceB;
-        case 'created_at':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        default:
-          return 0;
-      }
-    });
-    return sorted;
-  };
-
   const renderRatingStars = (rating: number | null) => {
     if (rating === null) return <span className="text-gray-400">-</span>;
     return (
@@ -143,12 +106,6 @@ const Compare = () => {
         ))}
       </div>
     );
-  };
-
-  const getBestValue = (evaluations: Evaluation[], getValue: (evaluation: Evaluation) => number | null, isHigherBetter = true) => {
-    const values = evaluations.map(getValue).filter(v => v !== null) as number[];
-    if (values.length === 0) return null;
-    return isHigherBetter ? Math.max(...values) : Math.min(...values);
   };
 
   if (loading) {
@@ -227,10 +184,10 @@ const Compare = () => {
     );
   }
 
-  const sortedEvaluations = getSortedEvaluations();
-  const bestPhysicalRating = getBestValue(evaluations, calculatePhysicalAverage, true);
-  const bestPricePerSqm = getBestValue(evaluations, calculatePricePerSqm, false);
-  const bestMonthlyFee = getBestValue(evaluations, (e) => e.monthly_fee, false);
+  // Sort by physical rating by default (highest first)
+  const sortedEvaluations = [...evaluations].sort((a, b) => {
+    return calculatePhysicalAverage(b) - calculatePhysicalAverage(a);
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -261,30 +218,13 @@ const Compare = () => {
       <div className="p-4 max-w-7xl mx-auto">
         {/* Controls */}
         <Card className="bg-white shadow-lg border-0 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-blue-900 mb-2">
-                Jämför {evaluations.length} lägenheter
-              </h2>
-              <p className="text-gray-600">
-                Sortera och jämför dina utvärderingar baserat på olika kriterier
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Select value={sortCriteria} onValueChange={(value: SortCriteria) => setSortCriteria(value)}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Sortera efter..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="physical_rating">Fysisk bedömning</SelectItem>
-                  <SelectItem value="price_per_sqm">Pris per kvm</SelectItem>
-                  <SelectItem value="monthly_fee">Månadsavgift</SelectItem>
-                  <SelectItem value="size">Storlek</SelectItem>
-                  <SelectItem value="price">Pris</SelectItem>
-                  <SelectItem value="created_at">Senast skapad</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-blue-900 mb-2">
+              Jämför {evaluations.length} lägenheter
+            </h2>
+            <p className="text-gray-600">
+              Sorterade efter fysisk bedömning (högsta först)
+            </p>
           </div>
         </Card>
 
@@ -293,9 +233,6 @@ const Compare = () => {
           {sortedEvaluations.map((evaluation, index) => {
             const physicalAvg = calculatePhysicalAverage(evaluation);
             const pricePerSqm = calculatePricePerSqm(evaluation);
-            const isBestPhysical = physicalAvg === bestPhysicalRating;
-            const isBestPrice = pricePerSqm === bestPricePerSqm;
-            const isBestFee = evaluation.monthly_fee === bestMonthlyFee;
 
             return (
               <Card 
@@ -355,43 +292,31 @@ const Compare = () => {
                   )}
                   
                   {pricePerSqm && (
-                    <div className={`flex items-center justify-between p-3 rounded-lg ${
-                      isBestPrice ? 'bg-green-100 border border-green-300' : 'bg-blue-50'
-                    }`}>
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                       <span className="text-sm font-medium text-blue-700">Pris per kvm</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-blue-700">
-                          {Math.round(pricePerSqm).toLocaleString()} SEK/kvm
-                        </span>
-                        {isBestPrice && <Crown className="h-4 w-4 text-green-600" />}
-                      </div>
+                      <span className="font-bold text-blue-700">
+                        {Math.round(pricePerSqm).toLocaleString()} SEK/kvm
+                      </span>
                     </div>
                   )}
 
                   {evaluation.monthly_fee && (
-                    <div className={`flex items-center justify-between p-3 rounded-lg ${
-                      isBestFee ? 'bg-green-100 border border-green-300' : 'bg-orange-50'
-                    }`}>
+                    <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                       <span className="text-sm font-medium text-orange-700">Månadsavgift</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-orange-700">
-                          {parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån
-                        </span>
-                        {isBestFee && <Crown className="h-4 w-4 text-green-600" />}
-                      </div>
+                      <span className="font-bold text-orange-700">
+                        {parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån
+                      </span>
                     </div>
                   )}
                 </div>
 
                 {/* Physical rating */}
-                <div className={`p-3 rounded-lg mb-4 ${
-                  isBestPhysical ? 'bg-green-100 border border-green-300' : 'bg-yellow-50'
-                }`}>
+                <div className="p-3 bg-yellow-50 rounded-lg mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-yellow-700">Fysisk bedömning</span>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-yellow-700">{physicalAvg.toFixed(1)}/5</span>
-                      {isBestPhysical && <Crown className="h-4 w-4 text-green-600" />}
+                      {index === 0 && <Crown className="h-4 w-4 text-green-600" />}
                     </div>
                   </div>
                   <div className="flex gap-1">
