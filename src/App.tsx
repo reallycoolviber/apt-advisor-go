@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import Dashboard from "./pages/Dashboard";
+import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
 import Evaluations from "./pages/Evaluations";
@@ -66,7 +66,7 @@ const App = () => (
             } />
             <Route path="/" element={
               <ProtectedRoute>
-                <Dashboard />
+                <Index />
               </ProtectedRoute>
             } />
             <Route path="/evaluate" element={
