@@ -21,7 +21,14 @@ const Evaluations = () => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <Home className="h-6 w-6" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="text-white hover:bg-blue-800 p-2"
+          >
+            <Home className="h-6 w-6" />
+          </Button>
           <h1 className="text-xl font-bold">Mina utvärderingar</h1>
         </div>
       </div>

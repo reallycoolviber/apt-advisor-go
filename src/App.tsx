@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
 import Evaluations from "./pages/Evaluations";
 import Compare from "./pages/Compare";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -81,6 +82,11 @@ const App = () => (
             <Route path="/compare" element={
               <ProtectedRoute>
                 <Compare />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

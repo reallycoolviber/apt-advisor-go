@@ -20,21 +20,21 @@ const Dashboard = () => {
       title: 'Skapa ny utvärdering',
       description: 'Lägg till och utvärdera en ny lägenhet',
       icon: Plus,
-      color: 'bg-emerald-600 hover:bg-emerald-700',
+      color: 'bg-blue-800 hover:bg-blue-900',
       path: '/evaluate'
     },
     {
       title: 'Mina utvärderingar',
       description: 'Bläddra genom tidigare lägenheter',
       icon: List,
-      color: 'bg-blue-600 hover:bg-blue-700',
+      color: 'bg-blue-800 hover:bg-blue-900',
       path: '/evaluations'
     },
     {
       title: 'Jämför lägenheter',
       description: 'Jämför på nyckeltal och KPIer',
       icon: BarChart3,
-      color: 'bg-purple-600 hover:bg-purple-700',
+      color: 'bg-blue-800 hover:bg-blue-900',
       path: '/compare'
     }
   ];
@@ -50,10 +50,15 @@ const Dashboard = () => {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/profile')}
+              className="text-white hover:bg-blue-800 flex items-center gap-2"
+            >
               <User className="h-4 w-4" />
               <span className="text-sm">{user?.email}</span>
-            </div>
+            </Button>
             <Button
               variant="outline"
               size="sm"
