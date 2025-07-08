@@ -245,10 +245,7 @@ const Evaluations = () => {
                     <Button
                       variant="outline"
                       className="w-full mt-auto"
-                      onClick={() => {
-                        // Future: Navigate to detailed view
-                        console.log('View details for:', evaluation.id);
-                      }}
+                      onClick={() => navigate(`/evaluations/${evaluation.id}`)}
                     >
                       Visa detaljer
                     </Button>
