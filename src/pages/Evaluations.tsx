@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar } from 'lucide-react';
 
 interface Evaluation {
   id: string;
@@ -33,8 +31,6 @@ const Evaluations = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedEvaluations, setSelectedEvaluations] = useState<string[]>([]);
-  const [isCompareMode, setIsCompareMode] = useState(false);
 
   useEffect(() => {
     const fetchEvaluations = async () => {
@@ -74,26 +70,6 @@ const Evaluations = () => {
     
     if (ratings.length === 0) return 0;
     return ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
-  };
-
-  const handleEvaluationSelect = (evaluationId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedEvaluations(prev => [...prev, evaluationId]);
-    } else {
-      setSelectedEvaluations(prev => prev.filter(id => id !== evaluationId));
-    }
-  };
-
-  const handleCompareClick = () => {
-    if (selectedEvaluations.length >= 2) {
-      const compareParams = selectedEvaluations.join(',');
-      navigate(`/compare?ids=${compareParams}`);
-    }
-  };
-
-  const handleToggleCompareMode = () => {
-    setIsCompareMode(!isCompareMode);
-    setSelectedEvaluations([]);
   };
 
   if (loading) {
@@ -182,72 +158,20 @@ const Evaluations = () => {
               <h2 className="text-2xl font-bold text-blue-900">
                 Dina Utvärderingar ({evaluations.length})
               </h2>
-              <div className="flex gap-3">
-                <Button
-                  variant={isCompareMode ? "destructive" : "outline"}
-                  onClick={handleToggleCompareMode}
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  {isCompareMode ? 'Avbryt jämförelse' : 'Jämför lägenheter'}
-                </Button>
-                <Button
-                  onClick={() => navigate('/evaluate')}
-                  className="bg-blue-900 hover:bg-blue-800 text-white"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ny utvärdering
-                </Button>
-              </div>
+              <Button
+                onClick={() => navigate('/evaluate')}
+                className="bg-blue-900 hover:bg-blue-800 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Ny utvärdering
+              </Button>
             </div>
-
-            {/* Comparison Toolbar */}
-            {isCompareMode && (
-              <Card className="bg-blue-50 border-blue-200 p-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-blue-900">
-                      Jämförelseläge aktivt
-                    </p>
-                    <p className="text-sm text-blue-700">
-                      Välj minst 2 utvärderingar att jämföra ({selectedEvaluations.length} valda)
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleCompareClick}
-                    disabled={selectedEvaluations.length < 2}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white disabled:bg-gray-400"
-                  >
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Jämför ({selectedEvaluations.length})
-                  </Button>
-                </div>
-              </Card>
-            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {evaluations.map((evaluation) => {
                 const physicalAvg = calculatePhysicalAverage(evaluation);
                 return (
                   <Card key={evaluation.id} className="bg-white shadow-lg border-0 p-6 hover:shadow-xl transition-shadow">
-                    {/* Comparison checkbox */}
-                    {isCompareMode && (
-                      <div className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded-lg">
-                        <Checkbox
-                          id={`eval-${evaluation.id}`}
-                          checked={selectedEvaluations.includes(evaluation.id)}
-                          onCheckedChange={(checked) => 
-                            handleEvaluationSelect(evaluation.id, checked as boolean)
-                          }
-                        />
-                        <label 
-                          htmlFor={`eval-${evaluation.id}`}
-                          className="text-sm font-medium text-blue-700 cursor-pointer"
-                        >
-                          Välj för jämförelse
-                        </label>
-                      </div>
-                    )}
-
                     {/* Header with date */}
                     <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
                       <Calendar className="h-4 w-4" />
