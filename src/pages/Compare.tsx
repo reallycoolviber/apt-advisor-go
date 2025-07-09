@@ -12,7 +12,7 @@ import { Evaluation, TimeFilterConfig, ComparisonField } from '@/components/comp
 import { COMPARISON_FIELDS, DEFAULT_FIELDS } from '@/components/comparison/constants';
 import TimeFilterComponent from '@/components/comparison/TimeFilter';
 import InteractiveComparisonTable from '@/components/comparison/InteractiveComparisonTable';
-import { SidebarMenu } from '@/components/ui/sidebar-menu';
+
 
 const Compare = () => {
   const navigate = useNavigate();
@@ -200,7 +200,6 @@ const Compare = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <SidebarMenu />
       
       {/* Header */}
       <div className="bg-blue-900 text-white p-4 shadow-lg">
