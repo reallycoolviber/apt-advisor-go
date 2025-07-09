@@ -8,6 +8,7 @@ import { Home, Plus, List, BarChart3, LogOut, User } from 'lucide-react';
 
 
 const Index = () => {
+  console.log('Index component rendering...');
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 

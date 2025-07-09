@@ -16,6 +16,7 @@ const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
   calculatePhysicalAverage,
   formatValue
 }) => {
+  console.log('InteractiveComparisonTable rendering...');
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'address', direction: null });
 
   const sortedEvaluations = useMemo(() => {
