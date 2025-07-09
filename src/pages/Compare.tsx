@@ -63,6 +63,11 @@ const Compare = () => {
 
         if (error) throw error;
         setEvaluations(data || []);
+        
+        // Auto-select all evaluations when time filter changes
+        if (timeFilter.type !== 'all' && data && data.length > 0) {
+          setSelectedEvaluations(data.map(evaluation => evaluation.id));
+        }
       } catch (err) {
         console.error('Error fetching evaluations:', err);
         toast({
@@ -265,45 +270,43 @@ const Compare = () => {
                 )}
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              <div className="space-y-2 mb-6">
                 {evaluations.map((evaluation) => {
                   const physicalAvg = calculatePhysicalAverage(evaluation);
                   const isSelected = selectedEvaluations.includes(evaluation.id);
                   
                   return (
-                    <Card 
+                    <div 
                       key={evaluation.id} 
-                      className={`p-4 cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                         isSelected 
-                          ? 'border-blue-500 bg-blue-50 shadow-md' 
-                          : 'border-gray-200 hover:border-blue-300 hover:shadow-sm'
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-gray-200 hover:border-blue-300'
                       }`}
                       onClick={() => toggleEvaluationSelection(evaluation.id)}
                     >
-                      <div className="flex items-start gap-3">
-                        <Checkbox 
-                          checked={isSelected}
-                          onChange={() => toggleEvaluationSelection(evaluation.id)}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-start gap-2 mb-2">
-                            <MapPin className="h-4 w-4 text-blue-900 mt-0.5 flex-shrink-0" />
-                            <div>
-                              <h3 className="font-semibold text-blue-900">
-                                {evaluation.address || 'Ingen adress'}
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                {evaluation.size && `${evaluation.size} kvm`}
-                                {evaluation.rooms && ` • ${evaluation.rooms} rum`}
-                              </p>
-                            </div>
+                      <Checkbox 
+                        checked={isSelected}
+                        onChange={() => toggleEvaluationSelection(evaluation.id)}
+                      />
+                      <MapPin className="h-4 w-4 text-blue-900 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-blue-900 truncate">
+                              {evaluation.address || 'Ingen adress'}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                              {evaluation.size && ` • ${evaluation.size} kvm`}
+                              {evaluation.rooms && ` • ${evaluation.rooms} rum`}
+                            </p>
                           </div>
-
+                          
                           {evaluation.price && (
-                            <div className="flex items-center gap-2 mb-2">
-                              <Euro className="h-4 w-4 text-emerald-700" />
-                              <span className="text-sm font-semibold text-emerald-700">
+                            <div className="flex items-center gap-1 text-emerald-700">
+                              <Euro className="h-4 w-4" />
+                              <span className="text-sm font-semibold">
                                 {parseInt(evaluation.price.toString()).toLocaleString()} SEK
                               </span>
                             </div>
@@ -314,20 +317,10 @@ const Compare = () => {
                             <span className="text-sm font-semibold text-yellow-700">
                               {physicalAvg.toFixed(1)}
                             </span>
-                            <div className="flex gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <span
-                                  key={star}
-                                  className={`text-xs ${star <= physicalAvg ? 'text-yellow-400' : 'text-gray-300'}`}
-                                >
-                                  ★
-                                </span>
-                              ))}
-                            </div>
                           </div>
                         </div>
                       </div>
-                    </Card>
+                    </div>
                   );
                 })}
               </div>
@@ -356,17 +349,39 @@ const Compare = () => {
                 Välj vilka fält som ska visas i jämförelsen.
               </p>
 
-              {['basic', 'physical', 'financial'].map((category) => (
-                <div key={category} className="mb-4">
-                  <h4 className="font-medium text-gray-900 mb-2 capitalize">
-                    {category === 'basic' && 'Grundläggande information'}
-                    {category === 'physical' && 'Fysisk bedömning'}
-                    {category === 'financial' && 'Ekonomi'}
-                  </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                    {COMPARISON_FIELDS
-                      .filter(field => field.category === category)
-                      .map((field) => (
+              {['basic', 'physical', 'financial'].map((category) => {
+                const categoryFields = COMPARISON_FIELDS.filter(field => field.category === category);
+                const allCategorySelected = categoryFields.every(field => selectedFields.includes(field.key));
+                const someCategorySelected = categoryFields.some(field => selectedFields.includes(field.key));
+                
+                const toggleCategorySelection = () => {
+                  if (allCategorySelected) {
+                    // Unselect all in category
+                    const categoryKeys = categoryFields.map(f => f.key);
+                    setSelectedFields(prev => prev.filter(fieldKey => !categoryKeys.includes(fieldKey as any)));
+                  } else {
+                    // Select all in category
+                    const categoryKeys = categoryFields.map(f => f.key);
+                    setSelectedFields(prev => [...new Set([...prev, ...categoryKeys])]);
+                  }
+                };
+                
+                return (
+                  <div key={category} className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Checkbox
+                        checked={allCategorySelected}
+                        onChange={toggleCategorySelection}
+                        className={someCategorySelected && !allCategorySelected ? 'opacity-50' : ''}
+                      />
+                      <h4 className="font-medium text-gray-900 cursor-pointer" onClick={toggleCategorySelection}>
+                        {category === 'basic' && 'Grundläggande information'}
+                        {category === 'physical' && 'Fysisk bedömning'}
+                        {category === 'financial' && 'Ekonomi'}
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 ml-6">
+                      {categoryFields.map((field) => (
                         <label key={field.key} className="flex items-center gap-2 cursor-pointer">
                           <Checkbox
                             checked={selectedFields.includes(field.key)}
@@ -375,9 +390,10 @@ const Compare = () => {
                           <span className="text-sm text-gray-700">{field.label}</span>
                         </label>
                       ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </Card>
           </>
         ) : (
@@ -399,38 +415,6 @@ const Compare = () => {
                 </Button>
               </div>
 
-              {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {getSelectedEvaluationsData().map((evaluation, index) => {
-                  const physicalAvg = calculatePhysicalAverage(evaluation);
-                  return (
-                    <Card key={evaluation.id} className="p-4 border-2 border-blue-200">
-                      <div className="text-center">
-                        <h3 className="font-semibold text-blue-900 mb-2">
-                          Lägenhet {index + 1}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {evaluation.address || 'Ingen adress'}
-                        </p>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-center gap-2">
-                            <Star className="h-4 w-4 text-yellow-600" />
-                            <span className="font-semibold text-yellow-700">
-                              {physicalAvg.toFixed(1)}
-                            </span>
-                          </div>
-                          {evaluation.price && evaluation.size && (
-                            <div className="text-sm text-emerald-700">
-                              {Math.round(evaluation.price / evaluation.size).toLocaleString()} SEK/kvm
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-
               {/* Interactive Comparison Table */}
               <InteractiveComparisonTable
                 evaluations={getSelectedEvaluationsData()}
@@ -438,6 +422,40 @@ const Compare = () => {
                 calculatePhysicalAverage={calculatePhysicalAverage}
                 formatValue={formatValue}
               />
+
+              {/* Selected Evaluations Overview */}
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Valda lägenheter i tabellen ({selectedEvaluations.length})
+                </h3>
+                <div className="space-y-2">
+                  {getSelectedEvaluationsData().map((evaluation, index) => {
+                    const physicalAvg = calculatePhysicalAverage(evaluation);
+                    return (
+                      <div key={evaluation.id} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-3">
+                          <span className="font-medium text-blue-900">Lägenhet {index + 1}</span>
+                          <span className="text-gray-600">{evaluation.address || 'Ingen adress'}</span>
+                          <span className="text-gray-500">
+                            {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          {evaluation.price && evaluation.size && (
+                            <span className="text-emerald-700 font-medium">
+                              {Math.round(evaluation.price / evaluation.size).toLocaleString()} SEK/kvm
+                            </span>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-600" />
+                            <span className="font-medium text-yellow-700">{physicalAvg.toFixed(1)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </Card>
           </>
         )}
