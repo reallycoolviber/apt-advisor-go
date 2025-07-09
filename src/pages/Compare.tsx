@@ -12,6 +12,7 @@ import { Evaluation, TimeFilterConfig, ComparisonField } from '@/components/comp
 import { COMPARISON_FIELDS, DEFAULT_FIELDS } from '@/components/comparison/constants';
 import TimeFilterComponent from '@/components/comparison/TimeFilter';
 import InteractiveComparisonTable from '@/components/comparison/InteractiveComparisonTable';
+import { SidebarMenu } from '@/components/ui/sidebar-menu';
 
 const Compare = () => {
   const navigate = useNavigate();
