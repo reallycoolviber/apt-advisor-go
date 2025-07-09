@@ -290,7 +290,7 @@ const Compare = () => {
                     >
                       <Checkbox 
                         checked={isSelected}
-                        onChange={() => toggleEvaluationSelection(evaluation.id)}
+                        onCheckedChange={() => toggleEvaluationSelection(evaluation.id)}
                       />
                       <MapPin className="h-4 w-4 text-blue-900 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
@@ -371,12 +371,12 @@ const Compare = () => {
                 
                 return (
                   <div key={category} className="mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Checkbox
-                        checked={allCategorySelected}
-                        onChange={toggleCategorySelection}
-                        className={someCategorySelected && !allCategorySelected ? 'opacity-50' : ''}
-                      />
+                  <div className="flex items-center gap-2 mb-2">
+                    <Checkbox
+                      checked={allCategorySelected}
+                      onCheckedChange={toggleCategorySelection}
+                      className={someCategorySelected && !allCategorySelected ? 'opacity-50' : ''}
+                    />
                       <h4 className="font-medium text-gray-900 cursor-pointer" onClick={toggleCategorySelection}>
                         {category === 'basic' && 'Grundläggande information'}
                         {category === 'physical' && 'Fysisk bedömning'}
@@ -388,7 +388,7 @@ const Compare = () => {
                         <label key={field.key} className="flex items-center gap-2 cursor-pointer">
                           <Checkbox
                             checked={selectedFields.includes(field.key)}
-                            onChange={() => toggleFieldSelection(field.key)}
+                            onCheckedChange={() => toggleFieldSelection(field.key)}
                           />
                           <span className="text-sm text-gray-700">{field.label}</span>
                         </label>
