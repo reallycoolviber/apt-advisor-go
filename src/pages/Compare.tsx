@@ -101,16 +101,23 @@ const Compare = () => {
   };
 
   const formatValue = (value: any, type: ComparisonField['type']) => {
-    if (value === null || value === undefined) return <span className="text-muted-foreground">Ej angivet</span>;
+    if (value === null || value === undefined) {
+      return <span className="text-muted-foreground text-sm">—</span>;
+    }
     
     switch (type) {
       case 'currency':
-        return <span className="font-medium text-emerald-700">{parseInt(value.toString()).toLocaleString()} SEK</span>;
+        const numericValue = parseInt(value.toString());
+        return (
+          <span className="font-medium text-emerald-700">
+            {numericValue.toLocaleString('sv-SE')} kr
+          </span>
+        );
       case 'rating':
         const numValue = typeof value === 'number' ? value : 0;
         return (
           <div className="flex items-center gap-2 justify-center">
-            <span className="font-semibold text-sm min-w-6">{numValue.toFixed(1)}</span>
+            <span className="font-semibold text-sm min-w-8">{numValue.toFixed(1)}</span>
             <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
@@ -129,12 +136,17 @@ const Compare = () => {
         return value ? (
           <span className="text-emerald-600 font-medium">Ja</span>
         ) : (
-          <span className="text-gray-500">Nej</span>
+          <span className="text-red-500 font-medium">Nej</span>
         );
       case 'number':
-        return <span className="font-medium">{typeof value === 'number' ? value.toLocaleString() : value}</span>;
+        const numberValue = typeof value === 'number' ? value : parseFloat(value);
+        return (
+          <span className="font-medium">
+            {!isNaN(numberValue) ? numberValue.toLocaleString('sv-SE') : value}
+          </span>
+        );
       default:
-        return <span className="truncate">{value}</span>;
+        return <span className="text-left">{value}</span>;
     }
   };
 
@@ -315,7 +327,7 @@ const Compare = () => {
                             <div className="flex items-center gap-1 text-emerald-700">
                               <Euro className="h-4 w-4" />
                               <span className="text-sm font-semibold">
-                                {parseInt(evaluation.price.toString()).toLocaleString()} SEK
+                                {parseInt(evaluation.price.toString()).toLocaleString('sv-SE')} kr
                               </span>
                             </div>
                           )}
@@ -451,7 +463,7 @@ const Compare = () => {
                         <div className="flex items-center gap-4">
                           {evaluation.price && evaluation.size && (
                             <span className="text-emerald-700 font-medium">
-                              {Math.round(evaluation.price / evaluation.size).toLocaleString()} SEK/kvm
+                              {Math.round(evaluation.price / evaluation.size).toLocaleString('sv-SE')} kr/kvm
                             </span>
                           )}
                           <div className="flex items-center gap-1">

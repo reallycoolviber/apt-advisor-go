@@ -52,9 +52,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const App = () => {
-  console.log('App component rendering...');
-  return (
+const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -108,7 +106,6 @@ const App = () => {
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-  );
-};
+);
 
 export default App;
