@@ -72,29 +72,33 @@ const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto border border-border rounded-lg bg-card shadow-sm">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-48 font-semibold">Lägenhet</TableHead>
+          <TableRow className="bg-muted/50 hover:bg-muted/70">
+            <TableHead className="min-w-48 font-semibold text-left sticky left-0 bg-muted/50 border-r border-border">
+              <div className="flex items-center gap-2">
+                <span>Lägenhet</span>
+              </div>
+            </TableHead>
             {fields.map((field) => (
               <TableHead 
                 key={field.key}
-                className="text-center cursor-pointer hover:bg-gray-50 select-none"
+                className="text-center cursor-pointer hover:bg-muted/70 select-none min-w-32 transition-colors duration-150 whitespace-nowrap"
                 onClick={() => handleSort(field.key)}
               >
-                <div className="flex items-center justify-center">
-                  {field.label}
+                <div className="flex items-center justify-center gap-1">
+                  <span className="truncate">{field.label}</span>
                   {getSortIcon(field.key)}
                 </div>
               </TableHead>
             ))}
             <TableHead 
-              className="text-center cursor-pointer hover:bg-yellow-100 select-none bg-yellow-50"
+              className="text-center cursor-pointer hover:bg-yellow-100 select-none bg-yellow-50/80 min-w-44 transition-colors duration-150 whitespace-nowrap"
               onClick={() => handleSort('physicalAverage')}
             >
-              <div className="flex items-center justify-center">
-                Genomsnittligt fysiskt betyg
+              <div className="flex items-center justify-center gap-1">
+                <span className="truncate">Genomsnittligt fysiskt betyg</span>
                 {getSortIcon('physicalAverage')}
               </div>
             </TableHead>
@@ -102,22 +106,38 @@ const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
         </TableHeader>
         <TableBody>
           {sortedEvaluations.map((evaluation, index) => (
-            <TableRow key={evaluation.id}>
-              <TableCell className="font-medium">
-                <div>
-                  <div className="font-semibold text-blue-900">Lägenhet {index + 1}</div>
-                  <div className="text-sm text-gray-600">
+            <TableRow 
+              key={evaluation.id} 
+              className={`transition-colors duration-150 hover:bg-muted/30 ${
+                index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+              }`}
+            >
+              <TableCell className="font-medium sticky left-0 bg-inherit border-r border-border">
+                <div className="min-w-0">
+                  <div className="font-semibold text-primary truncate">
+                    Lägenhet {index + 1}
+                  </div>
+                  <div className="text-sm text-muted-foreground truncate" title={evaluation.address || 'Ingen adress'}>
                     {evaluation.address || 'Ingen adress'}
                   </div>
                 </div>
               </TableCell>
                {fields.map((field) => (
-                 <TableCell key={`${evaluation.id}-${field.key}`} className="text-center">
-                   {formatValue(evaluation[field.key], field.type)}
+                 <TableCell 
+                   key={`${evaluation.id}-${field.key}`} 
+                   className={`text-center whitespace-nowrap ${
+                     field.type === 'currency' || field.type === 'number' ? 'text-right' : 'text-center'
+                   }`}
+                 >
+                   <div className="truncate overflow-hidden text-ellipsis max-w-32" title={String(evaluation[field.key] || 'Ej angivet')}>
+                     {formatValue(evaluation[field.key], field.type)}
+                   </div>
                  </TableCell>
                ))}
-              <TableCell className="text-center bg-yellow-50">
-                {formatValue(calculatePhysicalAverage(evaluation), 'rating')}
+              <TableCell className="text-center bg-yellow-50/80 whitespace-nowrap">
+                <div className="flex items-center justify-center">
+                  {formatValue(calculatePhysicalAverage(evaluation), 'rating')}
+                </div>
               </TableCell>
             </TableRow>
           ))}

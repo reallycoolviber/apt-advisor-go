@@ -101,33 +101,40 @@ const Compare = () => {
   };
 
   const formatValue = (value: any, type: ComparisonField['type']) => {
-    if (value === null || value === undefined) return 'Ej angivet';
+    if (value === null || value === undefined) return <span className="text-muted-foreground">Ej angivet</span>;
     
     switch (type) {
       case 'currency':
-        return `${parseInt(value.toString()).toLocaleString()} SEK`;
+        return <span className="font-medium text-emerald-700">{parseInt(value.toString()).toLocaleString()} SEK</span>;
       case 'rating':
+        const numValue = typeof value === 'number' ? value : 0;
         return (
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">{value}</span>
-            <div className="flex gap-1">
+          <div className="flex items-center gap-2 justify-center">
+            <span className="font-semibold text-sm min-w-6">{numValue.toFixed(1)}</span>
+            <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
-                <span
+                <Star
                   key={star}
-                  className={`text-sm ${star <= value ? 'text-yellow-400' : 'text-gray-300'}`}
-                >
-                  ★
-                </span>
+                  className={`h-3 w-3 ${
+                    star <= numValue 
+                      ? 'text-yellow-500 fill-yellow-500' 
+                      : 'text-gray-300 fill-gray-300'
+                  }`}
+                />
               ))}
             </div>
           </div>
         );
       case 'boolean':
-        return value ? 'Ja' : 'Nej';
+        return value ? (
+          <span className="text-emerald-600 font-medium">Ja</span>
+        ) : (
+          <span className="text-gray-500">Nej</span>
+        );
       case 'number':
-        return typeof value === 'number' ? value.toLocaleString() : value;
+        return <span className="font-medium">{typeof value === 'number' ? value.toLocaleString() : value}</span>;
       default:
-        return value;
+        return <span className="truncate">{value}</span>;
     }
   };
 
