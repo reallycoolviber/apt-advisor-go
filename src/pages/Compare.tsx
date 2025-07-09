@@ -1,65 +1,17 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Home, Plus, Scale, Star, Euro, MapPin, CheckCircle2, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Evaluation {
-  id: string;
-  address: string | null;
-  size: number | null;
-  price: number | null;
-  rooms: string | null;
-  monthly_fee: number | null;
-  planlösning: number | null;
-  kitchen: number | null;
-  bathroom: number | null;
-  bedrooms: number | null;
-  surfaces: number | null;
-  förvaring: number | null;
-  ljusinsläpp: number | null;
-  balcony: number | null;
-  debt_per_sqm: number | null;
-  fee_per_sqm: number | null;
-  cashflow_per_sqm: number | null;
-  owns_land: boolean | null;
-  created_at: string;
-}
-
-interface ComparisonField {
-  key: keyof Evaluation;
-  label: string;
-  type: 'rating' | 'currency' | 'text' | 'number' | 'boolean';
-  category: 'basic' | 'physical' | 'financial';
-}
-
-const COMPARISON_FIELDS: ComparisonField[] = [
-  { key: 'address', label: 'Adress', type: 'text', category: 'basic' },
-  { key: 'size', label: 'Storlek (kvm)', type: 'number', category: 'basic' },
-  { key: 'price', label: 'Pris', type: 'currency', category: 'basic' },
-  { key: 'rooms', label: 'Rum', type: 'text', category: 'basic' },
-  { key: 'monthly_fee', label: 'Månadsavgift', type: 'currency', category: 'basic' },
-  { key: 'planlösning', label: 'Planlösning', type: 'rating', category: 'physical' },
-  { key: 'kitchen', label: 'Kök', type: 'rating', category: 'physical' },
-  { key: 'bathroom', label: 'Badrum', type: 'rating', category: 'physical' },
-  { key: 'bedrooms', label: 'Sovrum', type: 'rating', category: 'physical' },
-  { key: 'surfaces', label: 'Ytor', type: 'rating', category: 'physical' },
-  { key: 'förvaring', label: 'Förvaring', type: 'rating', category: 'physical' },
-  { key: 'ljusinsläpp', label: 'Ljusinsläpp', type: 'rating', category: 'physical' },
-  { key: 'balcony', label: 'Balkong/Uteplats', type: 'rating', category: 'physical' },
-  { key: 'debt_per_sqm', label: 'Skuld per kvm', type: 'currency', category: 'financial' },
-  { key: 'fee_per_sqm', label: 'Avgift per kvm', type: 'currency', category: 'financial' },
-  { key: 'cashflow_per_sqm', label: 'Kassaflöde per kvm', type: 'currency', category: 'financial' },
-  { key: 'owns_land', label: 'Äger mark', type: 'boolean', category: 'financial' },
-];
-
-const DEFAULT_FIELDS = ['address', 'size', 'price', 'monthly_fee'];
+import { Evaluation, TimeFilterConfig, ComparisonField } from '@/components/comparison/types';
+import { COMPARISON_FIELDS, DEFAULT_FIELDS } from '@/components/comparison/constants';
+import TimeFilterComponent from '@/components/comparison/TimeFilter';
+import InteractiveComparisonTable from '@/components/comparison/InteractiveComparisonTable';
 
 const Compare = () => {
   const navigate = useNavigate();
@@ -70,17 +22,44 @@ const Compare = () => {
   const [showComparison, setShowComparison] = useState(false);
   const [selectedFields, setSelectedFields] = useState<string[]>(DEFAULT_FIELDS);
   const [loading, setLoading] = useState(true);
+  const [timeFilter, setTimeFilter] = useState<TimeFilterConfig>({ type: 'all' });
+
+  const getTimeFilterDate = (timeFilter: TimeFilterConfig): Date | null => {
+    const now = new Date();
+    switch (timeFilter.type) {
+      case 'week':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case 'month':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      case '3months':
+        return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      case 'year':
+        return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      case 'custom':
+        return timeFilter.customStart || null;
+      default:
+        return null;
+    }
+  };
 
   useEffect(() => {
     const fetchEvaluations = async () => {
       if (!user) return;
 
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('apartment_evaluations')
           .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+          .eq('user_id', user.id);
+
+        const filterDate = getTimeFilterDate(timeFilter);
+        if (filterDate) {
+          query = query.gte('created_at', filterDate.toISOString());
+        }
+
+        query = query.order('created_at', { ascending: false });
+
+        const { data, error } = await query;
 
         if (error) throw error;
         setEvaluations(data || []);
@@ -97,7 +76,7 @@ const Compare = () => {
     };
 
     fetchEvaluations();
-  }, [user, toast]);
+  }, [user, toast, timeFilter]);
 
   const calculatePhysicalAverage = (evaluation: Evaluation) => {
     const ratings = [
@@ -258,6 +237,12 @@ const Compare = () => {
           </Card>
         ) : !showComparison ? (
           <>
+            {/* Time Filter */}
+            <TimeFilterComponent 
+              timeFilter={timeFilter}
+              onTimeFilterChange={setTimeFilter}
+            />
+
             {/* Selection Interface */}
             <Card className="bg-white shadow-lg border-0 p-6">
               <div className="flex items-center gap-2 mb-4">
@@ -268,6 +253,16 @@ const Compare = () => {
               </div>
               <p className="text-gray-600 mb-6">
                 Välj minst två utvärderingar för att starta jämförelsen.
+                {timeFilter.type !== 'all' && (
+                  <span className="block text-sm text-blue-600 mt-1">
+                    Filtrerat för {
+                      timeFilter.type === 'week' ? 'senaste veckan' :
+                      timeFilter.type === 'month' ? 'senaste månaden' :
+                      timeFilter.type === '3months' ? 'senaste 3 månaderna' :
+                      timeFilter.type === 'year' ? 'senaste året' : 'anpassat tidsintervall'
+                    }
+                  </span>
+                )}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -436,47 +431,13 @@ const Compare = () => {
                 })}
               </div>
 
-              {/* Comparison Table */}
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-48">Kriterium</TableHead>
-                      {getSelectedEvaluationsData().map((evaluation, index) => (
-                        <TableHead key={evaluation.id} className="text-center">
-                          <div>
-                            <div className="font-semibold">Lägenhet {index + 1}</div>
-                            <div className="text-xs text-gray-500 font-normal">
-                              {evaluation.address || 'Ingen adress'}
-                            </div>
-                          </div>
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {getComparisonFields().map((field) => (
-                      <TableRow key={field.key}>
-                        <TableCell className="font-medium">{field.label}</TableCell>
-                        {getSelectedEvaluationsData().map((evaluation) => (
-                          <TableCell key={`${evaluation.id}-${field.key}`} className="text-center">
-                            {formatValue(evaluation[field.key], field.type)}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                    {/* Physical Average Row */}
-                    <TableRow className="bg-yellow-50">
-                      <TableCell className="font-medium">Genomsnittligt fysiskt betyg</TableCell>
-                      {getSelectedEvaluationsData().map((evaluation) => (
-                        <TableCell key={`${evaluation.id}-avg`} className="text-center">
-                          {formatValue(calculatePhysicalAverage(evaluation), 'rating')}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
+              {/* Interactive Comparison Table */}
+              <InteractiveComparisonTable
+                evaluations={getSelectedEvaluationsData()}
+                fields={getComparisonFields()}
+                calculatePhysicalAverage={calculatePhysicalAverage}
+                formatValue={formatValue}
+              />
             </Card>
           </>
         )}
