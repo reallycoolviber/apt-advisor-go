@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Home, Plus, List, BarChart3, LogOut, User } from 'lucide-react';
-import { SidebarMenu } from '@/components/ui/sidebar-menu';
+
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -42,7 +42,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <SidebarMenu />
       {/* Header */}
       <div className="bg-blue-900 text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
