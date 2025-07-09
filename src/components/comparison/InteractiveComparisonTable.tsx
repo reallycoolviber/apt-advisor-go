@@ -111,11 +111,11 @@ const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
                   </div>
                 </div>
               </TableCell>
-              {fields.map((field) => (
-                <TableCell key={`${evaluation.id}-${field.key}`} className="text-center">
-                  {formatValue(evaluation[field.key], field.type)}
-                </TableCell>
-              ))}
+               {fields.map((field) => (
+                 <TableCell key={`${evaluation.id}-${field.key}`} className="text-center">
+                   {formatValue(evaluation[field.key], field.type)}
+                 </TableCell>
+               ))}
               <TableCell className="text-center bg-yellow-50">
                 {formatValue(calculatePhysicalAverage(evaluation), 'rating')}
               </TableCell>
