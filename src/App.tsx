@@ -75,6 +75,11 @@ const App = () => (
                 <EvaluationForm />
               </ProtectedRoute>
             } />
+            <Route path="/evaluate/:id" element={
+              <ProtectedRoute>
+                <EvaluationForm />
+              </ProtectedRoute>
+            } />
             <Route path="/evaluations" element={
               <ProtectedRoute>
                 <Evaluations />

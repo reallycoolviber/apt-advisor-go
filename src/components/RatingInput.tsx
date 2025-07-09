@@ -1,13 +1,25 @@
 
 import { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 interface RatingInputProps {
   value: number;
   onChange: (rating: number) => void;
+  comment?: string;
+  onCommentChange?: (comment: string) => void;
   max?: number;
+  showComment?: boolean;
 }
 
-export const RatingInput = ({ value, onChange, max = 5 }: RatingInputProps) => {
+export const RatingInput = ({ 
+  value, 
+  onChange, 
+  comment = '', 
+  onCommentChange, 
+  max = 5, 
+  showComment = false 
+}: RatingInputProps) => {
   const [hover, setHover] = useState(0);
 
   const getRatingColor = (rating: number) => {
@@ -59,6 +71,19 @@ export const RatingInput = ({ value, onChange, max = 5 }: RatingInputProps) => {
           {value}/{max}
         </span>
       </div>
+      
+      {showComment && onCommentChange && (
+        <div className="mt-3">
+          <Label className="text-sm text-gray-700">Kommentar (valfritt)</Label>
+          <Textarea
+            value={comment}
+            onChange={(e) => onCommentChange(e.target.value)}
+            placeholder="Lägg till en kommentar för detta betyg..."
+            className="mt-1 resize-none"
+            rows={2}
+          />
+        </div>
+      )}
     </div>
   );
 };

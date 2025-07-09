@@ -5,7 +5,15 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar } from 'lucide-react';
+import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download } from 'lucide-react';
+import { SidebarMenu } from '@/components/ui/sidebar-menu';
+import { exportToExcel, exportToCSV } from '@/utils/exportUtils';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 interface Evaluation {
   id: string;
@@ -24,6 +32,7 @@ interface Evaluation {
   balcony: number | null;
   created_at: string;
   comments: string | null;
+  is_draft: boolean | null;
 }
 
 const Evaluations = () => {
@@ -32,6 +41,7 @@ const Evaluations = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'completed' | 'drafts'>('all');
 
   useEffect(() => {
     const fetchEvaluations = async () => {
@@ -73,6 +83,20 @@ const Evaluations = () => {
     return ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
   };
 
+  const filteredEvaluations = evaluations.filter(evaluation => {
+    if (filter === 'completed') return !evaluation.is_draft;
+    if (filter === 'drafts') return evaluation.is_draft;
+    return true;
+  });
+
+  const handleExport = (format: 'excel' | 'csv') => {
+    if (format === 'excel') {
+      exportToExcel(evaluations as any);
+    } else {
+      exportToCSV(evaluations as any);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -106,26 +130,49 @@ const Evaluations = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <SidebarMenu />
+      
       {/* Header */}
       <div className="bg-blue-900 text-white p-4 shadow-lg">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
-          >
-            <Home className="h-6 w-6" />
-          </Button>
-          <h1 className="text-xl font-bold">Mina utvärderingar</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-white hover:bg-blue-800 p-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-white hover:bg-blue-800 p-2"
+            >
+              <Home className="h-6 w-6" />
+            </Button>
+            <h1 className="text-xl font-bold">Mina utvärderingar</h1>
+          </div>
+          
+          {evaluations.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportera
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleExport('excel')}>
+                  Ladda ner Excel (.xlsx)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('csv')}>
+                  Ladda ner CSV (.csv)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 
@@ -155,10 +202,38 @@ const Evaluations = () => {
           </Card>
         ) : (
           <>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-blue-900">
-                Dina Utvärderingar ({evaluations.length})
-              </h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-bold text-blue-900">
+                  Dina Utvärderingar ({evaluations.length})
+                </h2>
+                
+                {/* Filter buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    variant={filter === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('all')}
+                  >
+                    Alla
+                  </Button>
+                  <Button
+                    variant={filter === 'completed' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('completed')}
+                  >
+                    Slutförda
+                  </Button>
+                  <Button
+                    variant={filter === 'drafts' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('drafts')}
+                  >
+                    Utkast
+                  </Button>
+                </div>
+              </div>
+              
               <Button
                 onClick={() => navigate('/evaluate')}
                 className="bg-blue-900 hover:bg-blue-800 text-white"
@@ -169,14 +244,22 @@ const Evaluations = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {evaluations.map((evaluation) => {
+              {filteredEvaluations.map((evaluation) => {
                 const physicalAvg = calculatePhysicalAverage(evaluation);
                 return (
                   <Card key={evaluation.id} className="bg-white shadow-lg border-0 p-6 hover:shadow-xl transition-shadow">
-                    {/* Header with date */}
-                    <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                    {/* Header with date and status */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Calendar className="h-4 w-4" />
+                        {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                      </div>
+                      {evaluation.is_draft && (
+                        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                          <FileText className="h-3 w-3" />
+                          Utkast
+                        </span>
+                      )}
                     </div>
 
                     {/* Address */}
@@ -241,14 +324,24 @@ const Evaluations = () => {
                       </div>
                     )}
 
-                    {/* Action button */}
-                    <Button
-                      variant="outline"
-                      className="w-full mt-auto"
-                      onClick={() => navigate(`/evaluation/${evaluation.id}`)}
-                    >
-                      Visa detaljer
-                    </Button>
+                    {/* Action buttons */}
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => navigate(`/evaluation/${evaluation.id}`)}
+                      >
+                        Visa detaljer
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/evaluate/${evaluation.id}`)}
+                        className="px-3"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </Card>
                 );
               })}

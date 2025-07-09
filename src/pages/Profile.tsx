@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { SidebarMenu } from '@/components/ui/sidebar-menu';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -102,6 +103,11 @@ const Profile = () => {
         title: "Profil sparad",
         description: "Din profil har uppdaterats framgångsrikt!",
       });
+      
+      // Navigate to home after successful save
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
     } catch (error) {
       console.error('Error saving profile:', error);
       toast({
@@ -124,6 +130,8 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <SidebarMenu />
+      
       {/* Header */}
       <div className="bg-blue-900 text-white p-4 shadow-lg">
         <div className="flex items-center gap-3">
@@ -141,9 +149,9 @@ const Profile = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-4">
+      <div className="p-4 lg:p-8">
         <Card className="max-w-2xl mx-auto bg-white shadow-lg border-0">
-          <div className="p-6">
+          <div className="p-6 lg:p-8">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-blue-900 mb-2">Profilinformation</h2>
               <p className="text-gray-600">Uppdatera din personliga information</p>

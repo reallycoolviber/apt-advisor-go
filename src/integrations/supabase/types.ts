@@ -20,24 +20,33 @@ export type Database = {
           annual_report_url: string | null
           apartment_url: string | null
           balcony: number | null
+          balcony_comment: string | null
           bathroom: number | null
+          bathroom_comment: string | null
           bedrooms: number | null
+          bedrooms_comment: string | null
           cashflow_per_sqm: number | null
           comments: string | null
           created_at: string
           debt_per_sqm: number | null
           fee_per_sqm: number | null
           förvaring: number | null
+          förvaring_comment: string | null
           id: string
+          is_draft: boolean | null
           kitchen: number | null
+          kitchen_comment: string | null
           ljusinsläpp: number | null
+          ljusinsläpp_comment: string | null
           monthly_fee: number | null
           owns_land: boolean | null
           planlösning: number | null
+          planlösning_comment: string | null
           price: number | null
           rooms: string | null
           size: number | null
           surfaces: number | null
+          surfaces_comment: string | null
           underhållsplan: string | null
           updated_at: string
           user_id: string
@@ -47,24 +56,33 @@ export type Database = {
           annual_report_url?: string | null
           apartment_url?: string | null
           balcony?: number | null
+          balcony_comment?: string | null
           bathroom?: number | null
+          bathroom_comment?: string | null
           bedrooms?: number | null
+          bedrooms_comment?: string | null
           cashflow_per_sqm?: number | null
           comments?: string | null
           created_at?: string
           debt_per_sqm?: number | null
           fee_per_sqm?: number | null
           förvaring?: number | null
+          förvaring_comment?: string | null
           id?: string
+          is_draft?: boolean | null
           kitchen?: number | null
+          kitchen_comment?: string | null
           ljusinsläpp?: number | null
+          ljusinsläpp_comment?: string | null
           monthly_fee?: number | null
           owns_land?: boolean | null
           planlösning?: number | null
+          planlösning_comment?: string | null
           price?: number | null
           rooms?: string | null
           size?: number | null
           surfaces?: number | null
+          surfaces_comment?: string | null
           underhållsplan?: string | null
           updated_at?: string
           user_id: string
@@ -74,24 +92,33 @@ export type Database = {
           annual_report_url?: string | null
           apartment_url?: string | null
           balcony?: number | null
+          balcony_comment?: string | null
           bathroom?: number | null
+          bathroom_comment?: string | null
           bedrooms?: number | null
+          bedrooms_comment?: string | null
           cashflow_per_sqm?: number | null
           comments?: string | null
           created_at?: string
           debt_per_sqm?: number | null
           fee_per_sqm?: number | null
           förvaring?: number | null
+          förvaring_comment?: string | null
           id?: string
+          is_draft?: boolean | null
           kitchen?: number | null
+          kitchen_comment?: string | null
           ljusinsläpp?: number | null
+          ljusinsläpp_comment?: string | null
           monthly_fee?: number | null
           owns_land?: boolean | null
           planlösning?: number | null
+          planlösning_comment?: string | null
           price?: number | null
           rooms?: string | null
           size?: number | null
           surfaces?: number | null
+          surfaces_comment?: string | null
           underhållsplan?: string | null
           updated_at?: string
           user_id?: string

@@ -24,6 +24,10 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
     updateData({ [field]: rating });
   };
 
+  const handleCommentChange = (field: string, comment: string) => {
+    updateData({ [`${field}_comment`]: comment });
+  };
+
   const averageRating = assessmentFields.reduce((sum, field) => sum + data[field.key], 0) / assessmentFields.length;
 
   return (
@@ -66,6 +70,9 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
               <RatingInput
                 value={data[field.key]}
                 onChange={(rating) => handleRatingChange(field.key, rating)}
+                comment={data[`${field.key}_comment`] || ''}
+                onCommentChange={(comment) => handleCommentChange(field.key, comment)}
+                showComment={true}
               />
             </Card>
           );

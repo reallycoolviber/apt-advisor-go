@@ -199,6 +199,8 @@ const Compare = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <SidebarMenu />
+      
       {/* Header */}
       <div className="bg-blue-900 text-white p-4 shadow-lg">
         <div className="flex items-center gap-3">
