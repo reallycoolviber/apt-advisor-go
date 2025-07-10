@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { TrendingUp, DollarSign, PiggyBank, Building2, CheckCircle, XCircle } from 'lucide-react';
+import { TrendingUp, DollarSign, PiggyBank, Building2, CheckCircle, XCircle, Settings } from 'lucide-react';
 
 interface FinancialSectionProps {
   data: any;
@@ -83,6 +83,41 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
             className="text-lg"
           />
           <p className="text-xs text-gray-500 mt-1">Föreningens årliga kassaflöde per kvm</p>
+        </Card>
+
+        <Card className="p-4">
+          <Label className="flex items-center gap-2 text-blue-900 font-medium mb-3">
+            <Settings className="h-4 w-4" />
+            Alla stora underhåll är gjorda?
+          </Label>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant={data.majorMaintenanceDone === true ? "default" : "outline"}
+              onClick={() => updateData({ majorMaintenanceDone: true })}
+              className={`flex-1 h-12 ${
+                data.majorMaintenanceDone === true 
+                  ? 'bg-emerald-600 hover:bg-emerald-700' 
+                  : 'border-emerald-600 text-emerald-600 hover:bg-emerald-50'
+              }`}
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Ja
+            </Button>
+            <Button
+              type="button"
+              variant={data.majorMaintenanceDone === false ? "default" : "outline"}
+              onClick={() => updateData({ majorMaintenanceDone: false })}
+              className={`flex-1 h-12 ${
+                data.majorMaintenanceDone === false 
+                  ? 'bg-red-600 hover:bg-red-700' 
+                  : 'border-red-600 text-red-600 hover:bg-red-50'
+              }`}
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Nej
+            </Button>
+          </div>
         </Card>
 
         <Card className="p-4">

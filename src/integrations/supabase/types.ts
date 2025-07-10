@@ -30,6 +30,7 @@ export type Database = {
           created_at: string
           debt_per_sqm: number | null
           fee_per_sqm: number | null
+          final_price: number | null
           förvaring: number | null
           förvaring_comment: string | null
           id: string
@@ -38,6 +39,7 @@ export type Database = {
           kitchen_comment: string | null
           ljusinsläpp: number | null
           ljusinsläpp_comment: string | null
+          major_maintenance_done: boolean | null
           monthly_fee: number | null
           owns_land: boolean | null
           planlösning: number | null
@@ -66,6 +68,7 @@ export type Database = {
           created_at?: string
           debt_per_sqm?: number | null
           fee_per_sqm?: number | null
+          final_price?: number | null
           förvaring?: number | null
           förvaring_comment?: string | null
           id?: string
@@ -74,6 +77,7 @@ export type Database = {
           kitchen_comment?: string | null
           ljusinsläpp?: number | null
           ljusinsläpp_comment?: string | null
+          major_maintenance_done?: boolean | null
           monthly_fee?: number | null
           owns_land?: boolean | null
           planlösning?: number | null
@@ -102,6 +106,7 @@ export type Database = {
           created_at?: string
           debt_per_sqm?: number | null
           fee_per_sqm?: number | null
+          final_price?: number | null
           förvaring?: number | null
           förvaring_comment?: string | null
           id?: string
@@ -110,6 +115,7 @@ export type Database = {
           kitchen_comment?: string | null
           ljusinsläpp?: number | null
           ljusinsläpp_comment?: string | null
+          major_maintenance_done?: boolean | null
           monthly_fee?: number | null
           owns_land?: boolean | null
           planlösning?: number | null

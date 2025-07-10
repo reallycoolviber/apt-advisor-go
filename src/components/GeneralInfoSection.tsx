@@ -94,19 +94,38 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           </Card>
         </div>
 
-        <Card className="p-4 bg-blue-900 border-blue-800">
-          <Label htmlFor="price" className="flex items-center gap-2 text-white font-medium mb-2">
-            <CreditCard className="h-4 w-4" />
-            Pris (SEK)
-          </Label>
-          <Input
-            id="price"
-            value={data.price}
-            onChange={handlePriceChange}
-            placeholder="4 500 000"
-            className="text-lg font-semibold bg-white"
-          />
-        </Card>
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="p-4 bg-blue-900 border-blue-800">
+            <Label htmlFor="price" className="flex items-center gap-2 text-white font-medium mb-2">
+              <CreditCard className="h-4 w-4" />
+              Utgångspris (SEK)
+            </Label>
+            <Input
+              id="price"
+              value={data.price}
+              onChange={handlePriceChange}
+              placeholder="4 500 000"
+              className="text-lg font-semibold bg-white"
+            />
+          </Card>
+
+          <Card className="p-4 bg-blue-900 border-blue-800">
+            <Label htmlFor="finalPrice" className="flex items-center gap-2 text-white font-medium mb-2">
+              <CreditCard className="h-4 w-4" />
+              Slutpris (SEK)
+            </Label>
+            <Input
+              id="finalPrice"
+              value={data.finalPrice}
+              onChange={(e) => {
+                const formatted = formatNumber(e.target.value);
+                updateData({ finalPrice: formatted });
+              }}
+              placeholder="4 200 000"
+              className="text-lg font-semibold bg-white"
+            />
+          </Card>
+        </div>
 
         <Card className="p-4 bg-blue-900 border-blue-800">
           <Label htmlFor="monthlyFee" className="flex items-center gap-2 text-white font-medium mb-2">

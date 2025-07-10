@@ -37,23 +37,6 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
         <p className="text-gray-600">Betygsätt olika aspekter av lägenhetens fysiska tillstånd (1-5)</p>
       </div>
 
-      <Card className="p-4 bg-blue-50 border-blue-200 mb-6">
-        <div className="text-center">
-          <p className="text-sm text-blue-700 mb-1">Genomsnittligt betyg</p>
-          <p className="text-3xl font-bold text-blue-900">{averageRating.toFixed(1)}</p>
-          <div className="flex justify-center mt-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className={`text-xl ${star <= averageRating ? 'text-yellow-400' : 'text-gray-300'}`}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-        </div>
-      </Card>
-
       <div className="space-y-4">
         {assessmentFields.map((field) => {
           const IconComponent = field.icon;
@@ -78,6 +61,24 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
           );
         })}
       </div>
+
+      <Card className="p-4 bg-blue-50 border-blue-200">
+        <div className="text-center">
+          <p className="text-sm text-blue-700 mb-1">Genomsnittligt betyg</p>
+          <p className="text-3xl font-bold text-blue-900">{averageRating.toFixed(1)}</p>
+          <div className="flex justify-center mt-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                className={`text-xl ${star <= averageRating ? 'text-yellow-400' : 'text-gray-300'}`}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+        </div>
+      </Card>
+
 
       <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
         <p><strong>Betygsskala:</strong> 1 = Mycket dåligt, 2 = Dåligt, 3 = Okej, 4 = Bra, 5 = Utmärkt</p>

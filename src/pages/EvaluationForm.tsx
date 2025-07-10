@@ -29,6 +29,7 @@ const EvaluationForm = () => {
     address: '',
     size: '',
     price: '',
+    finalPrice: '',
     rooms: '',
     monthlyFee: '',
     
@@ -46,6 +47,7 @@ const EvaluationForm = () => {
     debtPerSqm: '',
     feePerSqm: '',
     cashflowPerSqm: '',
+    majorMaintenanceDone: null as boolean | null,
     ownsLand: null as boolean | null,
     underhållsplan: '',
     
@@ -104,6 +106,7 @@ const EvaluationForm = () => {
         address: data.address || '',
         size: data.size?.toString() || '',
         price: data.price?.toString() || '',
+        finalPrice: data.final_price?.toString() || '',
         rooms: data.rooms || '',
         monthlyFee: data.monthly_fee?.toString() || '',
         planlösning: data.planlösning || 3,
@@ -117,6 +120,7 @@ const EvaluationForm = () => {
         debtPerSqm: data.debt_per_sqm?.toString() || '',
         feePerSqm: data.fee_per_sqm?.toString() || '',
         cashflowPerSqm: data.cashflow_per_sqm?.toString() || '',
+        majorMaintenanceDone: data.major_maintenance_done,
         ownsLand: data.owns_land,
         underhållsplan: data.underhållsplan || '',
         comments: data.comments || '',
@@ -154,6 +158,7 @@ const EvaluationForm = () => {
         address: apartmentData.address,
         size: apartmentData.size ? parseFloat(apartmentData.size) : null,
         price: apartmentData.price ? parseFloat(apartmentData.price) : null,
+        final_price: apartmentData.finalPrice ? parseFloat(apartmentData.finalPrice) : null,
         rooms: apartmentData.rooms,
         monthly_fee: apartmentData.monthlyFee ? parseFloat(apartmentData.monthlyFee) : null,
         planlösning: apartmentData.planlösning,
@@ -167,6 +172,7 @@ const EvaluationForm = () => {
         debt_per_sqm: apartmentData.debtPerSqm ? parseFloat(apartmentData.debtPerSqm) : null,
         fee_per_sqm: apartmentData.feePerSqm ? parseFloat(apartmentData.feePerSqm) : null,
         cashflow_per_sqm: apartmentData.cashflowPerSqm ? parseFloat(apartmentData.cashflowPerSqm) : null,
+        major_maintenance_done: apartmentData.majorMaintenanceDone,
         owns_land: apartmentData.ownsLand,
         underhållsplan: apartmentData.underhållsplan,
         comments: apartmentData.comments,
@@ -299,15 +305,15 @@ const EvaluationForm = () => {
       </div>
 
       {/* Navigation Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-        <div className="flex justify-between gap-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3">
+        <div className="flex justify-between gap-2 max-w-4xl mx-auto">
           <Button
             variant="outline"
             onClick={prevSection}
             disabled={currentSection === 0}
-            className="flex-1 h-12"
+            className="flex-1 h-11 text-sm"
           >
-            <ChevronLeft className="h-4 w-4 mr-2" />
+            <ChevronLeft className="h-4 w-4 mr-1" />
             Föregående
           </Button>
           
@@ -315,12 +321,12 @@ const EvaluationForm = () => {
             onClick={() => saveEvaluation(true)}
             disabled={saving}
             variant="outline"
-            className="flex-1 h-12 border-yellow-600 text-yellow-600 hover:bg-yellow-50"
+            className="flex-1 h-11 text-sm border-yellow-600 text-yellow-600 hover:bg-yellow-50"
           >
             {saving ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-yellow-600 border-t-transparent mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-yellow-600 border-t-transparent mr-1"></div>
             ) : (
-              <FileText className="h-4 w-4 mr-2" />
+              <FileText className="h-4 w-4 mr-1" />
             )}
             Spara utkast
           </Button>
@@ -329,12 +335,12 @@ const EvaluationForm = () => {
             <Button
               onClick={() => saveEvaluation(false)}
               disabled={saving}
-              className="flex-1 h-12 bg-green-600 hover:bg-green-700"
+              className="flex-1 h-11 text-sm bg-green-600 hover:bg-green-700"
             >
               {saving ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-1"></div>
               ) : (
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="h-4 w-4 mr-1" />
               )}
               {isEditMode ? 'Uppdatera' : 'Slutför'}
             </Button>
@@ -342,10 +348,10 @@ const EvaluationForm = () => {
             <Button
               onClick={nextSection}
               disabled={currentSection === sections.length - 1}
-              className="flex-1 h-12 bg-blue-900 hover:bg-blue-800"
+              className="flex-1 h-11 text-sm bg-blue-900 hover:bg-blue-800"
             >
               Nästa
-              <ChevronRight className="h-4 w-4 ml-2" />
+              <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           )}
         </div>

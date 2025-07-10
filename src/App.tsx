@@ -2,9 +2,11 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { GlobalHeader } from "@/components/GlobalHeader";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
@@ -59,49 +61,56 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter basename={import.meta.env.PROD ? "/apt-advisor-go" : ""}>
-          <Routes>
-            <Route path="/auth" element={
-              <PublicRoute>
-                <Auth />
-              </PublicRoute>
-            } />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } />
-            <Route path="/evaluate" element={
-              <ProtectedRoute>
-                <EvaluationForm />
-              </ProtectedRoute>
-            } />
-            <Route path="/evaluate/:id" element={
-              <ProtectedRoute>
-                <EvaluationForm />
-              </ProtectedRoute>
-            } />
-            <Route path="/evaluations" element={
-              <ProtectedRoute>
-                <Evaluations />
-              </ProtectedRoute>
-            } />
-            <Route path="/compare" element={
-              <ProtectedRoute>
-                <Compare />
-              </ProtectedRoute>
-            } />
-            <Route path="/evaluation/:id" element={
-              <ProtectedRoute>
-                <EvaluationDetail />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <SidebarProvider>
+            <div className="min-h-screen w-full">
+              <GlobalHeader />
+              <div className="pt-12">
+                <Routes>
+                  <Route path="/auth" element={
+                    <PublicRoute>
+                      <Auth />
+                    </PublicRoute>
+                  } />
+                  <Route path="/" element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/evaluate" element={
+                    <ProtectedRoute>
+                      <EvaluationForm />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/evaluate/:id" element={
+                    <ProtectedRoute>
+                      <EvaluationForm />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/evaluations" element={
+                    <ProtectedRoute>
+                      <Evaluations />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/compare" element={
+                    <ProtectedRoute>
+                      <Compare />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/evaluation/:id" element={
+                    <ProtectedRoute>
+                      <EvaluationDetail />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </div>
+          </SidebarProvider>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
