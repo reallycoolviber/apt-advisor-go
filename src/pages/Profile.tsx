@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { SidebarMenu } from '@/components/ui/sidebar-menu';
+
 
 const Profile = () => {
   const { user } = useAuth();
@@ -130,7 +130,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <SidebarMenu />
       
       {/* Header */}
       <div className="bg-blue-900 text-white p-4 shadow-lg">

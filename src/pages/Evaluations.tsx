@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download } from 'lucide-react';
-import { SidebarMenu } from '@/components/ui/sidebar-menu';
+
 import { exportToExcel, exportToCSV } from '@/utils/exportUtils';
 import { 
   DropdownMenu, 
@@ -130,7 +130,6 @@ const Evaluations = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <SidebarMenu />
       
       {/* Header */}
       <div className="bg-blue-900 text-white p-4 shadow-lg">
