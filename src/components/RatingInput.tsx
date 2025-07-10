@@ -73,14 +73,14 @@ export const RatingInput = ({
       </div>
       
       {showComment && onCommentChange && (
-        <div className="mt-3">
-          <Label className="text-sm text-gray-700">Kommentar (valfritt)</Label>
+        <div className="mt-4">
+          <Label className="text-sm text-gray-700 mb-2 block">Kommentar (valfritt)</Label>
           <Textarea
             value={comment}
             onChange={(e) => onCommentChange(e.target.value)}
             placeholder="Lägg till en kommentar för detta betyg..."
-            className="mt-1 resize-none"
-            rows={2}
+            className="mt-1 resize-none w-full min-h-[80px]"
+            rows={3}
           />
         </div>
       )}

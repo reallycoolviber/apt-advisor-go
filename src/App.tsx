@@ -64,7 +64,7 @@ const App = () => (
           <SidebarProvider>
             <div className="min-h-screen w-full">
               <GlobalHeader />
-              <div className="pt-12">
+              <div className="pt-14">
                 <Routes>
                   <Route path="/auth" element={
                     <PublicRoute>

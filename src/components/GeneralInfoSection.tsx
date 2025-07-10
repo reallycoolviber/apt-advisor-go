@@ -41,10 +41,10 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
   const feePerSqm = calculateFeePerSqm();
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Allmän information</h2>
-        <p className="text-gray-600">Grundläggande uppgifter om lägenheten</p>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-blue-900 mb-3 leading-tight">Allmän information</h2>
+        <p className="text-gray-600 text-lg">Grundläggande uppgifter om lägenheten</p>
       </div>
 
       <div className="grid gap-4">
@@ -62,7 +62,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           />
         </Card>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4 bg-blue-900 border-blue-800">
             <Label htmlFor="size" className="flex items-center gap-2 text-white font-medium mb-2">
               <Home className="h-4 w-4" />
@@ -74,7 +74,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               value={data.size}
               onChange={(e) => updateData({ size: e.target.value })}
               placeholder="75"
-              className="bg-white"
+              className="bg-white h-11 text-base"
             />
           </Card>
 
@@ -89,12 +89,12 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               value={data.rooms}
               onChange={(e) => updateData({ rooms: e.target.value })}
               placeholder="3"
-              className="bg-white"
+              className="bg-white h-11 text-base"
             />
           </Card>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4 bg-blue-900 border-blue-800">
             <Label htmlFor="price" className="flex items-center gap-2 text-white font-medium mb-2">
               <CreditCard className="h-4 w-4" />
@@ -105,7 +105,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               value={data.price}
               onChange={handlePriceChange}
               placeholder="4 500 000"
-              className="text-lg font-semibold bg-white"
+              className="text-base font-semibold bg-white h-11"
             />
           </Card>
 
@@ -122,7 +122,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
                 updateData({ finalPrice: formatted });
               }}
               placeholder="4 200 000"
-              className="text-lg font-semibold bg-white"
+              className="text-base font-semibold bg-white h-11"
             />
           </Card>
         </div>
@@ -132,13 +132,13 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             <CreditCard className="h-4 w-4" />
             Månadsavgift (SEK)
           </Label>
-          <Input
-            id="monthlyFee"
-            value={data.monthlyFee}
-            onChange={handleFeeChange}
-            placeholder="4 200"
-            className="text-lg bg-white"
-          />
+            <Input
+              id="monthlyFee"
+              value={data.monthlyFee}
+              onChange={handleFeeChange}
+              placeholder="4 200"
+              className="text-base bg-white h-11"
+            />
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

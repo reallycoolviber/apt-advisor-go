@@ -292,8 +292,8 @@ const EvaluationForm = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-4 pb-24">
-        <Card className="bg-white shadow-lg border-0">
+      <div className="p-4 pb-20">
+        <Card className="bg-white shadow-lg border-0 max-w-5xl mx-auto">
           <div className="p-6">
             <CurrentSectionComponent 
               data={apartmentData} 
@@ -305,53 +305,53 @@ const EvaluationForm = () => {
       </div>
 
       {/* Navigation Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3">
-        <div className="flex justify-between gap-2 max-w-4xl mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40">
+        <div className="flex justify-between gap-3 max-w-5xl mx-auto">
           <Button
             variant="outline"
             onClick={prevSection}
             disabled={currentSection === 0}
-            className="flex-1 h-11 text-sm"
+            className="flex-1 h-12 text-sm font-medium min-w-0"
           >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Föregående
+            <ChevronLeft className="h-4 w-4 mr-1 flex-shrink-0" />
+            <span className="truncate">Föregående</span>
           </Button>
           
           <Button
             onClick={() => saveEvaluation(true)}
             disabled={saving}
             variant="outline"
-            className="flex-1 h-11 text-sm border-yellow-600 text-yellow-600 hover:bg-yellow-50"
+            className="flex-1 h-12 text-sm font-medium border-yellow-600 text-yellow-600 hover:bg-yellow-50 min-w-0"
           >
             {saving ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-yellow-600 border-t-transparent mr-1"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-yellow-600 border-t-transparent mr-1 flex-shrink-0"></div>
             ) : (
-              <FileText className="h-4 w-4 mr-1" />
+              <FileText className="h-4 w-4 mr-1 flex-shrink-0" />
             )}
-            Spara utkast
+            <span className="truncate">Spara utkast</span>
           </Button>
           
           {currentSection === sections.length - 1 ? (
             <Button
               onClick={() => saveEvaluation(false)}
               disabled={saving}
-              className="flex-1 h-11 text-sm bg-green-600 hover:bg-green-700"
+              className="flex-1 h-12 text-sm font-medium bg-green-600 hover:bg-green-700 min-w-0"
             >
               {saving ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-1"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-1 flex-shrink-0"></div>
               ) : (
-                <Save className="h-4 w-4 mr-1" />
+                <Save className="h-4 w-4 mr-1 flex-shrink-0" />
               )}
-              {isEditMode ? 'Uppdatera' : 'Slutför'}
+              <span className="truncate">{isEditMode ? 'Uppdatera' : 'Slutför'}</span>
             </Button>
           ) : (
             <Button
               onClick={nextSection}
               disabled={currentSection === sections.length - 1}
-              className="flex-1 h-11 text-sm bg-blue-900 hover:bg-blue-800"
+              className="flex-1 h-12 text-sm font-medium bg-blue-900 hover:bg-blue-800 min-w-0"
             >
-              Nästa
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <span className="truncate">Nästa</span>
+              <ChevronRight className="h-4 w-4 ml-1 flex-shrink-0" />
             </Button>
           )}
         </div>
