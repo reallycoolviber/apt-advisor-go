@@ -13,13 +13,23 @@ export const GlobalHeader = () => {
     const fetchProfile = async () => {
       if (!user) return;
       
-      const { data } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
-      
-      setUserProfile(data);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (error) {
+          console.log('Profile fetch error:', error);
+          // Don't set profile if there's an error - will fall back to email
+          return;
+        }
+        
+        setUserProfile(data);
+      } catch (err) {
+        console.log('Profile fetch exception:', err);
+      }
     };
 
     fetchProfile();
