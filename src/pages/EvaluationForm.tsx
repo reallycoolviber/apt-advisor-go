@@ -320,14 +320,13 @@ const EvaluationForm = () => {
             onClick={() => saveEvaluation(true)}
             disabled={saving}
             variant="outline"
-            className="flex-1 h-12 text-sm font-medium border-yellow-600 text-yellow-600 hover:bg-yellow-50 min-w-0"
+            className="flex-1 h-12 text-sm font-medium border-yellow-600 text-yellow-600 hover:bg-yellow-50 min-w-0 flex items-center justify-center"
           >
             {saving ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-yellow-600 border-t-transparent mr-1 flex-shrink-0"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-yellow-600 border-t-transparent"></div>
             ) : (
-              <FileText className="h-4 w-4 mr-1 flex-shrink-0" />
+              <FileText className="h-5 w-5" />
             )}
-            <span className="truncate">Spara utkast</span>
           </Button>
           
           {currentSection === sections.length - 1 ? (

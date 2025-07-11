@@ -57,8 +57,8 @@ const Index = () => {
                   onClick={() => navigate(item.path)}
                   className="w-full h-auto p-8 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white flex items-center gap-6 text-left transition-all duration-300 hover:shadow-lg"
                 >
-                  <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-                    <IconComponent className="h-8 w-8" />
+                  <div className="bg-white/10 p-5 rounded-lg backdrop-blur-sm flex items-center justify-center">
+                    <IconComponent className="h-10 w-10" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold mb-2">{item.title}</h3>
