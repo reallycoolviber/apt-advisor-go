@@ -131,52 +131,9 @@ const Evaluations = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       
-      {/* Header */}
-      <div className="bg-blue-900 text-white p-4 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-white hover:bg-blue-800 p-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-white hover:bg-blue-800 p-2"
-            >
-              <Home className="h-6 w-6" />
-            </Button>
-            <h1 className="text-xl font-bold">Mina utvärderingar</h1>
-          </div>
-          
-          {evaluations.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportera
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleExport('excel')}>
-                  Ladda ner Excel (.xlsx)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('csv')}>
-                  Ladda ner CSV (.csv)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      </div>
 
       {/* Main Content */}
-      <div className="p-4">
+      <div className="pt-20 px-6 pb-8">
         {error && (
           <Card className="bg-red-50 border-red-200 p-4 mb-4">
             <p className="text-red-700">{error}</p>
@@ -201,18 +158,32 @@ const Evaluations = () => {
           </Card>
         ) : (
           <>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-              <div className="flex items-center gap-4">
-                <h2 className="text-2xl font-bold text-blue-900">
-                  Dina Utvärderingar ({evaluations.length})
-                </h2>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/')}
+                    className="text-blue-900 hover:bg-blue-50 p-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <h2 className="text-3xl font-bold text-blue-900">
+                    Mina Utvärderingar
+                  </h2>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {evaluations.length}
+                  </span>
+                </div>
                 
                 {/* Filter buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <Button
                     variant={filter === 'all' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setFilter('all')}
+                    className="px-4"
                   >
                     Alla
                   </Button>
@@ -220,6 +191,7 @@ const Evaluations = () => {
                     variant={filter === 'completed' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setFilter('completed')}
+                    className="px-4"
                   >
                     Slutförda
                   </Button>
@@ -227,39 +199,61 @@ const Evaluations = () => {
                     variant={filter === 'drafts' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setFilter('drafts')}
+                    className="px-4"
                   >
                     Utkast
                   </Button>
                 </div>
               </div>
               
-              <Button
-                onClick={() => navigate('/evaluate')}
-                className="bg-blue-900 hover:bg-blue-800 text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ny utvärdering
-              </Button>
+              <div className="flex items-center gap-3">
+                {evaluations.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="px-4">
+                        <Download className="h-4 w-4 mr-2" />
+                        Exportera
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => handleExport('excel')}>
+                        Ladda ner Excel (.xlsx)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('csv')}>
+                        Ladda ner CSV (.csv)
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                <Button
+                  onClick={() => navigate('/evaluate')}
+                  className="bg-blue-900 hover:bg-blue-800 text-white px-6"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ny utvärdering
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEvaluations.map((evaluation) => {
                 const physicalAvg = calculatePhysicalAverage(evaluation);
                 return (
-                  <Card key={evaluation.id} className="bg-white shadow-lg border-0 p-6 hover:shadow-xl transition-shadow">
-                    {/* Header with date and status */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                  <Card key={evaluation.id} className="bg-white shadow-md border-0 rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden">
+                    <div className="p-5">
+                      {/* Header with date and status */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Calendar className="h-4 w-4" />
+                          {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                        </div>
+                        {evaluation.is_draft && (
+                          <span className="bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 font-medium">
+                            <FileText className="h-3 w-3" />
+                            Utkast
+                          </span>
+                        )}
                       </div>
-                      {evaluation.is_draft && (
-                        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                          <FileText className="h-3 w-3" />
-                          Utkast
-                        </span>
-                      )}
-                    </div>
 
                     {/* Address */}
                     <div className="flex items-start gap-2 mb-4">
@@ -323,23 +317,25 @@ const Evaluations = () => {
                       </div>
                     )}
 
-                    {/* Action buttons */}
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => navigate(`/evaluation/${evaluation.id}`)}
-                      >
-                        Visa detaljer
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/evaluate/${evaluation.id}`)}
-                        className="px-3"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      {/* Action buttons */}
+                      <div className="flex gap-3 mt-5">
+                        <Button
+                          variant="outline"
+                          className="flex-1 py-2.5"
+                          onClick={() => navigate(`/evaluation/${evaluation.id}`)}
+                        >
+                          Visa detaljer
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/evaluate/${evaluation.id}`)}
+                          className="px-3 py-2.5"
+                          title="Redigera"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </Card>
                 );

@@ -38,7 +38,7 @@ export const SidebarMenu = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="fixed top-4 left-4 z-50 text-white hover:bg-white/20 bg-blue-900/80 backdrop-blur-sm rounded-md p-2 shadow-lg"
+          className="fixed top-3 left-3 z-50 text-white hover:bg-white/20 bg-blue-900/90 backdrop-blur-sm rounded-md p-2 shadow-lg border border-white/10"
         >
           <Menu className="h-5 w-5" />
         </Button>

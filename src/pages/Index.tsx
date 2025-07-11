@@ -8,13 +8,8 @@ import { Home, Plus, List, BarChart3, LogOut, User } from 'lucide-react';
 
 
 const Index = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
-  };
 
   const menuItems = [
     {
@@ -41,69 +36,33 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <div className="bg-blue-900 text-white p-4 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-white hover:bg-blue-800 p-2"
-            >
-              <Home className="h-6 w-6" />
-            </Button>
-            <h1 className="text-xl font-bold">AptEval</h1>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/profile')}
-              className="text-white hover:bg-blue-800 flex items-center gap-2"
-            >
-              <User className="h-4 w-4" />
-              <span className="text-sm">{user?.email}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              className="text-white border-white hover:bg-white hover:text-blue-900"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logga ut
-            </Button>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Main Content */}
-      <div className="p-4 pt-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-blue-900 mb-2">
+      <div className="pt-20 px-4 pb-8">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-blue-900 mb-3 leading-tight">
             Välkommen till din lägenhetsutvärdering
           </h2>
-          <p className="text-gray-600">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Välj vad du vill göra för att komma igång med dina lägenhetsanalyser
           </p>
         </div>
 
-        <div className="max-w-2xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-6">
           {menuItems.map((item) => {
             const IconComponent = item.icon;
             return (
-              <Card key={item.title} className="p-6 hover:shadow-lg transition-shadow">
+              <Card key={item.title} className="bg-white shadow-md hover:shadow-xl transition-all duration-300 border-0 rounded-xl overflow-hidden">
                 <Button
                   onClick={() => navigate(item.path)}
-                  className={`w-full h-auto p-6 ${item.color} text-white flex items-start gap-4 text-left`}
+                  className="w-full h-auto p-8 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white flex items-center gap-6 text-left transition-all duration-300 hover:shadow-lg"
                 >
-                  <IconComponent className="h-8 w-8 mt-1 flex-shrink-0" />
+                  <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                    <IconComponent className="h-8 w-8" />
+                  </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                    <p className="text-sm opacity-90">{item.description}</p>
+                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                    <p className="text-blue-100 text-base leading-relaxed">{item.description}</p>
                   </div>
                 </Button>
               </Card>
@@ -111,8 +70,8 @@ const Index = () => {
           })}
         </div>
 
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500">
+        <div className="text-center mt-12">
+          <p className="text-gray-500 max-w-xl mx-auto leading-relaxed">
             Med AptEval kan du enkelt analysera och jämföra lägenheter för att fatta välgrundade beslut
           </p>
         </div>
