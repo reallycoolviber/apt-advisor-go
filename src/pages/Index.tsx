@@ -55,14 +55,14 @@ const Index = () => {
               <Card key={item.title} className="bg-white shadow-md hover:shadow-xl transition-all duration-300 border-0 rounded-xl overflow-hidden">
                 <Button
                   onClick={() => navigate(item.path)}
-                  className="w-full h-auto p-8 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white flex items-center gap-6 text-left transition-all duration-300 hover:shadow-lg"
+                  className="w-full h-auto p-8 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white flex items-center gap-8 text-left transition-all duration-300 hover:shadow-lg"
                 >
-                  <div className="bg-white/10 p-5 rounded-lg backdrop-blur-sm flex items-center justify-center min-w-[80px] min-h-[80px]">
-                    <IconComponent className="h-10 w-10" />
+                  <div className="flex items-center justify-center w-16">
+                    <IconComponent className="h-12 w-12" />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-2 leading-tight">{item.title}</h3>
-                    <p className="text-blue-100 text-base leading-relaxed">{item.description}</p>
+                  <div className="flex-1 min-w-0 pr-4">
+                    <h3 className="text-xl font-bold mb-2 leading-tight truncate">{item.title}</h3>
+                    <p className="text-blue-100 text-base leading-relaxed break-words">{item.description}</p>
                   </div>
                 </Button>
               </Card>
