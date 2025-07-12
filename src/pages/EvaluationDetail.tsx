@@ -110,34 +110,34 @@ const EvaluationDetail = () => {
   const renderGeneralInfo = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Allmän information</h2>
-        <p className="text-gray-600">Grundläggande information om lägenheten</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Allmän information</h2>
+        <p className="text-muted-foreground">Grundläggande information om lägenheten</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Adress</label>
-          <p className="text-lg text-blue-900">{evaluation?.address || 'Ej angiven'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Adress</label>
+          <p className="text-lg text-foreground">{evaluation?.address || 'Ej angiven'}</p>
         </Card>
         
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Storlek</label>
-          <p className="text-lg text-blue-900">{evaluation?.size ? `${evaluation.size} kvm` : 'Ej angiven'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Storlek</label>
+          <p className="text-lg text-foreground">{evaluation?.size ? `${evaluation.size} kvm` : 'Ej angiven'}</p>
         </Card>
         
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Pris</label>
-          <p className="text-lg text-blue-900">{evaluation?.price ? `${parseInt(evaluation.price.toString()).toLocaleString()} SEK` : 'Ej angivet'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Pris</label>
+          <p className="text-lg text-foreground">{evaluation?.price ? `${parseInt(evaluation.price.toString()).toLocaleString()} SEK` : 'Ej angivet'}</p>
         </Card>
         
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Rum</label>
-          <p className="text-lg text-blue-900">{evaluation?.rooms || 'Ej angivet'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Rum</label>
+          <p className="text-lg text-foreground">{evaluation?.rooms || 'Ej angivet'}</p>
         </Card>
         
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Månadsavgift</label>
-          <p className="text-lg text-blue-900">{evaluation?.monthly_fee ? `${parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån` : 'Ej angivet'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Månadsavgift</label>
+          <p className="text-lg text-foreground">{evaluation?.monthly_fee ? `${parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån` : 'Ej angivet'}</p>
         </Card>
       </div>
     </div>
@@ -146,8 +146,8 @@ const EvaluationDetail = () => {
   const renderPhysicalAssessment = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Fysisk bedömning</h2>
-        <p className="text-gray-600">Bedömning av lägenhetens fysiska egenskaper</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Fysisk bedömning</h2>
+        <p className="text-muted-foreground">Bedömning av lägenhetens fysiska egenskaper</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -162,9 +162,9 @@ const EvaluationDetail = () => {
           { key: 'balcony', label: 'Balkong/Uteplats' }
         ].map(({ key, label }) => (
           <Card key={key} className="p-4">
-            <label className="text-sm font-medium text-gray-700">{label}</label>
+            <label className="text-sm font-medium text-muted-foreground">{label}</label>
             <div className="flex items-center gap-2 mt-2">
-              <span className="text-lg font-semibold text-blue-900">
+              <span className="text-lg font-semibold text-foreground">
                 {evaluation?.[key as keyof Evaluation] || 0}
               </span>
               <div className="flex gap-1">
@@ -187,36 +187,36 @@ const EvaluationDetail = () => {
   const renderFinancial = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Ekonomi</h2>
-        <p className="text-gray-600">Ekonomisk information och nyckeltal</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Ekonomi</h2>
+        <p className="text-muted-foreground">Ekonomisk information och nyckeltal</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Skuld per kvm</label>
-          <p className="text-lg text-blue-900">{evaluation?.debt_per_sqm ? `${parseInt(evaluation.debt_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Skuld per kvm</label>
+          <p className="text-lg text-foreground">{evaluation?.debt_per_sqm ? `${parseInt(evaluation.debt_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
         </Card>
         
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Avgift per kvm</label>
-          <p className="text-lg text-blue-900">{evaluation?.fee_per_sqm ? `${parseInt(evaluation.fee_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Avgift per kvm</label>
+          <p className="text-lg text-foreground">{evaluation?.fee_per_sqm ? `${parseInt(evaluation.fee_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
         </Card>
         
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Kassaflöde per kvm</label>
-          <p className="text-lg text-blue-900">{evaluation?.cashflow_per_sqm ? `${parseInt(evaluation.cashflow_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Kassaflöde per kvm</label>
+          <p className="text-lg text-foreground">{evaluation?.cashflow_per_sqm ? `${parseInt(evaluation.cashflow_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
         </Card>
         
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Äger mark</label>
-          <p className="text-lg text-blue-900">{evaluation?.owns_land === null ? 'Ej angivet' : evaluation.owns_land ? 'Ja' : 'Nej'}</p>
+          <label className="text-sm font-medium text-muted-foreground">Äger mark</label>
+          <p className="text-lg text-foreground">{evaluation?.owns_land === null ? 'Ej angivet' : evaluation.owns_land ? 'Ja' : 'Nej'}</p>
         </Card>
       </div>
 
       {evaluation?.underhållsplan && (
         <Card className="p-4">
-          <label className="text-sm font-medium text-gray-700">Underhållsplan</label>
-          <p className="text-gray-900 mt-2">{evaluation.underhållsplan}</p>
+          <label className="text-sm font-medium text-muted-foreground">Underhållsplan</label>
+          <p className="text-foreground mt-2">{evaluation.underhållsplan}</p>
         </Card>
       )}
     </div>
@@ -228,45 +228,45 @@ const EvaluationDetail = () => {
     return (
       <div className="space-y-6">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-2">Sammanfattning</h2>
-          <p className="text-gray-600">Översikt av din utvärdering</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Sammanfattning</h2>
+          <p className="text-muted-foreground">Översikt av din utvärdering</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <Card className="p-4 bg-blue-50 border-blue-200">
+          <Card className="p-4 bg-secondary border-border">
             <div className="flex items-center gap-3 mb-2">
-              <MapPin className="h-5 w-5 text-blue-900" />
-              <h3 className="font-semibold text-blue-900">Lägenhet</h3>
+              <MapPin className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-foreground">Lägenhet</h3>
             </div>
-            <p className="text-sm text-gray-700">{evaluation?.address || 'Ingen adress angiven'}</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">{evaluation?.address || 'Ingen adress angiven'}</p>
+            <p className="text-sm text-muted-foreground">
               {evaluation?.size && `${evaluation.size} kvm`} 
               {evaluation?.rooms && ` • ${evaluation.rooms} rum`}
             </p>
           </Card>
 
-          <Card className="p-4 bg-emerald-50 border-emerald-200">
+          <Card className="p-4 bg-secondary border-border">
             <div className="flex items-center gap-3 mb-2">
-              <Euro className="h-5 w-5 text-emerald-700" />
-              <h3 className="font-semibold text-emerald-700">Ekonomi</h3>
+              <Euro className="h-5 w-5 text-accent" />
+              <h3 className="font-semibold text-accent">Ekonomi</h3>
             </div>
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-muted-foreground">
               {evaluation?.price ? `${parseInt(evaluation.price.toString()).toLocaleString()} SEK` : 'Inget pris angivet'}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {evaluation?.monthly_fee && `${parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån`}
             </p>
           </Card>
         </div>
 
-        <Card className="p-4 bg-yellow-50 border-yellow-200">
+        <Card className="p-4 bg-secondary border-border">
           <div className="flex items-center gap-3 mb-3">
-            <Star className="h-5 w-5 text-yellow-600" />
-            <h3 className="font-semibold text-yellow-700">Fysisk bedömning</h3>
+            <Star className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-primary">Fysisk bedömning</h3>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-yellow-700">{physicalAverage.toFixed(1)}</p>
-            <p className="text-sm text-gray-600">Genomsnittligt betyg</p>
+            <p className="text-2xl font-bold text-primary">{physicalAverage.toFixed(1)}</p>
+            <p className="text-sm text-muted-foreground">Genomsnittligt betyg</p>
             <div className="flex justify-center mt-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
@@ -282,8 +282,8 @@ const EvaluationDetail = () => {
 
         {evaluation?.comments && (
           <Card className="p-4">
-            <h3 className="font-semibold text-blue-900 mb-2">Kommentarer</h3>
-            <p className="text-gray-700">{evaluation.comments}</p>
+            <h3 className="font-semibold text-foreground mb-2">Kommentarer</h3>
+            <p className="text-muted-foreground">{evaluation.comments}</p>
           </Card>
         )}
       </div>
@@ -307,17 +307,17 @@ const EvaluationDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-blue-900">Laddar utvärdering...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Laddar utvärdering...</div>
       </div>
     );
   }
 
   if (!evaluation) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-blue-900 mb-4">Utvärdering hittades inte</h2>
+          <h2 className="text-xl font-bold text-foreground mb-4">Utvärdering hittades inte</h2>
           <Button onClick={() => navigate('/evaluations')}>
             Tillbaka till utvärderingar
           </Button>
@@ -329,15 +329,15 @@ const EvaluationDetail = () => {
   const progress = ((currentSection + 1) / sections.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-blue-900 text-white p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
         <div className="flex items-center gap-3 mb-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/evaluations')}
-            className="text-white hover:bg-blue-800 p-2"
+            className="text-primary-foreground hover:bg-primary/90 p-2"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -345,7 +345,7 @@ const EvaluationDetail = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
+            className="text-primary-foreground hover:bg-primary/90 p-2"
           >
             <Home className="h-6 w-6" />
           </Button>
@@ -357,13 +357,13 @@ const EvaluationDetail = () => {
             <span>{sections[currentSection].title}</span>
             <span>{currentSection + 1}/{sections.length}</span>
           </div>
-          <Progress value={progress} className="h-2 bg-blue-800" />
+          <Progress value={progress} className="h-2 bg-primary/20" />
         </div>
       </div>
 
       {/* Main Content */}
       <div className="p-4 pb-24">
-        <Card className="bg-white shadow-lg border-0">
+        <Card className="bg-card shadow-lg border-0">
           <div className="p-6">
             {renderCurrentSection()}
           </div>
@@ -371,7 +371,7 @@ const EvaluationDetail = () => {
       </div>
 
       {/* Navigation Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
         <div className="flex justify-between gap-4">
           <Button
             variant="outline"
@@ -386,7 +386,7 @@ const EvaluationDetail = () => {
           <Button
             onClick={nextSection}
             disabled={currentSection === sections.length - 1}
-            className="flex-1 h-12 bg-blue-900 hover:bg-blue-800"
+            className="flex-1 h-12 bg-primary hover:bg-primary/90"
           >
             Nästa
             <ChevronRight className="h-4 w-4 ml-2" />

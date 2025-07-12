@@ -122,23 +122,23 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-blue-900">Laddar profil...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Laddar profil...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <div className="bg-blue-900 text-white p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
+            className="text-primary-foreground hover:bg-primary/90 p-2"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -149,16 +149,16 @@ const Profile = () => {
 
       {/* Main Content */}
       <div className="p-4 lg:p-8">
-        <Card className="max-w-2xl mx-auto bg-white shadow-lg border-0">
+        <Card className="max-w-2xl mx-auto bg-card shadow-lg border-0">
           <div className="p-6 lg:p-8">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-blue-900 mb-2">Profilinformation</h2>
-              <p className="text-gray-600">Uppdatera din personliga information</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Profilinformation</h2>
+              <p className="text-muted-foreground">Uppdatera din personliga information</p>
             </div>
 
             <div className="space-y-6">
               <div>
-                <Label htmlFor="email" className="text-blue-900 font-medium">
+                <Label htmlFor="email" className="text-foreground font-medium">
                   E-post
                 </Label>
                 <Input
@@ -166,13 +166,13 @@ const Profile = () => {
                   type="email"
                   value={user?.email || ''}
                   disabled
-                  className="mt-1 bg-gray-50"
+                  className="mt-1 bg-muted"
                 />
-                <p className="text-sm text-gray-500 mt-1">E-postadressen kan inte ändras</p>
+                <p className="text-sm text-muted-foreground mt-1">E-postadressen kan inte ändras</p>
               </div>
 
               <div>
-                <Label htmlFor="full_name" className="text-blue-900 font-medium">
+                <Label htmlFor="full_name" className="text-foreground font-medium">
                   Fullständigt namn
                 </Label>
                 <Input
@@ -186,14 +186,14 @@ const Profile = () => {
               </div>
 
               <div>
-                <Label htmlFor="buyer_type" className="text-blue-900 font-medium">
+                <Label htmlFor="buyer_type" className="text-foreground font-medium">
                   Roll
                 </Label>
                 <select
                   id="buyer_type"
                   value={profile.buyer_type}
                   onChange={(e) => setProfile(prev => ({ ...prev, buyer_type: e.target.value }))}
-                  className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 w-full p-3 border border-border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 >
                   <option value="">Välj roll</option>
                   <option value="buyer">Köpare</option>
@@ -203,7 +203,7 @@ const Profile = () => {
               </div>
 
               <div>
-                <Label htmlFor="phone" className="text-blue-900 font-medium">
+                <Label htmlFor="phone" className="text-foreground font-medium">
                   Telefonnummer
                 </Label>
                 <Input
@@ -217,7 +217,7 @@ const Profile = () => {
               </div>
 
               <div>
-                <Label htmlFor="notes" className="text-blue-900 font-medium">
+                <Label htmlFor="notes" className="text-foreground font-medium">
                   Anteckningar
                 </Label>
                 <Textarea
@@ -230,15 +230,15 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="mt-8 pt-6 border-t border-border">
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-white font-medium"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
               >
                 {saving ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent mr-2"></div>
                     Sparar...
                   </>
                 ) : (

@@ -188,14 +188,14 @@ const Compare = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="bg-blue-900 text-white p-4 shadow-lg">
+      <div className="min-h-screen bg-background">
+        <div className="bg-primary text-primary-foreground p-4 shadow-lg">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="text-white hover:bg-blue-800 p-2"
+              className="text-primary-foreground hover:bg-primary/90 p-2"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -203,7 +203,7 @@ const Compare = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="text-white hover:bg-blue-800 p-2"
+              className="text-primary-foreground hover:bg-primary/90 p-2"
             >
               <Home className="h-6 w-6" />
             </Button>
@@ -211,22 +211,22 @@ const Compare = () => {
           </div>
         </div>
         <div className="p-4 text-center">
-          <div className="text-blue-900">Laddar dina utvärderingar...</div>
+          <div className="text-foreground">Laddar dina utvärderingar...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-blue-900 text-white p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
+            className="text-primary-foreground hover:bg-primary/90 p-2"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -234,7 +234,7 @@ const Compare = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
+            className="text-primary-foreground hover:bg-primary/90 p-2"
           >
             <Home className="h-6 w-6" />
           </Button>
@@ -245,16 +245,16 @@ const Compare = () => {
       {/* Main Content */}
       <div className="p-4 space-y-6">
         {evaluations.length === 0 ? (
-          <Card className="bg-white shadow-lg border-0 p-6 text-center">
-            <h2 className="text-xl font-semibold text-blue-900 mb-4">
+          <Card className="bg-card shadow-lg border-0 p-6 text-center">
+            <h2 className="text-xl font-semibold text-foreground mb-4">
               Inga utvärderingar att jämföra
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Du behöver minst två utvärderingar för att kunna använda jämförelsefunktionen.
             </p>
             <Button
               onClick={() => navigate('/evaluate')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="h-4 w-4 mr-2" />
               Skapa utvärdering
@@ -269,14 +269,14 @@ const Compare = () => {
             />
 
             {/* Selection Interface */}
-            <Card className="bg-white shadow-lg border-0 p-6">
+            <Card className="bg-card shadow-lg border-0 p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Scale className="h-5 w-5 text-blue-900" />
-                <h2 className="text-xl font-semibold text-blue-900">
+                <Scale className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-semibold text-foreground">
                   Välj utvärderingar att jämföra
                 </h2>
               </div>
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 Välj minst två utvärderingar för att starta jämförelsen.
                 {timeFilter.type !== 'all' && (
                   <span className="block text-sm text-blue-600 mt-1">
@@ -300,8 +300,8 @@ const Compare = () => {
                       key={evaluation.id} 
                       className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                         isSelected 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-blue-300'
+                          ? 'border-primary bg-secondary' 
+                          : 'border-border hover:border-primary/50'
                       }`}
                       onClick={() => toggleEvaluationSelection(evaluation.id)}
                     >
@@ -309,14 +309,14 @@ const Compare = () => {
                         checked={isSelected}
                         onCheckedChange={() => toggleEvaluationSelection(evaluation.id)}
                       />
-                      <MapPin className="h-4 w-4 text-blue-900 flex-shrink-0" />
+                      <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-4">
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-blue-900 truncate">
+                            <h3 className="font-semibold text-foreground truncate">
                               {evaluation.address || 'Ingen adress'}
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-muted-foreground">
                               {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
                               {evaluation.size && ` • ${evaluation.size} kvm`}
                               {evaluation.rooms && ` • ${evaluation.rooms} rum`}
@@ -324,7 +324,7 @@ const Compare = () => {
                           </div>
                           
                           {evaluation.price && (
-                            <div className="flex items-center gap-1 text-emerald-700">
+                            <div className="flex items-center gap-1 text-accent">
                               <Euro className="h-4 w-4" />
                               <span className="text-sm font-semibold">
                                 {parseInt(evaluation.price.toString()).toLocaleString('sv-SE')} kr
@@ -333,8 +333,8 @@ const Compare = () => {
                           )}
 
                           <div className="flex items-center gap-2">
-                            <Star className="h-4 w-4 text-yellow-600" />
-                            <span className="text-sm font-semibold text-yellow-700">
+                            <Star className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-semibold text-primary">
                               {physicalAvg.toFixed(1)}
                             </span>
                           </div>
@@ -349,7 +349,7 @@ const Compare = () => {
                 <Button
                   onClick={startComparison}
                   disabled={selectedEvaluations.length < 2}
-                  className="bg-blue-900 hover:bg-blue-800 text-white"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Scale className="h-4 w-4 mr-2" />
                   Jämför utvärderingar ({selectedEvaluations.length})
@@ -358,14 +358,14 @@ const Compare = () => {
             </Card>
 
             {/* Field Selection */}
-            <Card className="bg-white shadow-lg border-0 p-6">
+            <Card className="bg-card shadow-lg border-0 p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Settings className="h-5 w-5 text-blue-900" />
-                <h3 className="text-lg font-semibold text-blue-900">
+                <Settings className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold text-foreground">
                   Anpassa jämförelsekriterier
                 </h3>
               </div>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Välj vilka fält som ska visas i jämförelsen.
               </p>
 
@@ -394,7 +394,7 @@ const Compare = () => {
                       onCheckedChange={toggleCategorySelection}
                       className={someCategorySelected && !allCategorySelected ? 'opacity-50' : ''}
                     />
-                      <h4 className="font-medium text-gray-900 cursor-pointer" onClick={toggleCategorySelection}>
+                      <h4 className="font-medium text-foreground cursor-pointer" onClick={toggleCategorySelection}>
                         {category === 'basic' && 'Grundläggande information'}
                         {category === 'physical' && 'Fysisk bedömning'}
                         {category === 'financial' && 'Ekonomi'}
@@ -407,7 +407,7 @@ const Compare = () => {
                             checked={selectedFields.includes(field.key)}
                             onCheckedChange={() => toggleFieldSelection(field.key)}
                           />
-                          <span className="text-sm text-gray-700">{field.label}</span>
+                          <span className="text-sm text-muted-foreground">{field.label}</span>
                         </label>
                       ))}
                     </div>
@@ -419,11 +419,11 @@ const Compare = () => {
         ) : (
           <>
             {/* Comparison View */}
-            <Card className="bg-white shadow-lg border-0 p-6">
+            <Card className="bg-card shadow-lg border-0 p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                  <h2 className="text-xl font-semibold text-blue-900">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold text-foreground">
                     Jämförelse av {selectedEvaluations.length} lägenheter
                   </h2>
                 </div>

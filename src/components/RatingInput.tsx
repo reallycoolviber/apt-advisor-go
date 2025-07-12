@@ -74,7 +74,7 @@ export const RatingInput = ({
       
       {showComment && onCommentChange && (
         <div className="mt-4">
-          <Label className="text-sm text-gray-700 mb-2 block">Kommentar (valfritt)</Label>
+          <Label className="text-sm text-muted-foreground mb-2 block">Kommentar (valfritt)</Label>
           <Textarea
             value={comment}
             onChange={(e) => onCommentChange(e.target.value)}
