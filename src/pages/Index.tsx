@@ -57,12 +57,10 @@ const Index = () => {
                   onClick={() => navigate(item.path)}
                   className="w-full h-auto p-8 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white flex items-center gap-8 text-left transition-all duration-300 hover:shadow-lg"
                 >
-                  <div className="flex items-center justify-center w-16">
-                    <IconComponent className="h-12 w-12" />
-                  </div>
-                  <div className="flex-1 min-w-0 pr-4">
+                  <IconComponent className="h-16 w-16 flex-shrink-0" />
+                  <div className="flex-1 min-w-0 max-w-full">
                     <h3 className="text-xl font-bold mb-2 leading-tight truncate">{item.title}</h3>
-                    <p className="text-blue-100 text-base leading-relaxed break-words">{item.description}</p>
+                    <p className="text-blue-100 text-base leading-relaxed break-words overflow-hidden">{item.description}</p>
                   </div>
                 </Button>
               </Card>
