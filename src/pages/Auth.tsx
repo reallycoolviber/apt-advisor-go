@@ -64,21 +64,21 @@ const Auth = () => {
 
   if (showEmailVerification) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-6 bg-white shadow-lg">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-6 shadow-lg">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <Mail className="h-8 w-8 text-blue-900" />
-              <h1 className="text-2xl font-bold text-blue-900">Verifiera din e-post</h1>
+              <Mail className="h-8 w-8 text-accent" />
+              <h1 className="text-2xl font-bold text-accent">Verifiera din e-post</h1>
             </div>
-            <Alert className="mb-4 bg-blue-50 border-blue-200">
+            <Alert className="mb-4 bg-muted border-border">
               <Info className="h-4 w-4" />
               <AlertDescription>
                 Vi har skickat en verifieringslänk till <strong>{email}</strong>. 
                 Klicka på länken i e-postmeddelandet för att aktivera ditt konto.
               </AlertDescription>
             </Alert>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               Kontrollera även din skräppost om du inte ser e-postmeddelandet.
             </p>
             <Button
@@ -98,17 +98,17 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 bg-white shadow-lg">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-6 shadow-lg">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Home className="h-8 w-8 text-blue-900" />
-            <h1 className="text-2xl font-bold text-blue-900">AptEval</h1>
+            <Home className="h-8 w-8 text-accent" />
+            <h1 className="text-2xl font-bold text-accent">AptEval</h1>
           </div>
-          <h2 className="text-xl font-semibold text-gray-700">
+          <h2 className="text-xl font-semibold text-foreground">
             {isSignUp ? 'Skapa konto' : 'Logga in'}
           </h2>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             {isSignUp 
               ? 'Skapa ett konto för att börja utvärdera lägenheter'
               : 'Logga in för att fortsätta med dina lägenhetsutvärderingar'
@@ -119,7 +119,7 @@ const Auth = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {isSignUp && (
             <div>
-              <Label htmlFor="fullName" className="flex items-center gap-2 text-blue-900">
+              <Label htmlFor="fullName" className="flex items-center gap-2 text-accent">
                 <User className="h-4 w-4" />
                 Fullständigt namn
               </Label>
@@ -135,7 +135,7 @@ const Auth = () => {
           )}
 
           <div>
-            <Label htmlFor="email" className="flex items-center gap-2 text-blue-900">
+            <Label htmlFor="email" className="flex items-center gap-2 text-accent">
               <Mail className="h-4 w-4" />
               E-post
             </Label>
@@ -151,7 +151,7 @@ const Auth = () => {
           </div>
 
           <div>
-            <Label htmlFor="password" className="flex items-center gap-2 text-blue-900">
+            <Label htmlFor="password" className="flex items-center gap-2 text-accent">
               <Lock className="h-4 w-4" />
               Lösenord
             </Label>
@@ -167,7 +167,7 @@ const Auth = () => {
           </div>
 
           {isSignUp && (
-            <Alert className="bg-yellow-50 border-yellow-200">
+            <Alert className="bg-muted border-border">
               <Info className="h-4 w-4" />
               <AlertDescription>
                 Efter registrering kommer du att få ett e-postmeddelande för att verifiera ditt konto.
@@ -178,7 +178,7 @@ const Auth = () => {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-white font-medium"
+            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
           >
             {loading ? 'Laddar...' : (isSignUp ? 'Skapa konto' : 'Logga in')}
           </Button>
@@ -188,7 +188,7 @@ const Auth = () => {
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
-            className="text-blue-900 hover:underline"
+            className="text-accent hover:underline"
           >
             {isSignUp 
               ? 'Har du redan ett konto? Logga in här'

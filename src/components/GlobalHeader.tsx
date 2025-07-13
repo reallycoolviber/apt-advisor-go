@@ -49,13 +49,13 @@ export const GlobalHeader = () => {
   return (
     <>
       <SidebarMenu />
-      <header className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 px-4">
+      <header className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90 px-4">
         <div className="flex items-center gap-3 ml-12">
-          <h1 className="text-xl font-bold text-blue-900">AptEval</h1>
+          <h1 className="text-xl font-bold text-accent">AptEval</h1>
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-gray-700">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <User className="h-4 w-4" />
             <span>{getDisplayName()}</span>
           </div>
@@ -63,7 +63,7 @@ export const GlobalHeader = () => {
             variant="ghost"
             size="sm"
             onClick={handleSignOut}
-            className="text-gray-700 hover:text-red-600 hover:bg-red-50 p-2"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-2"
             title="Logga ut"
           >
             <LogOut className="h-4 w-4" />

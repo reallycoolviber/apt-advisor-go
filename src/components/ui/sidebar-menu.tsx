@@ -38,17 +38,17 @@ export const SidebarMenu = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="fixed top-3 left-3 z-50 text-white hover:bg-white/20 bg-blue-900/90 backdrop-blur-sm rounded-md p-2 shadow-lg border border-white/10"
+          className="fixed top-3 left-3 z-50 text-primary-foreground hover:bg-primary/20 bg-accent/90 backdrop-blur-sm rounded-md p-2 shadow-lg border border-accent/20"
         >
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-80 p-0">
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-card">
           {/* Header */}
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-blue-900">Apt Advisor</h2>
-            <p className="text-sm text-gray-600 mt-1">{user?.email}</p>
+          <div className="p-6 border-b border-border">
+            <h2 className="text-xl font-bold text-accent">Apt Advisor</h2>
+            <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
           </div>
 
           {/* Navigation */}
@@ -62,8 +62,8 @@ export const SidebarMenu = () => {
                       onClick={() => handleNavigation(item.path)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
                         isActive(item.path)
-                          ? 'bg-blue-100 text-blue-900'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -76,10 +76,10 @@ export const SidebarMenu = () => {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-border">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
             >
               <LogOut className="h-5 w-5" />
               <span className="font-medium">Logga ut</span>
