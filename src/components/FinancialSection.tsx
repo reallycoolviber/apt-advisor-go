@@ -35,13 +35,13 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Ekonomisk analys</h2>
-        <p className="text-gray-600">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Ekonomisk analys</h2>
+        <p className="text-muted-foreground">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
       </div>
 
       <div className="grid gap-4">
-        <Card className="p-4">
-          <Label htmlFor="debtPerSqm" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+          <Label htmlFor="debtPerSqm" className="flex items-center gap-2 text-primary font-medium mb-2">
             <TrendingUp className="h-4 w-4" />
             Skuld per kvm (SEK)
           </Label>
@@ -52,11 +52,11 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
             placeholder="15 000"
             className="text-lg"
           />
-          <p className="text-xs text-gray-500 mt-1">Föreningens totala skuld dividerat med total yta</p>
+          <p className="text-xs text-muted-foreground mt-1">Föreningens totala skuld dividerat med total yta</p>
         </Card>
 
-        <Card className="p-4">
-          <Label htmlFor="feePerSqm" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+          <Label htmlFor="feePerSqm" className="flex items-center gap-2 text-primary font-medium mb-2">
             <DollarSign className="h-4 w-4" />
             Avgift per kvm (SEK)
           </Label>
@@ -67,11 +67,11 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
             placeholder="56"
             className="text-lg"
           />
-          <p className="text-xs text-gray-500 mt-1">Månadsavgift dividerat med lägenhetens yta</p>
+          <p className="text-xs text-muted-foreground mt-1">Månadsavgift dividerat med lägenhetens yta</p>
         </Card>
 
-        <Card className="p-4">
-          <Label htmlFor="cashflowPerSqm" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+          <Label htmlFor="cashflowPerSqm" className="flex items-center gap-2 text-primary font-medium mb-2">
             <PiggyBank className="h-4 w-4" />
             Kassaflöde per kvm (SEK)
           </Label>
@@ -82,11 +82,11 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
             placeholder="12"
             className="text-lg"
           />
-          <p className="text-xs text-gray-500 mt-1">Föreningens årliga kassaflöde per kvm</p>
+          <p className="text-xs text-muted-foreground mt-1">Föreningens årliga kassaflöde per kvm</p>
         </Card>
 
-        <Card className="p-4">
-          <Label className="flex items-center gap-2 text-blue-900 font-medium mb-3">
+        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+          <Label className="flex items-center gap-2 text-primary font-medium mb-3">
             <Settings className="h-4 w-4" />
             Alla stora underhåll är gjorda?
           </Label>
@@ -97,8 +97,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ majorMaintenanceDone: true })}
               className={`flex-1 h-12 ${
                 data.majorMaintenanceDone === true 
-                  ? 'bg-emerald-600 hover:bg-emerald-700' 
-                  : 'border-emerald-600 text-emerald-600 hover:bg-emerald-50'
+                  ? 'bg-nature-calm-green hover:bg-nature-calm-green/90 text-nature-light-grey' 
+                  : 'border-nature-calm-green text-nature-calm-green hover:bg-nature-calm-green/10'
               }`}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
@@ -110,8 +110,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ majorMaintenanceDone: false })}
               className={`flex-1 h-12 ${
                 data.majorMaintenanceDone === false 
-                  ? 'bg-red-600 hover:bg-red-700' 
-                  : 'border-red-600 text-red-600 hover:bg-red-50'
+                  ? 'bg-nature-dark-terracotta hover:bg-nature-dark-terracotta/90 text-nature-light-grey' 
+                  : 'border-nature-dark-terracotta text-nature-dark-terracotta hover:bg-nature-dark-terracotta/10'
               }`}
             >
               <XCircle className="h-4 w-4 mr-2" />
@@ -120,8 +120,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           </div>
         </Card>
 
-        <Card className="p-4">
-          <Label className="flex items-center gap-2 text-blue-900 font-medium mb-3">
+        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+          <Label className="flex items-center gap-2 text-primary font-medium mb-3">
             <Building2 className="h-4 w-4" />
             Äger föreningen marken?
           </Label>
@@ -132,8 +132,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ ownsLand: true })}
               className={`flex-1 h-12 ${
                 data.ownsLand === true 
-                  ? 'bg-emerald-600 hover:bg-emerald-700' 
-                  : 'border-emerald-600 text-emerald-600 hover:bg-emerald-50'
+                  ? 'bg-nature-calm-green hover:bg-nature-calm-green/90 text-nature-light-grey' 
+                  : 'border-nature-calm-green text-nature-calm-green hover:bg-nature-calm-green/10'
               }`}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
@@ -145,8 +145,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ ownsLand: false })}
               className={`flex-1 h-12 ${
                 data.ownsLand === false 
-                  ? 'bg-red-600 hover:bg-red-700' 
-                  : 'border-red-600 text-red-600 hover:bg-red-50'
+                  ? 'bg-nature-dark-terracotta hover:bg-nature-dark-terracotta/90 text-nature-light-grey' 
+                  : 'border-nature-dark-terracotta text-nature-dark-terracotta hover:bg-nature-dark-terracotta/10'
               }`}
             >
               <XCircle className="h-4 w-4 mr-2" />
@@ -155,8 +155,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           </div>
         </Card>
 
-        <Card className="p-4">
-          <Label htmlFor="underhållsplan" className="flex items-center gap-2 text-blue-900 font-medium mb-2">
+        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+          <Label htmlFor="underhållsplan" className="flex items-center gap-2 text-primary font-medium mb-2">
             <Building2 className="h-4 w-4" />
             Sammanfattning underhållsplan
           </Label>
@@ -171,17 +171,17 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
         {/* Financial Health Indicator */}
         {data.debtPerSqm && data.feePerSqm && (
-          <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <h3 className="font-semibold text-blue-900 mb-3">Ekonomisk hälsa</h3>
+          <Card className="p-4 bg-gradient-to-r from-nature-light-grey to-nature-subtle-beige border-nature-subtle-beige/20">
+            <h3 className="font-semibold text-primary mb-3">Ekonomisk hälsa</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="text-center">
-                <p className="text-gray-600">Skuldrisk</p>
+                <p className="text-muted-foreground">Skuldrisk</p>
                 <p className={`font-bold ${
                   parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
-                    ? 'text-red-600' 
+                    ? 'text-nature-dark-terracotta' 
                     : parseInt(data.debtPerSqm.replace(/\s/g, '')) > 10000 
-                    ? 'text-yellow-600' 
-                    : 'text-green-600'
+                    ? 'text-amber-600' 
+                    : 'text-nature-calm-green'
                 }`}>
                   {parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
                     ? 'Hög' 
@@ -191,13 +191,13 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-gray-600">Avgiftsnivå</p>
+                <p className="text-muted-foreground">Avgiftsnivå</p>
                 <p className={`font-bold ${
                   parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
-                    ? 'text-red-600' 
+                    ? 'text-nature-dark-terracotta' 
                     : parseInt(data.feePerSqm.replace(/\s/g, '')) > 50 
-                    ? 'text-yellow-600' 
-                    : 'text-green-600'
+                    ? 'text-amber-600' 
+                    : 'text-nature-calm-green'
                 }`}>
                   {parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
                     ? 'Hög' 

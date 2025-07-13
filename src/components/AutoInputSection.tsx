@@ -116,14 +116,14 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Automatisk dataimport</h2>
-        <p className="text-gray-600">Lägg till länkar för att automatiskt fylla i lägenhetsinformation</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Automatisk dataimport</h2>
+        <p className="text-muted-foreground">Lägg till länkar för att automatiskt fylla i lägenhetsinformation</p>
       </div>
 
-      <Card className="p-4 bg-blue-900 border-blue-800">
+      <Card className="p-4 bg-nature-calm-green border-nature-calm-green/20">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="apartmentUrl" className="flex items-center gap-2 text-white font-medium">
+            <Label htmlFor="apartmentUrl" className="flex items-center gap-2 text-nature-light-grey font-medium">
               <Link2 className="h-4 w-4" />
               Länk till lägenhet (Booli/Hemnet)
             </Label>
@@ -133,12 +133,12 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
               value={data.apartmentUrl}
               onChange={(e) => updateData({ apartmentUrl: e.target.value })}
               placeholder="https://www.hemnet.se/bostad/..."
-              className="mt-2 bg-white"
+              className="mt-2 bg-background"
             />
           </div>
 
           <div>
-            <Label htmlFor="annualReportUrl" className="flex items-center gap-2 text-white font-medium">
+            <Label htmlFor="annualReportUrl" className="flex items-center gap-2 text-nature-light-grey font-medium">
               <FileText className="h-4 w-4" />
               Länk till årsredovisning
             </Label>
@@ -148,7 +148,7 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
               value={data.annualReportUrl}
               onChange={(e) => updateData({ annualReportUrl: e.target.value })}
               placeholder="https://www.brf.se/arsredovisning.pdf"
-              className="mt-2 bg-white"
+              className="mt-2 bg-background"
             />
           </div>
         </div>
@@ -157,7 +157,7 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
       <Button
         onClick={handleAutoFill}
         disabled={isProcessing || isScraping || (!data.apartmentUrl && !data.annualReportUrl)}
-        className="w-full h-12 bg-blue-800 hover:bg-blue-700 text-white font-medium"
+        className="w-full h-12 bg-nature-dark-terracotta hover:bg-nature-dark-terracotta/90 text-nature-light-grey font-medium"
       >
         {isProcessing || isScraping ? (
           <>
@@ -172,7 +172,7 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
         )}
       </Button>
 
-      <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+      <div className="text-sm text-muted-foreground bg-nature-subtle-beige p-3 rounded-lg border border-nature-subtle-beige/20">
         <p><strong>Tips:</strong> Funktionen hämtar automatiskt information som adress, pris, storlek, månadsavgift och ekonomiska nyckeltal från de angivna länkarna. All data kan redigeras manuellt i nästa steg.</p>
       </div>
     </div>
