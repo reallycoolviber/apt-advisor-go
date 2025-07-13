@@ -243,23 +243,23 @@ const EvaluationForm = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-blue-900">Laddar utvärdering...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Laddar utvärdering...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <div className="bg-blue-900 text-white p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
         <div className="flex items-center gap-3 mb-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
+            className="text-primary-foreground hover:bg-primary/80 p-2"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -267,7 +267,7 @@ const EvaluationForm = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
-            className="text-white hover:bg-blue-800 p-2"
+            className="text-primary-foreground hover:bg-primary/80 p-2"
           >
             <Home className="h-6 w-6" />
           </Button>
@@ -275,7 +275,7 @@ const EvaluationForm = () => {
             {isEditMode ? 'Redigera utvärdering' : 'Lägenhetsbedömning'}
           </h1>
           {apartmentData.is_draft && (
-            <span className="bg-yellow-600 text-white px-2 py-1 rounded-full text-xs">
+            <span className="bg-accent text-accent-foreground px-2 py-1 rounded-full text-xs">
               Utkast
             </span>
           )}
@@ -286,13 +286,13 @@ const EvaluationForm = () => {
             <span>{sections[currentSection].title}</span>
             <span>{currentSection + 1}/{sections.length}</span>
           </div>
-          <Progress value={progress} className="h-2 bg-blue-800" />
+          <Progress value={progress} className="h-2 bg-primary/20" />
         </div>
       </div>
 
       {/* Main Content */}
       <div className="p-4 pb-20">
-        <Card className="bg-white shadow-lg border-0 max-w-5xl mx-auto">
+        <Card className="bg-card shadow-lg border-border max-w-5xl mx-auto">
           <div className="p-6">
             <CurrentSectionComponent 
               data={apartmentData} 
@@ -304,7 +304,7 @@ const EvaluationForm = () => {
       </div>
 
       {/* Navigation Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40">
         <div className="flex justify-between gap-3 max-w-5xl mx-auto">
           <Button
             variant="outline"
@@ -320,10 +320,10 @@ const EvaluationForm = () => {
             onClick={() => saveEvaluation(true)}
             disabled={saving}
             variant="outline"
-            className="flex-1 h-12 text-sm font-medium border-yellow-600 text-yellow-600 hover:bg-yellow-50 min-w-0 flex items-center justify-center"
+            className="flex-1 h-12 text-sm font-medium border-accent text-accent hover:bg-accent/10 min-w-0 flex items-center justify-center"
           >
             {saving ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-yellow-600 border-t-transparent"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-accent border-t-transparent"></div>
             ) : (
               <FileText className="h-5 w-5" />
             )}
@@ -333,10 +333,10 @@ const EvaluationForm = () => {
             <Button
               onClick={() => saveEvaluation(false)}
               disabled={saving}
-              className="flex-1 h-12 text-sm font-medium bg-green-600 hover:bg-green-700 min-w-0"
+              className="flex-1 h-12 text-sm font-medium bg-primary hover:bg-primary/90 min-w-0"
             >
               {saving ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-1 flex-shrink-0"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent mr-1 flex-shrink-0"></div>
               ) : (
                 <Save className="h-4 w-4 mr-1 flex-shrink-0" />
               )}
@@ -346,7 +346,7 @@ const EvaluationForm = () => {
             <Button
               onClick={nextSection}
               disabled={currentSection === sections.length - 1}
-              className="flex-1 h-12 text-sm font-medium bg-blue-900 hover:bg-blue-800 min-w-0"
+              className="flex-1 h-12 text-sm font-medium bg-primary hover:bg-primary/90 min-w-0"
             >
               <span className="truncate">Nästa</span>
               <ChevronRight className="h-4 w-4 ml-1 flex-shrink-0" />

@@ -19,12 +19,12 @@ const TimeFilterComponent: React.FC<TimeFilterProps> = ({ timeFilter, onTimeFilt
   ];
 
   return (
-    <Card className="bg-white shadow-lg border-0 p-6">
+    <Card className="bg-card shadow-lg border-border p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Clock className="h-5 w-5 text-blue-900" />
-        <h3 className="text-lg font-semibold text-blue-900">Filtrera utvärderingar</h3>
+        <Clock className="h-5 w-5 text-primary" />
+        <h3 className="text-lg font-semibold text-foreground">Filtrera utvärderingar</h3>
       </div>
-      <p className="text-gray-600 mb-4">
+      <p className="text-muted-foreground mb-4">
         Välj vilka utvärderingar som ska vara tillgängliga för jämförelse baserat på när de skapades.
       </p>
       
@@ -37,8 +37,8 @@ const TimeFilterComponent: React.FC<TimeFilterProps> = ({ timeFilter, onTimeFilt
             onClick={() => onTimeFilterChange({ type: option.value })}
             className={`text-sm ${
               timeFilter.type === option.value 
-                ? 'bg-blue-900 hover:bg-blue-800 text-white' 
-                : 'border-blue-200 text-blue-900 hover:bg-blue-50'
+                ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                : 'border-border text-foreground hover:bg-secondary'
             }`}
           >
             {option.label}

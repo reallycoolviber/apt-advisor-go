@@ -94,52 +94,52 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-900 mb-2">Sammanfattning</h2>
-        <p className="text-gray-600">Granska din utvärdering och lägg till slutkommentarer</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Sammanfattning</h2>
+        <p className="text-muted-foreground">Granska din utvärdering och lägg till slutkommentarer</p>
       </div>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <Card className="p-4 bg-blue-50 border-blue-200">
+        <Card className="p-4 bg-card border-border">
           <div className="flex items-center gap-3 mb-2">
-            <MapPin className="h-5 w-5 text-blue-900" />
-            <h3 className="font-semibold text-blue-900">Lägenhet</h3>
+            <MapPin className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-foreground">Lägenhet</h3>
           </div>
-          <p className="text-sm text-gray-700">{data.address || 'Ingen adress angiven'}</p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-foreground">{data.address || 'Ingen adress angiven'}</p>
+          <p className="text-sm text-muted-foreground">
             {data.size && `${data.size} kvm`} 
             {data.rooms && ` • ${data.rooms} rum`}
           </p>
         </Card>
 
-        <Card className="p-4 bg-emerald-50 border-emerald-200">
+        <Card className="p-4 bg-card border-border">
           <div className="flex items-center gap-3 mb-2">
-            <Euro className="h-5 w-5 text-emerald-700" />
-            <h3 className="font-semibold text-emerald-700">Ekonomi</h3>
+            <Euro className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-foreground">Ekonomi</h3>
           </div>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-foreground">
             {data.price ? `${parseInt(data.price).toLocaleString()} SEK` : 'Inget pris angivet'}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             {data.monthlyFee && `${parseInt(data.monthlyFee).toLocaleString()} SEK/mån`}
           </p>
         </Card>
       </div>
 
       {/* Physical Assessment Summary */}
-      <Card className="p-4 bg-yellow-50 border-yellow-200">
+      <Card className="p-4 bg-secondary border-border">
         <div className="flex items-center gap-3 mb-3">
-          <Star className="h-5 w-5 text-yellow-600" />
-          <h3 className="font-semibold text-yellow-700">Fysisk bedömning</h3>
+          <Star className="h-5 w-5 text-accent" />
+          <h3 className="font-semibold text-foreground">Fysisk bedömning</h3>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-yellow-700">{physicalAverage.toFixed(1)}</p>
-          <p className="text-sm text-gray-600">Genomsnittligt betyg</p>
+          <p className="text-2xl font-bold text-accent">{physicalAverage.toFixed(1)}</p>
+          <p className="text-sm text-muted-foreground">Genomsnittligt betyg</p>
           <div className="flex justify-center mt-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <span
                 key={star}
-                className={`text-lg ${star <= physicalAverage ? 'text-yellow-400' : 'text-gray-300'}`}
+                className={`text-lg ${star <= physicalAverage ? 'text-yellow-400' : 'text-muted'}`}
               >
                 ★
               </span>
@@ -149,8 +149,8 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
       </Card>
 
       {/* Comments */}
-      <Card className="p-4">
-        <Label htmlFor="comments" className="text-blue-900 font-medium mb-2 block">
+      <Card className="p-4 bg-card border-border">
+        <Label htmlFor="comments" className="text-foreground font-medium mb-2 block">
           Slutkommentarer
         </Label>
         <Textarea
@@ -166,7 +166,7 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
       <Button
         onClick={handleSave}
         disabled={isSaving}
-        className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+        className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
       >
         {isSaving ? (
           <>
@@ -181,7 +181,7 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
         )}
       </Button>
 
-      <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg text-center">
+      <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg text-center">
         <p>När du sparar kommer utvärderingen att finnas tillgänglig i "Mina utvärderingar" där du kan se och jämföra alla dina lägenheter.</p>
       </div>
     </div>

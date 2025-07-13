@@ -113,7 +113,7 @@ const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
               );
             })}
             <TableHead 
-              className="text-center cursor-pointer hover:bg-yellow-100 select-none bg-yellow-50/80 min-w-52 transition-colors duration-150"
+              className="text-center cursor-pointer hover:bg-secondary/70 select-none bg-secondary min-w-52 transition-colors duration-150"
               onClick={() => handleSort('physicalAverage')}
             >
               <div className="flex items-center justify-center gap-1">
@@ -162,11 +162,11 @@ const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
                    </TableCell>
                  );
                })}
-              <TableCell className="text-center bg-yellow-50/80 px-3">
-                <div className="flex items-center justify-center">
-                  {formatValue(calculatePhysicalAverage(evaluation), 'rating')}
-                </div>
-              </TableCell>
+               <TableCell className="text-center bg-secondary px-3">
+                 <div className="flex items-center justify-center">
+                   {formatValue(calculatePhysicalAverage(evaluation), 'rating')}
+                 </div>
+               </TableCell>
             </TableRow>
           ))}
         </TableBody>
