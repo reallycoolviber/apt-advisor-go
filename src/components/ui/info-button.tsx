@@ -4,11 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface InfoButtonProps {
-  title: string;
   content: string;
 }
 
-export const InfoButton = ({ title, content }: InfoButtonProps) => {
+export const InfoButton = ({ content }: InfoButtonProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -22,8 +21,8 @@ export const InfoButton = ({ title, content }: InfoButtonProps) => {
       </DialogTrigger>
       <DialogContent className="bg-nature-subtle-beige border-nature-subtle-beige/20 max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-primary text-lg font-semibold">
-            {title}
+          <DialogTitle className="text-foreground text-lg font-semibold">
+            Varför är detta viktigt?
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
