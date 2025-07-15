@@ -41,7 +41,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
       </div>
 
       <div className="grid gap-4">
-        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+        <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-2">
             <Label htmlFor="debtPerSqm" className="flex items-center gap-2 text-primary font-medium">
               <TrendingUp className="h-4 w-4" />
@@ -61,7 +61,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           <p className="text-xs text-muted-foreground mt-1">Föreningens totala skuld dividerat med total yta</p>
         </Card>
 
-        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+        <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-2">
             <Label htmlFor="feePerSqm" className="flex items-center gap-2 text-primary font-medium">
               <DollarSign className="h-4 w-4" />
@@ -81,7 +81,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           <p className="text-xs text-muted-foreground mt-1">Månadsavgift dividerat med lägenhetens yta</p>
         </Card>
 
-        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+        <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-2">
             <Label htmlFor="cashflowPerSqm" className="flex items-center gap-2 text-primary font-medium">
               <PiggyBank className="h-4 w-4" />
@@ -101,7 +101,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           <p className="text-xs text-muted-foreground mt-1">Föreningens årliga kassaflöde per kvm</p>
         </Card>
 
-        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+        <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-3">
             <Label className="flex items-center gap-2 text-primary font-medium">
               <Settings className="h-4 w-4" />
@@ -118,8 +118,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ majorMaintenanceDone: true })}
               className={`flex-1 h-12 ${
                 data.majorMaintenanceDone === true 
-                  ? 'bg-nature-calm-green hover:bg-nature-calm-green/90 text-nature-light-grey' 
-                  : 'border-nature-calm-green text-nature-calm-green hover:bg-nature-calm-green/10'
+                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                  : 'border-primary text-primary hover:bg-primary/10'
               }`}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
@@ -131,8 +131,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ majorMaintenanceDone: false })}
               className={`flex-1 h-12 ${
                 data.majorMaintenanceDone === false 
-                  ? 'bg-nature-dark-terracotta hover:bg-nature-dark-terracotta/90 text-nature-light-grey' 
-                  : 'border-nature-dark-terracotta text-nature-dark-terracotta hover:bg-nature-dark-terracotta/10'
+                  ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                  : 'border-destructive text-destructive hover:bg-destructive/10'
               }`}
             >
               <XCircle className="h-4 w-4 mr-2" />
@@ -141,7 +141,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           </div>
         </Card>
 
-        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+        <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-3">
             <Label className="flex items-center gap-2 text-primary font-medium">
               <Building2 className="h-4 w-4" />
@@ -158,8 +158,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ ownsLand: true })}
               className={`flex-1 h-12 ${
                 data.ownsLand === true 
-                  ? 'bg-nature-calm-green hover:bg-nature-calm-green/90 text-nature-light-grey' 
-                  : 'border-nature-calm-green text-nature-calm-green hover:bg-nature-calm-green/10'
+                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                  : 'border-primary text-primary hover:bg-primary/10'
               }`}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
@@ -171,8 +171,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               onClick={() => updateData({ ownsLand: false })}
               className={`flex-1 h-12 ${
                 data.ownsLand === false 
-                  ? 'bg-nature-dark-terracotta hover:bg-nature-dark-terracotta/90 text-nature-light-grey' 
-                  : 'border-nature-dark-terracotta text-nature-dark-terracotta hover:bg-nature-dark-terracotta/10'
+                  ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                  : 'border-destructive text-destructive hover:bg-destructive/10'
               }`}
             >
               <XCircle className="h-4 w-4 mr-2" />
@@ -181,7 +181,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           </div>
         </Card>
 
-        <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+        <Card className="p-4 bg-card border-border">
           <Label htmlFor="underhållsplan" className="flex items-center gap-2 text-primary font-medium mb-2">
             <Building2 className="h-4 w-4" />
             Sammanfattning underhållsplan
@@ -197,17 +197,17 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
         {/* Financial Health Indicator */}
         {data.debtPerSqm && data.feePerSqm && (
-          <Card className="p-4 bg-gradient-to-r from-nature-light-grey to-nature-subtle-beige border-nature-subtle-beige/20">
+          <Card className="p-4 bg-gradient-to-r from-card to-muted border-border">
             <h3 className="font-semibold text-primary mb-3">Ekonomisk hälsa</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="text-center">
                 <p className="text-muted-foreground">Skuldrisk</p>
                 <p className={`font-bold ${
                   parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
-                    ? 'text-nature-dark-terracotta' 
+                    ? 'text-destructive' 
                     : parseInt(data.debtPerSqm.replace(/\s/g, '')) > 10000 
                     ? 'text-amber-600' 
-                    : 'text-nature-calm-green'
+                    : 'text-primary'
                 }`}>
                   {parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
                     ? 'Hög' 
@@ -220,10 +220,10 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
                 <p className="text-muted-foreground">Avgiftsnivå</p>
                 <p className={`font-bold ${
                   parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
-                    ? 'text-nature-dark-terracotta' 
+                    ? 'text-destructive' 
                     : parseInt(data.feePerSqm.replace(/\s/g, '')) > 50 
                     ? 'text-amber-600' 
-                    : 'text-nature-calm-green'
+                    : 'text-primary'
                 }`}>
                   {parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
                     ? 'Hög' 
