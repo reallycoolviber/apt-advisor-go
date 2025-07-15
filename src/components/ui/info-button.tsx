@@ -21,12 +21,12 @@ export const InfoButton = ({ content }: InfoButtonProps) => {
       </DialogTrigger>
       <DialogContent className="bg-nature-subtle-beige border-nature-subtle-beige/20 max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-foreground text-lg font-semibold">
+          <DialogTitle className="text-slate-800 text-lg font-semibold">
             Varför är detta viktigt?
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
-          <p className="text-foreground leading-relaxed text-sm">
+          <p className="text-slate-700 leading-relaxed text-sm">
             {content}
           </p>
         </div>
