@@ -1,4 +1,3 @@
-
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
@@ -43,13 +42,13 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-primary mb-3 leading-tight">Allmän information</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight">Allmän information</h2>
         <p className="text-muted-foreground text-lg">Grundläggande uppgifter om lägenheten</p>
       </div>
 
       <div className="grid gap-4">
-        <Card className="p-4 bg-nature-calm-green border-nature-calm-green/20">
-          <Label htmlFor="address" className="flex items-center gap-2 text-nature-light-grey font-medium mb-2">
+        <Card className="p-4 bg-card border-border">
+          <Label htmlFor="address" className="flex items-center gap-2 text-foreground font-medium mb-2">
             <MapPin className="h-4 w-4" />
             Adress
           </Label>
@@ -63,8 +62,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="p-4 bg-nature-calm-green border-nature-calm-green/20">
-            <Label htmlFor="size" className="flex items-center gap-2 text-nature-light-grey font-medium mb-2">
+          <Card className="p-4 bg-card border-border">
+            <Label htmlFor="size" className="flex items-center gap-2 text-foreground font-medium mb-2">
               <Home className="h-4 w-4" />
               Storlek (kvm)
             </Label>
@@ -78,8 +77,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             />
           </Card>
 
-          <Card className="p-4 bg-nature-calm-green border-nature-calm-green/20">
-            <Label htmlFor="rooms" className="flex items-center gap-2 text-nature-light-grey font-medium mb-2">
+          <Card className="p-4 bg-card border-border">
+            <Label htmlFor="rooms" className="flex items-center gap-2 text-foreground font-medium mb-2">
               <Users className="h-4 w-4" />
               Antal rum
             </Label>
@@ -95,10 +94,10 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="p-4 bg-nature-calm-green border-nature-calm-green/20">
-            <Label htmlFor="price" className="flex items-center gap-2 text-nature-light-grey font-medium mb-2">
+          <Card className="p-4 bg-card border-border">
+            <Label htmlFor="price" className="flex items-center gap-2 text-foreground font-medium mb-2">
               <CreditCard className="h-4 w-4" />
-              Uitgångspris (SEK)
+              Utgångspris (SEK)
             </Label>
             <Input
               id="price"
@@ -109,8 +108,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             />
           </Card>
 
-          <Card className="p-4 bg-nature-calm-green border-nature-calm-green/20">
-            <Label htmlFor="finalPrice" className="flex items-center gap-2 text-nature-light-grey font-medium mb-2">
+          <Card className="p-4 bg-card border-border">
+            <Label htmlFor="finalPrice" className="flex items-center gap-2 text-foreground font-medium mb-2">
               <CreditCard className="h-4 w-4" />
               Slutpris (SEK)
             </Label>
@@ -127,8 +126,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           </Card>
         </div>
 
-        <Card className="p-4 bg-nature-calm-green border-nature-calm-green/20">
-          <Label htmlFor="monthlyFee" className="flex items-center gap-2 text-nature-light-grey font-medium mb-2">
+        <Card className="p-4 bg-card border-border">
+          <Label htmlFor="monthlyFee" className="flex items-center gap-2 text-foreground font-medium mb-2">
             <CreditCard className="h-4 w-4" />
             Månadsavgift (SEK)
           </Label>
@@ -143,7 +142,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.size && data.price && (
-            <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+            <Card className="p-4 bg-secondary border-border">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">Pris per kvm</p>
                 <p className="text-2xl font-bold text-primary">
@@ -154,7 +153,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           )}
 
           {feePerSqm && (
-            <Card className="p-4 bg-nature-subtle-beige border-nature-subtle-beige/20">
+            <Card className="p-4 bg-secondary border-border">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">Avgift per kvm</p>
                 <p className="text-2xl font-bold text-primary">

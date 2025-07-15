@@ -36,7 +36,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-primary mb-2">Ekonomisk analys</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Ekonomisk analys</h2>
         <p className="text-muted-foreground">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
       </div>
 
