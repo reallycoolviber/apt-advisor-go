@@ -99,14 +99,14 @@ const Evaluations = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="bg-blue-900 text-white p-4 shadow-lg">
+      <div className="min-h-screen bg-background">
+        <div className="bg-primary text-primary-foreground p-4 shadow-lg">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="text-white hover:bg-blue-800 p-2"
+              className="text-primary-foreground hover:bg-primary/90 p-2"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -114,7 +114,7 @@ const Evaluations = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="text-white hover:bg-blue-800 p-2"
+              className="text-primary-foreground hover:bg-primary/90 p-2"
             >
               <Home className="h-6 w-6" />
             </Button>
@@ -122,35 +122,35 @@ const Evaluations = () => {
           </div>
         </div>
         <div className="p-4 text-center">
-          <div className="text-blue-900">Laddar dina utvärderingar...</div>
+          <div className="text-foreground">Laddar dina utvärderingar...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-background">
       
 
       {/* Main Content */}
       <div className="pt-20 px-6 pb-8">
         {error && (
-          <Card className="bg-red-50 border-red-200 p-4 mb-4">
-            <p className="text-red-700">{error}</p>
+          <Card className="bg-destructive/10 border-destructive/20 p-4 mb-4">
+            <p className="text-destructive">{error}</p>
           </Card>
         )}
 
         {evaluations.length === 0 ? (
-          <Card className="bg-white shadow-lg border-0 p-6 text-center">
-            <h2 className="text-xl font-semibold text-blue-900 mb-4">
+          <Card className="bg-card shadow-lg border-0 p-6 text-center">
+            <h2 className="text-xl font-semibold text-foreground mb-4">
               Inga utvärderingar än
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Du har inte skapat några lägenhetsuvärderingar än. Kom igång genom att skapa din första utvärdering!
             </p>
             <Button
               onClick={() => navigate('/evaluate')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="h-4 w-4 mr-2" />
               Skapa första utvärderingen
@@ -165,14 +165,14 @@ const Evaluations = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/')}
-                    className="text-blue-900 hover:bg-blue-50 p-2"
+                    className="text-foreground hover:bg-muted p-2"
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  <h2 className="text-3xl font-bold text-blue-900">
+                  <h2 className="text-3xl font-bold text-foreground">
                     Mina Utvärderingar
                   </h2>
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
                     {evaluations.length}
                   </span>
                 </div>
@@ -227,7 +227,7 @@ const Evaluations = () => {
                 )}
                 <Button
                   onClick={() => navigate('/evaluate')}
-                  className="bg-blue-900 hover:bg-blue-800 text-white px-6"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Ny utvärdering
@@ -243,12 +243,12 @@ const Evaluations = () => {
                     <div className="p-5">
                       {/* Header with date and status */}
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Calendar className="h-4 w-4" />
                           {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
                         </div>
                         {evaluation.is_draft && (
-                          <span className="bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 font-medium">
+                          <span className="bg-accent/20 text-accent-foreground px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 font-medium">
                             <FileText className="h-3 w-3" />
                             Utkast
                           </span>
@@ -257,12 +257,12 @@ const Evaluations = () => {
 
                     {/* Address */}
                     <div className="flex items-start gap-2 mb-4">
-                      <MapPin className="h-5 w-5 text-blue-900 mt-0.5 flex-shrink-0" />
+                      <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
-                        <h3 className="font-semibold text-blue-900 text-lg">
+                        <h3 className="font-semibold text-foreground text-lg">
                           {evaluation.address || 'Ingen adress'}
                         </h3>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-muted-foreground text-sm">
                           {evaluation.size && `${evaluation.size} kvm`}
                           {evaluation.rooms && ` • ${evaluation.rooms} rum`}
                         </p>
@@ -271,16 +271,16 @@ const Evaluations = () => {
 
                     {/* Price info */}
                     {(evaluation.price || evaluation.monthly_fee) && (
-                      <div className="flex items-center gap-2 mb-4 p-3 bg-emerald-50 rounded-lg">
-                        <Euro className="h-5 w-5 text-emerald-700" />
+                      <div className="flex items-center gap-2 mb-4 p-3 bg-primary/10 rounded-lg">
+                        <Euro className="h-5 w-5 text-primary" />
                         <div>
                           {evaluation.price && (
-                            <p className="font-semibold text-emerald-700">
+                            <p className="font-semibold text-primary">
                               {parseInt(evaluation.price.toString()).toLocaleString()} SEK
                             </p>
                           )}
                           {evaluation.monthly_fee && (
-                            <p className="text-sm text-emerald-600">
+                            <p className="text-sm text-primary/80">
                               {parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån
                             </p>
                           )}
@@ -289,21 +289,21 @@ const Evaluations = () => {
                     )}
 
                     {/* Physical rating */}
-                    <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-50 rounded-lg">
-                      <Star className="h-5 w-5 text-yellow-600" />
+                    <div className="flex items-center gap-2 mb-4 p-3 bg-accent/10 rounded-lg">
+                      <Star className="h-5 w-5 text-accent" />
                       <div className="flex-1">
-                        <p className="font-semibold text-yellow-700">
+                        <p className="font-semibold text-accent-foreground">
                           Fysisk bedömning: {physicalAvg.toFixed(1)}
                         </p>
                         <div className="flex gap-1 mt-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <span
-                              key={star}
-                              className={`text-sm ${star <= physicalAvg ? 'text-yellow-400' : 'text-gray-300'}`}
-                            >
-                              ★
-                            </span>
-                          ))}
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span
+                                key={star}
+                                className={`text-sm ${star <= physicalAvg ? 'text-accent' : 'text-muted-foreground'}`}
+                              >
+                                ★
+                              </span>
+                            ))}
                         </div>
                       </div>
                     </div>
@@ -311,7 +311,7 @@ const Evaluations = () => {
                     {/* Comments preview */}
                     {evaluation.comments && (
                       <div className="mb-4">
-                        <p className="text-sm text-gray-600 line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
                           {evaluation.comments}
                         </p>
                       </div>

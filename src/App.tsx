@@ -23,8 +23,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-blue-900">Laddar...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Laddar...</div>
       </div>
     );
   }
@@ -41,8 +41,8 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-blue-900">Laddar...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Laddar...</div>
       </div>
     );
   }
