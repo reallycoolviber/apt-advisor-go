@@ -43,7 +43,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
       <div className="grid gap-4">
         <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-2">
-            <Label htmlFor="debtPerSqm" className="flex items-center gap-2 text-primary font-medium">
+            <Label htmlFor="debtPerSqm" className="flex items-center gap-2 text-foreground font-medium">
               <TrendingUp className="h-4 w-4" />
               Skuld per kvm (SEK)
             </Label>
@@ -63,7 +63,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
         <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-2">
-            <Label htmlFor="feePerSqm" className="flex items-center gap-2 text-primary font-medium">
+            <Label htmlFor="feePerSqm" className="flex items-center gap-2 text-foreground font-medium">
               <DollarSign className="h-4 w-4" />
               Avgift per kvm (SEK)
             </Label>
@@ -83,7 +83,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
         <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-2">
-            <Label htmlFor="cashflowPerSqm" className="flex items-center gap-2 text-primary font-medium">
+            <Label htmlFor="cashflowPerSqm" className="flex items-center gap-2 text-foreground font-medium">
               <PiggyBank className="h-4 w-4" />
               Kassaflöde per kvm (SEK)
             </Label>
@@ -103,7 +103,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
         <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-3">
-            <Label className="flex items-center gap-2 text-primary font-medium">
+            <Label className="flex items-center gap-2 text-foreground font-medium">
               <Settings className="h-4 w-4" />
               Alla stora underhåll är gjorda?
             </Label>
@@ -143,7 +143,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
         <Card className="p-4 bg-card border-border">
           <div className="flex items-center justify-between mb-3">
-            <Label className="flex items-center gap-2 text-primary font-medium">
+            <Label className="flex items-center gap-2 text-foreground font-medium">
               <Building2 className="h-4 w-4" />
               Äger föreningen marken?
             </Label>
@@ -182,7 +182,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
         </Card>
 
         <Card className="p-4 bg-card border-border">
-          <Label htmlFor="underhållsplan" className="flex items-center gap-2 text-primary font-medium mb-2">
+          <Label htmlFor="underhållsplan" className="flex items-center gap-2 text-foreground font-medium mb-2">
             <Building2 className="h-4 w-4" />
             Sammanfattning underhållsplan
           </Label>

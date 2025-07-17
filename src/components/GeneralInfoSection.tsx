@@ -155,7 +155,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           {feePerSqm && (
             <Card className="p-4 bg-secondary border-border">
               <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-1">Avgift per kvm</p>
+                <p className="text-sm text-foreground mb-1">Avgift per kvm</p>
                 <p className="text-2xl font-bold text-primary">
                   {feePerSqm.toLocaleString()} SEK/månad
                 </p>
