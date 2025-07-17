@@ -62,7 +62,7 @@ const App = () => (
       <AuthProvider>
         <BrowserRouter basename={import.meta.env.PROD ? "/apt-advisor-go" : ""}>
           <SidebarProvider>
-            <div className="min-h-screen w-full">
+            <div className="min-h-screen w-full bg-background text-foreground">
               <GlobalHeader />
               <div className="pt-14">
                 <Routes>
