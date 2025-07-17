@@ -48,19 +48,19 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-4">
           {menuItems.map((item) => {
             const IconComponent = item.icon;
             return (
               <Card key={item.title} className="bg-card shadow-md hover:shadow-xl transition-all duration-300 border-0 rounded-xl overflow-hidden">
                 <Button
                   onClick={() => navigate(item.path)}
-                  className="w-full h-auto p-8 bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-8 text-left transition-all duration-300 hover:shadow-lg"
+                  className="w-full h-auto p-6 bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-4 text-left transition-all duration-300 hover:shadow-lg"
                 >
-                  <IconComponent className="h-8 w-8 flex-shrink-0" />
-                  <div className="flex-1 min-w-0 max-w-full pl-4">
-                    <h3 className="text-xl font-bold mb-2 leading-tight">{item.title}</h3>
-                    <p className="text-primary-foreground/80 text-base leading-relaxed">{item.description}</p>
+                  <IconComponent className="h-12 w-12 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-bold mb-2 leading-tight break-words">{item.title}</h3>
+                    <p className="text-primary-foreground/80 text-sm leading-relaxed break-words pr-2">{item.description}</p>
                   </div>
                 </Button>
               </Card>
