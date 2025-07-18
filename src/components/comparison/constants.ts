@@ -22,7 +22,7 @@ export const COMPARISON_FIELDS: ComparisonField[] = [
 
 // Add price per sqm as a computed field
 const PRICE_PER_SQM_FIELD: ComparisonField = {
-  key: 'price_per_sqm' as any,
+  key: 'price_per_sqm',
   label: 'Pris per kvm',
   type: 'currency',
   category: 'basic'

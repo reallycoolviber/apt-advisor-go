@@ -30,7 +30,7 @@ export interface SavedComparison {
 }
 
 export interface ComparisonField {
-  key: keyof Evaluation;
+  key: keyof Evaluation | string;
   label: string;
   type: 'rating' | 'currency' | 'text' | 'number' | 'boolean';
   category: 'basic' | 'physical' | 'financial';
