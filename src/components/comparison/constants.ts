@@ -20,4 +20,24 @@ export const COMPARISON_FIELDS: ComparisonField[] = [
   { key: 'owns_land', label: 'Äger mark', type: 'boolean', category: 'financial' },
 ];
 
-export const DEFAULT_FIELDS = ['address', 'size', 'price', 'monthly_fee'];
+// Add price per sqm as a computed field
+const PRICE_PER_SQM_FIELD: ComparisonField = {
+  key: 'price_per_sqm' as any,
+  label: 'Pris per kvm',
+  type: 'currency',
+  category: 'basic'
+};
+
+export const COMPARISON_FIELDS_WITH_COMPUTED: ComparisonField[] = [
+  ...COMPARISON_FIELDS,
+  PRICE_PER_SQM_FIELD
+];
+
+export const DEFAULT_FIELDS = [
+  'address', 
+  'size', 
+  'price', 
+  'price_per_sqm', 
+  'debt_per_sqm', 
+  'cashflow_per_sqm'
+];

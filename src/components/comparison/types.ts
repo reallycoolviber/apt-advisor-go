@@ -18,6 +18,15 @@ export interface Evaluation {
   cashflow_per_sqm: number | null;
   owns_land: boolean | null;
   created_at: string;
+  price_per_sqm?: number; // Computed field
+}
+
+export interface SavedComparison {
+  id: string;
+  name: string;
+  selected_evaluations: string[];
+  selected_fields: string[];
+  created_at: string;
 }
 
 export interface ComparisonField {
