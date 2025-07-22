@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Link2, FileText, Loader2, Globe } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AutoInputSectionProps {
   data: any;
@@ -21,60 +22,62 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
     setIsScraping(true);
     
     try {
-      // Mock scraping function - in real implementation, this would call a backend service
-      // that scrapes Booli/Hemnet pages
-      const response = await mockScrapeFunction(url);
-      
-      if (response.success) {
-        updateData({
-          address: response.data.address || data.address,
-          size: response.data.size || data.size,
-          price: response.data.price || data.price,
-          rooms: response.data.rooms || data.rooms,
-          monthlyFee: response.data.monthlyFee || data.monthlyFee,
+      // Check if it's a Booli URL
+      if (url.includes('booli.se')) {
+        console.log('Scraping Booli URL:', url);
+        
+        const { data, error } = await supabase.functions.invoke('scrape-booli', {
+          body: { url }
         });
         
-        toast({
-          title: "Data hämtad",
-          description: "Information har automatiskt fyllts i från webbsidan",
-        });
+        if (error) {
+          console.error('Supabase function error:', error);
+          throw new Error(error.message || 'Kunde inte anropa skrapningsfunktionen');
+        }
+        
+        if (data.success) {
+          // Map the scraped data to our form fields
+          const scrapedData = data.data;
+          const updateFields: any = {};
+          
+          if (scrapedData.address) updateFields.address = scrapedData.address;
+          if (scrapedData.size) updateFields.size = scrapedData.size;
+          if (scrapedData.rooms) updateFields.rooms = scrapedData.rooms;
+          if (scrapedData.startPrice) updateFields.price = scrapedData.startPrice;
+          if (scrapedData.finalPrice) updateFields.finalPrice = scrapedData.finalPrice;
+          if (scrapedData.monthlyFee) updateFields.monthlyFee = scrapedData.monthlyFee;
+          
+          updateData(updateFields);
+          
+          toast({
+            title: "Data hämtad från Booli",
+            description: "Lägenhetsinformation har automatiskt fyllts i",
+          });
+        } else {
+          toast({
+            title: "Kunde inte hämta data från Booli",
+            description: data.error || "Kontrollera att länken är korrekt och försök igen",
+            variant: "destructive",
+          });
+        }
       } else {
+        // For non-Booli URLs, show a message that only Booli is supported for now
         toast({
-          title: "Kunde inte hämta data",
-          description: "Kontrollera att länken är korrekt och försök igen",
+          title: "Endast Booli stöds",
+          description: "För närvarande kan endast Booli.se-länkar skrapas automatiskt",
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.error('Scraping error:', error);
       toast({
-        title: "Fel",
-        description: "Något gick fel vid hämtning av data",
+        title: "Fel vid datahämtning",
+        description: error instanceof Error ? error.message : "Något gick fel vid hämtning av data från webbsidan",
         variant: "destructive",
       });
     } finally {
       setIsScraping(false);
     }
-  };
-
-  const mockScrapeFunction = async (url: string) => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock response based on URL patterns
-    if (url.includes('hemnet.se') || url.includes('booli.se')) {
-      return {
-        success: true,
-        data: {
-          address: "Storgatan 15, 112 36 Stockholm",
-          size: "75",
-          price: "4 500 000",
-          rooms: "3",
-          monthlyFee: "4 200"
-        }
-      };
-    }
-    
-    return { success: false };
   };
 
   const handleAutoFill = async () => {
@@ -89,28 +92,33 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
 
     setIsProcessing(true);
     
-    // If apartment URL exists, try to scrape it first
-    if (data.apartmentUrl) {
-      await scrapeWebsite(data.apartmentUrl);
-    }
-    
-    // Simulate processing time for annual report
-    setTimeout(() => {
-      // Mock auto-filled data from annual report
-      if (data.annualReportUrl) {
-        updateData({
-          debtPerSqm: "15000",
-          feePerSqm: "56",
-          ownsLand: true
-        });
+    try {
+      // If apartment URL exists, try to scrape it first
+      if (data.apartmentUrl) {
+        await scrapeWebsite(data.apartmentUrl);
       }
       
+      // Mock processing for annual report (since we don't have real scraping for that yet)
+      if (data.annualReportUrl) {
+        // Simulate processing time for annual report
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        updateData({
+          debtPerSqm: "15000",
+          feePerSqm: "56", 
+          ownsLand: true
+        });
+        
+        toast({
+          title: "Årsredovisning bearbetad",
+          description: "Ekonomiska nyckeltal har fyllts i automatiskt",
+        });
+      }
+    } catch (error) {
+      console.error('Error in auto-fill:', error);
+    } finally {
       setIsProcessing(false);
-      toast({
-        title: "Data importerad",
-        description: "Information har hämtats från länkarna",
-      });
-    }, 1000);
+    }
   };
 
   return (
@@ -125,14 +133,14 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
           <div>
             <Label htmlFor="apartmentUrl" className="flex items-center gap-2 text-foreground font-medium">
               <Link2 className="h-4 w-4" />
-              Länk till lägenhet (Booli/Hemnet)
+              Länk till lägenhet (Booli)
             </Label>
             <Input
               id="apartmentUrl"
               type="url"
               value={data.apartmentUrl}
               onChange={(e) => updateData({ apartmentUrl: e.target.value })}
-              placeholder="https://www.hemnet.se/bostad/..."
+              placeholder="https://www.booli.se/bostad/4395368"
               className="mt-2 bg-background"
             />
           </div>
@@ -162,18 +170,18 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
         {isProcessing || isScraping ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {isScraping ? "Hämtar data från webbsida..." : "Importerar data..."}
+            {isScraping ? "Hämtar data från Booli..." : "Bearbetar data..."}
           </>
         ) : (
           <>
             <Globe className="h-4 w-4 mr-2" />
-            Importera data automatiskt
+            Nästa - Importera data
           </>
         )}
       </Button>
 
       <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg border border-border">
-        <p><strong>Tips:</strong> Funktionen hämtar automatiskt information som adress, pris, storlek, månadsavgift och ekonomiska nyckeltal från de angivna länkarna. All data kan redigeras manuellt i nästa steg.</p>
+        <p><strong>Tips:</strong> Klistra in en Booli-länk för att automatiskt hämta adress, storlek, antal rum, pris och månadsavgift. Årsredovisningslänkar bearbetas för ekonomiska nyckeltal. All data kan redigeras manuellt i nästa steg.</p>
       </div>
     </div>
   );
