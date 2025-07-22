@@ -7,6 +7,7 @@ import { Link2, FileText, Loader2, Globe } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { validateAllScrapedValues } from '@/utils/valueValidation';
 
 interface AutoInputSectionProps {
   data: any;
@@ -47,7 +48,32 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
           if (scrapedData.finalPrice) updateFields.finalPrice = scrapedData.finalPrice;
           if (scrapedData.monthlyFee) updateFields.monthlyFee = scrapedData.monthlyFee;
           
+          // Validate the scraped values
+          const validationResults = validateAllScrapedValues({
+            size: scrapedData.size,
+            rooms: scrapedData.rooms,
+            price: scrapedData.startPrice,
+            finalPrice: scrapedData.finalPrice,
+            monthlyFee: scrapedData.monthlyFee
+          });
+          
+          // Store validation results
+          updateFields.validationResults = validationResults;
+          
           updateData(updateFields);
+          
+          // Show warnings for invalid values
+          const invalidFields = Object.entries(validationResults)
+            .filter(([_, result]) => !result.isValid)
+            .map(([field, result]) => `${field}: ${result.reason}`);
+          
+          if (invalidFields.length > 0) {
+            toast({
+              title: "Varning: Orimliga värden upptäckta",
+              description: `Kontrollera följande fält: ${invalidFields.join(', ')}`,
+              variant: "destructive",
+            });
+          }
           
           toast({
             title: "Data hämtad från Booli",

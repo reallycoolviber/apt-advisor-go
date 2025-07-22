@@ -64,6 +64,9 @@ const EvaluationForm = () => {
     ljusinsläpp_comment: '',
     balcony_comment: '',
     
+    // Validation results for scraped data
+    validationResults: {} as Record<string, any>,
+    
     // Draft flag
     is_draft: false
   });
@@ -132,6 +135,7 @@ const EvaluationForm = () => {
         förvaring_comment: data.förvaring_comment || '',
         ljusinsläpp_comment: data.ljusinsläpp_comment || '',
         balcony_comment: data.balcony_comment || '',
+        validationResults: {},
         is_draft: data.is_draft || false
       });
     } catch (error) {

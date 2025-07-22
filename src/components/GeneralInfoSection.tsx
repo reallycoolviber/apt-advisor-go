@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
+import { ValidatedInput } from '@/components/ValidatedInput';
 import { MapPin, Home, CreditCard, Users } from 'lucide-react';
 
 interface GeneralInfoSectionProps {
@@ -63,81 +64,71 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4 bg-card border-border">
-            <Label htmlFor="size" className="flex items-center gap-2 text-foreground font-medium mb-2">
-              <Home className="h-4 w-4" />
-              Storlek (kvm)
-            </Label>
-            <Input
+            <ValidatedInput
               id="size"
-              type="number"
-              value={data.size}
+              label="Storlek (kvm)"
+              value={data.size || ''}
               onChange={(e) => updateData({ size: e.target.value })}
+              validation={data.validationResults?.size}
               placeholder="75"
-              className="bg-background h-11 text-base"
+              type="number"
+              className="h-11 text-base"
             />
           </Card>
 
           <Card className="p-4 bg-card border-border">
-            <Label htmlFor="rooms" className="flex items-center gap-2 text-foreground font-medium mb-2">
-              <Users className="h-4 w-4" />
-              Antal rum
-            </Label>
-            <Input
+            <ValidatedInput
               id="rooms"
-              type="number"
-              value={data.rooms}
+              label="Antal rum"
+              value={data.rooms || ''}
               onChange={(e) => updateData({ rooms: e.target.value })}
+              validation={data.validationResults?.rooms}
               placeholder="3"
-              className="bg-background h-11 text-base"
+              type="number"
+              className="h-11 text-base"
             />
           </Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4 bg-card border-border">
-            <Label htmlFor="price" className="flex items-center gap-2 text-foreground font-medium mb-2">
-              <CreditCard className="h-4 w-4" />
-              Utgångspris (SEK)
-            </Label>
-            <Input
+            <ValidatedInput
               id="price"
-              value={data.price}
+              label="Utgångspris (SEK)"
+              value={data.price || ''}
               onChange={handlePriceChange}
+              validation={data.validationResults?.price}
               placeholder="4 500 000"
-              className="text-base font-semibold bg-background h-11"
+              className="text-base font-semibold h-11"
             />
           </Card>
 
           <Card className="p-4 bg-card border-border">
-            <Label htmlFor="finalPrice" className="flex items-center gap-2 text-foreground font-medium mb-2">
-              <CreditCard className="h-4 w-4" />
-              Slutpris (SEK)
-            </Label>
-            <Input
+            <ValidatedInput
               id="finalPrice"
-              value={data.finalPrice}
+              label="Slutpris (SEK)"
+              value={data.finalPrice || ''}
               onChange={(e) => {
                 const formatted = formatNumber(e.target.value);
                 updateData({ finalPrice: formatted });
               }}
+              validation={data.validationResults?.finalPrice}
               placeholder="4 200 000"
-              className="text-base font-semibold bg-background h-11"
+              className="text-base font-semibold h-11"
             />
           </Card>
         </div>
 
         <Card className="p-4 bg-card border-border">
-          <Label htmlFor="monthlyFee" className="flex items-center gap-2 text-foreground font-medium mb-2">
-            <CreditCard className="h-4 w-4" />
-            Månadsavgift (SEK)
-          </Label>
-            <Input
-              id="monthlyFee"
-              value={data.monthlyFee}
-              onChange={handleFeeChange}
-              placeholder="4 200"
-              className="text-base bg-background h-11"
-            />
+          <ValidatedInput
+            id="monthlyFee"
+            label="Månadsavgift (SEK)"
+            value={data.monthlyFee || ''}
+            onChange={handleFeeChange}
+            validation={data.validationResults?.monthlyFee}
+            placeholder="4 200"
+            className="text-base h-11"
+          />
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
