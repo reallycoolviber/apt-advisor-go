@@ -38,14 +38,19 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
         if (data.success) {
           // Map the scraped data to our form fields
           const scrapedData = data.data;
+          const formatNumber = (value: string) => {
+            const number = value.replace(/\D/g, '');
+            return number.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+          };
+
           const updateFields: any = {};
           
           if (scrapedData.address) updateFields.address = scrapedData.address;
           if (scrapedData.size) updateFields.size = scrapedData.size;
           if (scrapedData.rooms) updateFields.rooms = scrapedData.rooms;
-          if (scrapedData.startPrice) updateFields.price = scrapedData.startPrice;
-          if (scrapedData.finalPrice) updateFields.finalPrice = scrapedData.finalPrice;
-          if (scrapedData.monthlyFee) updateFields.monthlyFee = scrapedData.monthlyFee;
+          if (scrapedData.startPrice) updateFields.price = formatNumber(scrapedData.startPrice);
+          if (scrapedData.finalPrice) updateFields.finalPrice = formatNumber(scrapedData.finalPrice);
+          if (scrapedData.monthlyFee) updateFields.monthlyFee = formatNumber(scrapedData.monthlyFee);
           
           updateData(updateFields);
           

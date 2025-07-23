@@ -137,7 +137,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">Pris per kvm</p>
                 <p className="text-2xl font-bold text-primary">
-                  {Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toLocaleString()} SEK
+                  {formatNumber(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toString())} SEK
                 </p>
               </div>
             </Card>
@@ -148,7 +148,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               <div className="text-center">
                 <p className="text-sm text-foreground mb-1">Avgift per kvm</p>
                 <p className="text-2xl font-bold text-primary">
-                  {feePerSqm.toLocaleString()} SEK/månad
+                  {formatNumber(feePerSqm.toString())} SEK/månad
                 </p>
               </div>
             </Card>
