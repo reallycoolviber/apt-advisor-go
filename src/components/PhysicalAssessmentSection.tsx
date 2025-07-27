@@ -1,7 +1,8 @@
 
-import { Card } from '@/components/ui/card';
+import { StandardizedCard } from '@/components/StandardizedCard';
+import { StandardizedFieldGroup } from '@/components/StandardizedFieldGroup';
 import { RatingInput } from '@/components/RatingInput';
-import { Home, ChefHat, Bath, Bed, Palette, Archive, Sun, TreePine } from 'lucide-react';
+import { Home, ChefHat, Bath, Bed, Palette, Archive, Sun, TreePine, Star } from 'lucide-react';
 
 interface PhysicalAssessmentSectionProps {
   data: any;
@@ -37,52 +38,55 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
         <p className="text-muted-foreground text-lg">Betygsätt olika aspekter av lägenhetens fysiska tillstånd (1-5)</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {assessmentFields.map((field) => {
-          const IconComponent = field.icon;
           return (
-            <Card key={field.key} className="p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <IconComponent className="h-5 w-5 text-primary mt-1" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">{field.label}</h3>
-                  <p className="text-sm text-muted-foreground">{field.description}</p>
-                </div>
-              </div>
-              
+            <StandardizedFieldGroup
+              key={field.key}
+              title={field.label}
+              description={field.description}
+              icon={field.icon}
+            >
               <RatingInput
-                value={data[field.key]}
+                value={data[field.key] || 0}
                 onChange={(rating) => handleRatingChange(field.key, rating)}
                 comment={data[`${field.key}_comment`] || ''}
                 onCommentChange={(comment) => handleCommentChange(field.key, comment)}
                 showComment={true}
               />
-            </Card>
+            </StandardizedFieldGroup>
           );
         })}
       </div>
 
-      <Card className="p-4 bg-secondary border-border">
-        <div className="text-center">
-          <p className="text-sm text-primary mb-1">Genomsnittligt betyg</p>
-          <p className="text-3xl font-bold text-primary">{averageRating.toFixed(1)}</p>
-          <div className="flex justify-center mt-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className={`text-xl ${star <= averageRating ? 'text-yellow-400' : 'text-gray-300'}`}
-              >
-                ★
-              </span>
-            ))}
-          </div>
+      <StandardizedCard variant="secondary" className="text-center">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Star className="h-5 w-5 text-primary" />
+          <h3 className="font-semibold text-primary">Genomsnittligt betyg</h3>
         </div>
-      </Card>
+        <p className="text-4xl font-bold text-primary mb-4">{averageRating.toFixed(1)}</p>
+        <div className="flex justify-center gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              className={`text-2xl transition-colors ${
+                star <= averageRating 
+                  ? 'text-warning' 
+                  : 'text-muted-foreground/40'
+              }`}
+            >
+              ★
+            </span>
+          ))}
+        </div>
+      </StandardizedCard>
 
 
-      <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-        <p><strong>Betygsskala:</strong> 1 = Mycket dåligt, 2 = Dåligt, 3 = Okej, 4 = Bra, 5 = Utmärkt</p>
-      </div>
+      <StandardizedCard variant="default" size="sm" className="bg-muted/30">
+        <p className="text-sm text-muted-foreground">
+          <strong className="text-foreground">Betygsskala:</strong> 1 = Mycket dåligt, 2 = Dåligt, 3 = Okej, 4 = Bra, 5 = Utmärkt
+        </p>
+      </StandardizedCard>
     </div>
   );
 };

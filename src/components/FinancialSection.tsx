@@ -1,11 +1,10 @@
-
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
+import { StandardizedInput } from '@/components/StandardizedInput';
+import { StandardizedTextarea } from '@/components/StandardizedTextarea';
+import { StandardizedCard } from '@/components/StandardizedCard';
+import { StandardizedFieldGroup } from '@/components/StandardizedFieldGroup';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { InfoButton } from '@/components/ui/info-button';
-import { TrendingUp, DollarSign, PiggyBank, Building2, CheckCircle, XCircle, Settings } from 'lucide-react';
+import { TrendingUp, DollarSign, PiggyBank, Building2, CheckCircle, XCircle, Settings, Activity } from 'lucide-react';
 
 interface FinancialSectionProps {
   data: any;
@@ -40,209 +39,215 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
         <p className="text-muted-foreground text-lg">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
       </div>
 
-      <div className="space-y-4">
-        <Card className="p-4">
-          <div className="flex items-start gap-3 mb-3">
-            <TrendingUp className="h-5 w-5 text-primary mt-1" />
+      <div className="space-y-6">
+        <StandardizedFieldGroup
+          title="Skuld per kvm (SEK)"
+          description="Föreningens totala skuld dividerat med total yta"
+          icon={TrendingUp}
+        >
+          <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground">Skuld per kvm (SEK)</h3>
-              <p className="text-sm text-muted-foreground">Föreningens totala skuld dividerat med total yta</p>
+              <StandardizedInput
+                id="debtPerSqm"
+                label=""
+                value={data.debtPerSqm || ''}
+                onChange={handleDebtChange}
+                placeholder="15 000"
+                size="lg"
+              />
             </div>
             <InfoButton
               content="Att enbart fokusera på köpeskillingen kan vara en fälla; en kritisk faktor är föreningens skuld per kvadratmeter. En betydande skuldbörda kan signalera framtida avgiftshöjningar eller behov av kapitaltillskott, vilket ingen vill uppleva post-inflyttning. En låg skuld är ett starkt indikativt tecken på en ekonomiskt välskött förening med solid finansiell framförhållning. Det är en avgörande parameter för den långsiktiga ekonomiska tryggheten i boendet, och en djupdykning i detta är alltid att rekommendera."
             />
           </div>
-          <Input
-            id="debtPerSqm"
-            value={data.debtPerSqm}
-            onChange={handleDebtChange}
-            placeholder="15 000"
-            className="text-lg"
-          />
-        </Card>
+        </StandardizedFieldGroup>
 
-        <Card className="p-4">
-          <div className="flex items-start gap-3 mb-3">
-            <DollarSign className="h-5 w-5 text-primary mt-1" />
+        <StandardizedFieldGroup
+          title="Avgift per kvm (SEK)"
+          description="Månadsavgift dividerat med lägenhetens yta"
+          icon={DollarSign}
+        >
+          <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground">Avgift per kvm (SEK)</h3>
-              <p className="text-sm text-muted-foreground">Månadsavgift dividerat med lägenhetens yta</p>
+              <StandardizedInput
+                id="feePerSqm"
+                label=""
+                value={data.feePerSqm || ''}
+                onChange={handleFeeChange}
+                placeholder="56"
+                size="lg"
+              />
             </div>
             <InfoButton
               content="Den månatliga avgiften per kvadratmeter har en direkt inverkan på hushållets disponibla inkomst. En extremt låg avgift kan vara missvisande; den kan indikera att föreningen underfinansierar nödvändigt underhåll, vilket i sin tur kan leda till framtida kostnader. Det eftersträvas en sund balans: en avgift som är tillräcklig för att täcka löpande kostnader och långsiktigt underhållsbehov, utan att vara oproportionerligt hög. Optimering av denna post är central för en stabil vardagsekonomi."
             />
           </div>
-          <Input
-            id="feePerSqm"
-            value={data.feePerSqm}
-            onChange={handleFeeChange}
-            placeholder="56"
-            className="text-lg"
-          />
-        </Card>
+        </StandardizedFieldGroup>
 
-        <Card className="p-4">
-          <div className="flex items-start gap-3 mb-3">
-            <PiggyBank className="h-5 w-5 text-primary mt-1" />
+        <StandardizedFieldGroup
+          title="Kassaflöde per kvm (SEK)"
+          description="Föreningens årliga kassaflöde per kvm"
+          icon={PiggyBank}
+        >
+          <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground">Kassaflöde per kvm (SEK)</h3>
-              <p className="text-sm text-muted-foreground">Föreningens årliga kassaflöde per kvm</p>
+              <StandardizedInput
+                id="cashflowPerSqm"
+                label=""
+                value={data.cashflowPerSqm || ''}
+                onChange={handleCashflowChange}
+                placeholder="12"
+                size="lg"
+              />
             </div>
             <InfoButton
               content="Ett robust och positivt kassaflöde per kvadratmeter utgör föreningens finansiella ryggrad, vilket signalerar en ekonomi kapabel att hantera både oförutsedda utgifter och strategiska investeringar. Att granska detta är av yttersta vikt; ett starkt kassaflöde ger föreningen den handlingsfrihet som minskar risken för att medlemmarna behöver tillföra extra kapital vid oväntade reparationer. Det är en primär indikator på långsiktig ekonomisk stabilitet och ett tecken på att föreningen inte opererar på marginalen."
             />
           </div>
-          <Input
-            id="cashflowPerSqm"
-            value={data.cashflowPerSqm}
-            onChange={handleCashflowChange}
-            placeholder="12"
-            className="text-lg"
-          />
-        </Card>
+        </StandardizedFieldGroup>
 
-        <Card className="p-4">
-          <div className="flex items-start gap-3 mb-3">
-            <Settings className="h-5 w-5 text-primary mt-1" />
+        <StandardizedFieldGroup
+          title="Alla stora underhåll är gjorda?"
+          description="Kunskap om genomförda stora underhållsarbeten är fundamental för att undvika oväntade och kostsamma överraskningar"
+          icon={Settings}
+        >
+          <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground">Alla stora underhåll är gjorda?</h3>
-              <p className="text-sm text-muted-foreground">Kunskap om genomförda stora underhållsarbeten är fundamental för att undvika oväntade och kostsamma överraskningar</p>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant={data.majorMaintenanceDone === true ? "default" : "outline"}
+                  onClick={() => updateData({ majorMaintenanceDone: true })}
+                  className={`flex-1 h-12 ${
+                    data.majorMaintenanceDone === true 
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                      : 'border-primary text-primary hover:bg-primary/10'
+                  }`}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Ja
+                </Button>
+                <Button
+                  type="button"
+                  variant={data.majorMaintenanceDone === false ? "default" : "outline"}
+                  onClick={() => updateData({ majorMaintenanceDone: false })}
+                  className={`flex-1 h-12 ${
+                    data.majorMaintenanceDone === false 
+                      ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                      : 'border-destructive text-destructive hover:bg-destructive/10'
+                  }`}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Nej
+                </Button>
+              </div>
             </div>
             <InfoButton
               content="Kunskap om genomförda stora underhållsarbeten är fundamental för att undvika oväntade och kostsamma överraskningar efter ett förvärv. Projekt som stambyten, takrenoveringar och fasadarbeten representerar betydande investeringar. Om dessa redan är genomförda, reduceras risken markant för framtida kapitaltillskott eller betydande avgiftshöjningar för de boende. Detta är en proaktiv granskning som säkrar den ekonomiska framtiden i bostaden och signalerar en väl underhållen fastighet."
             />
           </div>
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant={data.majorMaintenanceDone === true ? "default" : "outline"}
-              onClick={() => updateData({ majorMaintenanceDone: true })}
-              className={`flex-1 h-12 ${
-                data.majorMaintenanceDone === true 
-                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
-                  : 'border-primary text-primary hover:bg-primary/10'
-              }`}
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Ja
-            </Button>
-            <Button
-              type="button"
-              variant={data.majorMaintenanceDone === false ? "default" : "outline"}
-              onClick={() => updateData({ majorMaintenanceDone: false })}
-              className={`flex-1 h-12 ${
-                data.majorMaintenanceDone === false 
-                  ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
-                  : 'border-destructive text-destructive hover:bg-destructive/10'
-              }`}
-            >
-              <XCircle className="h-4 w-4 mr-2" />
-              Nej
-            </Button>
-          </div>
-        </Card>
+        </StandardizedFieldGroup>
 
-        <Card className="p-4">
-          <div className="flex items-start gap-3 mb-3">
-            <Building2 className="h-5 w-5 text-primary mt-1" />
+        <StandardizedFieldGroup
+          title="Äger föreningen marken?"
+          description="Frågan om föreningen innehar marken med äganderätt eller tomträtt är avgörande för ekonomisk stabilitet"
+          icon={Building2}
+        >
+          <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground">Äger föreningen marken?</h3>
-              <p className="text-sm text-muted-foreground">Frågan om föreningen innehar marken med äganderätt eller tomträtt är avgörande för ekonomisk stabilitet</p>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant={data.ownsLand === true ? "default" : "outline"}
+                  onClick={() => updateData({ ownsLand: true })}
+                  className={`flex-1 h-12 ${
+                    data.ownsLand === true 
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                      : 'border-primary text-primary hover:bg-primary/10'
+                  }`}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Ja
+                </Button>
+                <Button
+                  type="button"
+                  variant={data.ownsLand === false ? "default" : "outline"}
+                  onClick={() => updateData({ ownsLand: false })}
+                  className={`flex-1 h-12 ${
+                    data.ownsLand === false 
+                      ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                      : 'border-destructive text-destructive hover:bg-destructive/10'
+                  }`}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Nej
+                </Button>
+              </div>
             </div>
             <InfoButton
               content="Frågan om föreningen innehar marken med äganderätt eller tomträtt är avgörande för en bostadsrätts ekonomiska stabilitet. Om marken innehas med tomträtt, ådrar sig föreningen en årlig avgift till kommunen, en avgift som kan omförhandlas och därmed potentiellt höjas. Detta kan få direkta, negativa konsekvenser för månadsavgiften. Ett friköpt markinnehav ger föreningen en betydande ekonomisk fördel och långsiktig stabilitet, vilket är en grundläggande faktor för förutsägbara boendekostnader."
             />
           </div>
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant={data.ownsLand === true ? "default" : "outline"}
-              onClick={() => updateData({ ownsLand: true })}
-              className={`flex-1 h-12 ${
-                data.ownsLand === true 
-                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
-                  : 'border-primary text-primary hover:bg-primary/10'
-              }`}
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Ja
-            </Button>
-            <Button
-              type="button"
-              variant={data.ownsLand === false ? "default" : "outline"}
-              onClick={() => updateData({ ownsLand: false })}
-              className={`flex-1 h-12 ${
-                data.ownsLand === false 
-                  ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
-                  : 'border-destructive text-destructive hover:bg-destructive/10'
-              }`}
-            >
-              <XCircle className="h-4 w-4 mr-2" />
-              Nej
-            </Button>
-          </div>
-        </Card>
+        </StandardizedFieldGroup>
 
-        <Card className="p-4">
-          <div className="flex items-start gap-3 mb-3">
-            <Building2 className="h-5 w-5 text-primary mt-1" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-foreground">Sammanfattning underhållsplan</h3>
-              <p className="text-sm text-muted-foreground">Kort sammanfattning av föreningens underhållsplan och kommande större investeringar</p>
-            </div>
-          </div>
-          <Textarea
+        <StandardizedFieldGroup
+          title="Sammanfattning underhållsplan"
+          description="Kort sammanfattning av föreningens underhållsplan och kommande större investeringar"
+          icon={Building2}
+        >
+          <StandardizedTextarea
             id="underhållsplan"
-            value={data.underhållsplan}
+            label=""
+            value={data.underhållsplan || ''}
             onChange={(e) => updateData({ underhållsplan: e.target.value })}
             placeholder="Kort sammanfattning av föreningens underhållsplan och kommande större investeringar..."
-            className="min-h-[100px]"
+            rows={4}
           />
-        </Card>
-
+        </StandardizedFieldGroup>
       </div>
 
       {/* Financial Health Indicator */}
       {data.debtPerSqm && data.feePerSqm && (
-        <Card className="p-4 bg-secondary border-border">
-          <div className="text-center">
-            <h3 className="font-semibold text-primary mb-3">Ekonomisk hälsa</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="text-center">
-                <p className="text-muted-foreground">Skuldrisk</p>
-                <p className={`font-bold ${
-                  parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
-                    ? 'text-destructive' 
-                    : parseInt(data.debtPerSqm.replace(/\s/g, '')) > 10000 
-                    ? 'text-amber-600' 
-                    : 'text-primary'
-                }`}>
-                  {parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
-                    ? 'Hög' 
-                    : parseInt(data.debtPerSqm.replace(/\s/g, '')) > 10000 
-                    ? 'Medel' 
-                    : 'Låg'}
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-muted-foreground">Avgiftsnivå</p>
-                <p className={`font-bold ${
-                  parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
-                    ? 'text-destructive' 
-                    : parseInt(data.feePerSqm.replace(/\s/g, '')) > 50 
-                    ? 'text-amber-600' 
-                    : 'text-primary'
-                }`}>
-                  {parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
-                    ? 'Hög' 
-                    : parseInt(data.feePerSqm.replace(/\s/g, '')) > 50 
-                    ? 'Medel' 
-                    : 'Låg'}
-                </p>
-              </div>
+        <StandardizedCard variant="secondary" className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Activity className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-primary text-lg">Ekonomisk hälsa</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="text-center p-4 rounded-lg bg-background border border-border">
+              <p className="text-sm text-muted-foreground mb-2">Skuldrisk</p>
+              <p className={`text-xl font-bold ${
+                parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
+                  ? 'text-destructive' 
+                  : parseInt(data.debtPerSqm.replace(/\s/g, '')) > 10000 
+                  ? 'text-warning' 
+                  : 'text-success'
+              }`}>
+                {parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
+                  ? 'Hög' 
+                  : parseInt(data.debtPerSqm.replace(/\s/g, '')) > 10000 
+                  ? 'Medel' 
+                  : 'Låg'}
+              </p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-background border border-border">
+              <p className="text-sm text-muted-foreground mb-2">Avgiftsnivå</p>
+              <p className={`text-xl font-bold ${
+                parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
+                  ? 'text-destructive' 
+                  : parseInt(data.feePerSqm.replace(/\s/g, '')) > 50 
+                  ? 'text-warning' 
+                  : 'text-success'
+              }`}>
+                {parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
+                  ? 'Hög' 
+                  : parseInt(data.feePerSqm.replace(/\s/g, '')) > 50 
+                  ? 'Medel' 
+                  : 'Låg'}
+              </p>
             </div>
           </div>
-        </Card>
+        </StandardizedCard>
       )}
     </div>
   );

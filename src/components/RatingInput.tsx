@@ -23,9 +23,9 @@ export const RatingInput = ({
   const [hover, setHover] = useState(0);
 
   const getRatingColor = (rating: number) => {
-    if (rating <= 2) return 'text-red-500';
-    if (rating <= 3) return 'text-yellow-500';
-    return 'text-green-500';
+    if (rating <= 2) return 'text-destructive';
+    if (rating <= 3) return 'text-warning';
+    return 'text-success';
   };
 
   const getRatingText = (rating: number) => {
@@ -48,11 +48,11 @@ export const RatingInput = ({
             <button
               key={index}
               type="button"
-              className={`text-2xl transition-colors ${
+              className={`text-2xl transition-all duration-200 ${
                 rating <= (hover || value)
                   ? getRatingColor(hover || value)
-                  : 'text-gray-300'
-              } hover:scale-110 transform transition-transform`}
+                  : 'text-muted-foreground/40'
+              } hover:scale-110 transform`}
               onClick={() => onChange(rating)}
               onMouseEnter={() => setHover(rating)}
               onMouseLeave={() => setHover(0)}
@@ -67,19 +67,21 @@ export const RatingInput = ({
         <span className={`text-sm font-medium ${getRatingColor(value)}`}>
           {getRatingText(value)}
         </span>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-muted-foreground">
           {value}/{max}
         </span>
       </div>
       
       {showComment && onCommentChange && (
         <div className="mt-4">
-          <Label className="text-sm text-muted-foreground mb-2 block">Kommentar (valfritt)</Label>
+          <Label className="text-sm font-medium text-foreground mb-2 block">
+            Kommentar (valfritt)
+          </Label>
           <Textarea
             value={comment}
             onChange={(e) => onCommentChange(e.target.value)}
             placeholder="Lägg till en kommentar för detta betyg..."
-            className="mt-1 resize-none w-full min-h-[80px]"
+            className="resize-none w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0"
             rows={3}
           />
         </div>

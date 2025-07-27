@@ -1,8 +1,8 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
+import { StandardizedInput } from '@/components/StandardizedInput';
+import { StandardizedCard } from '@/components/StandardizedCard';
+import { StandardizedFieldGroup } from '@/components/StandardizedFieldGroup';
 import { ValidatedInput } from '@/components/ValidatedInput';
-import { MapPin, Home, CreditCard, Users } from 'lucide-react';
+import { MapPin, Home, CreditCard, Users, Calculator, DollarSign } from 'lucide-react';
 
 interface GeneralInfoSectionProps {
   data: any;
@@ -26,6 +26,11 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
     updateData({ monthlyFee: formatted });
   };
 
+  const handleFinalPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatNumber(e.target.value);
+    updateData({ finalPrice: formatted });
+  };
+
   // Calculate fee per square meter
   const calculateFeePerSqm = () => {
     if (data.monthlyFee && data.size) {
@@ -47,113 +52,130 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
         <p className="text-muted-foreground text-lg">Grundläggande uppgifter om lägenheten</p>
       </div>
 
-      <div className="grid gap-4">
-        <Card className="p-4 bg-card border-border">
-          <Label htmlFor="address" className="flex items-center gap-2 text-foreground font-medium mb-2">
-            <MapPin className="h-4 w-4" />
-            Adress
-          </Label>
-          <Input
+      <div className="space-y-6">
+        <StandardizedFieldGroup
+          title="Adress"
+          description="Fullständig adress för lägenheten"
+          icon={MapPin}
+        >
+          <ValidatedInput
             id="address"
-            value={data.address}
+            label=""
+            value={data.address || ''}
             onChange={(e) => updateData({ address: e.target.value })}
-            placeholder="Storgatan 15, Stockholm"
-            className="text-lg bg-background"
+            placeholder="Kungsgatan 1, 111 43 Stockholm"
+            validation={data.validationResults?.address}
           />
-        </Card>
+        </StandardizedFieldGroup>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="p-4 bg-card border-border">
+        <div className="grid md:grid-cols-2 gap-6">
+          <StandardizedFieldGroup
+            title="Storlek (kvm)"
+            description="Lägenhetens yta i kvadratmeter"
+            icon={Home}
+          >
             <ValidatedInput
               id="size"
-              label="Storlek (kvm)"
+              label=""
               value={data.size || ''}
               onChange={(e) => updateData({ size: e.target.value })}
-              validation={data.validationResults?.size}
               placeholder="75"
               type="number"
-              className="h-11 text-base"
+              validation={data.validationResults?.size}
             />
-          </Card>
+          </StandardizedFieldGroup>
 
-          <Card className="p-4 bg-card border-border">
+          <StandardizedFieldGroup
+            title="Antal rum"
+            description="Totalt antal rum"
+            icon={Users}
+          >
             <ValidatedInput
               id="rooms"
-              label="Antal rum"
+              label=""
               value={data.rooms || ''}
               onChange={(e) => updateData({ rooms: e.target.value })}
-              validation={data.validationResults?.rooms}
               placeholder="3"
               type="number"
-              className="h-11 text-base"
+              validation={data.validationResults?.rooms}
             />
-          </Card>
+          </StandardizedFieldGroup>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="p-4 bg-card border-border">
+        <div className="grid md:grid-cols-2 gap-6">
+          <StandardizedFieldGroup
+            title="Utgångspris (SEK)"
+            description="Ursprungligt utgångspris"
+            icon={CreditCard}
+          >
             <ValidatedInput
               id="price"
-              label="Utgångspris (SEK)"
+              label=""
               value={data.price || ''}
               onChange={handlePriceChange}
+              placeholder="3 500 000"
               validation={data.validationResults?.price}
-              placeholder="4 500 000"
-              className="text-base font-semibold h-11"
             />
-          </Card>
+          </StandardizedFieldGroup>
 
-          <Card className="p-4 bg-card border-border">
+          <StandardizedFieldGroup
+            title="Slutpris (SEK)"
+            description="Slutgiltigt försäljningspris"
+            icon={CreditCard}
+          >
             <ValidatedInput
               id="finalPrice"
-              label="Slutpris (SEK)"
+              label=""
               value={data.finalPrice || ''}
-              onChange={(e) => {
-                const formatted = formatNumber(e.target.value);
-                updateData({ finalPrice: formatted });
-              }}
+              onChange={handleFinalPriceChange}
+              placeholder="3 200 000"
               validation={data.validationResults?.finalPrice}
-              placeholder="4 200 000"
-              className="text-base font-semibold h-11"
             />
-          </Card>
+          </StandardizedFieldGroup>
         </div>
 
-        <Card className="p-4 bg-card border-border">
+        <StandardizedFieldGroup
+          title="Månadsavgift (SEK)"
+          description="Månatlig avgift"
+          icon={DollarSign}
+        >
           <ValidatedInput
             id="monthlyFee"
-            label="Månadsavgift (SEK)"
+            label=""
             value={data.monthlyFee || ''}
             onChange={handleFeeChange}
-            validation={data.validationResults?.monthlyFee}
             placeholder="4 200"
-            className="text-base h-11"
+            validation={data.validationResults?.monthlyFee}
           />
-        </Card>
+        </StandardizedFieldGroup>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.size && data.price && (
-            <Card className="p-4 bg-secondary border-border">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-1">Pris per kvm</p>
-                <p className="text-2xl font-bold text-primary">
-                  {formatNumber(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toString())} SEK
-                </p>
-              </div>
-            </Card>
-          )}
-
-          {feePerSqm && (
-            <Card className="p-4 bg-secondary border-border">
-              <div className="text-center">
-                <p className="text-sm text-foreground mb-1">Avgift per kvm</p>
-                <p className="text-2xl font-bold text-primary">
-                  {formatNumber(feePerSqm.toString())} SEK/månad
-                </p>
-              </div>
-            </Card>
-          )}
-        </div>
+        {/* Calculated Values Section */}
+        {data.price && data.size && (
+          <StandardizedCard variant="secondary" className="text-center">
+            <h3 className="font-semibold text-foreground mb-6">Beräknade värden</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              {data.price && data.size && (
+                <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
+                  <Calculator className="h-5 w-5 text-primary mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground mb-1">Pris per kvm</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatNumber(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toString())} SEK
+                  </p>
+                </div>
+              )}
+              
+              {feePerSqm && (
+                <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
+                  <DollarSign className="h-5 w-5 text-primary mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground mb-1">Avgift per kvm</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatNumber(feePerSqm.toString())} SEK/månad
+                  </p>
+                </div>
+              )}
+            </div>
+          </StandardizedCard>
+        )}
       </div>
     </div>
   );
