@@ -4,9 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 export const GlobalHeader = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<{ full_name: string } | null>(null);
 
   useEffect(() => {
@@ -55,10 +57,16 @@ export const GlobalHeader = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted p-2"
+            title="Gå till profil"
+          >
             <User className="h-4 w-4" />
             <span>{getDisplayName()}</span>
-          </div>
+          </Button>
           <Button
             variant="ghost"
             size="sm"

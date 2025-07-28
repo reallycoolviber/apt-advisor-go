@@ -5,7 +5,20 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download, Trash2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 import { exportToExcel, exportToCSV } from '@/utils/exportUtils';
 import { 
@@ -42,6 +55,8 @@ const Evaluations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'completed' | 'drafts'>('all');
+  const [selectedEvaluations, setSelectedEvaluations] = useState<string[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchEvaluations = async () => {
@@ -94,6 +109,77 @@ const Evaluations = () => {
       exportToExcel(evaluations as any);
     } else {
       exportToCSV(evaluations as any);
+    }
+  };
+
+  const handleSelectEvaluation = (evaluationId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedEvaluations([...selectedEvaluations, evaluationId]);
+    } else {
+      setSelectedEvaluations(selectedEvaluations.filter(id => id !== evaluationId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEvaluations(filteredEvaluations.map(evaluation => evaluation.id));
+    } else {
+      setSelectedEvaluations([]);
+    }
+  };
+
+  const handleDeleteSingle = async (evaluationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('apartment_evaluations')
+        .delete()
+        .eq('id', evaluationId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      setEvaluations(evaluations.filter(evaluation => evaluation.id !== evaluationId));
+      setSelectedEvaluations(selectedEvaluations.filter(id => id !== evaluationId));
+      
+      toast({
+        title: "Utvärdering borttagen",
+        description: "Utvärderingen har tagits bort.",
+      });
+    } catch (err) {
+      console.error('Error deleting evaluation:', err);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort utvärderingen. Försök igen.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    try {
+      const { error } = await supabase
+        .from('apartment_evaluations')
+        .delete()
+        .in('id', selectedEvaluations)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      setEvaluations(evaluations.filter(evaluation => !selectedEvaluations.includes(evaluation.id)));
+      const deletedCount = selectedEvaluations.length;
+      setSelectedEvaluations([]);
+      
+      toast({
+        title: "Utvärderingar borttagna",
+        description: `${deletedCount} utvärdering${deletedCount > 1 ? 'ar' : ''} har tagits bort.`,
+      });
+    } catch (err) {
+      console.error('Error deleting evaluations:', err);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ta bort utvärderingarna. Försök igen.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -177,6 +263,51 @@ const Evaluations = () => {
                   </span>
                 </div>
                 
+                {/* Selection controls */}
+                {filteredEvaluations.length > 0 && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="select-all"
+                        checked={selectedEvaluations.length === filteredEvaluations.length && filteredEvaluations.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                      <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
+                        Markera alla
+                      </label>
+                    </div>
+                    
+                    {selectedEvaluations.length > 0 && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm" className="gap-2">
+                            <Trash2 className="h-4 w-4" />
+                            Ta bort valda ({selectedEvaluations.length})
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Är du säker på att du vill ta bort {selectedEvaluations.length} utvärdering{selectedEvaluations.length > 1 ? 'ar' : ''}? 
+                              Denna åtgärd kan inte ångras.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={handleDeleteSelected}
+                              className="bg-destructive hover:bg-destructive/90"
+                            >
+                              Ta bort
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
+                )}
+                
                 {/* Filter buttons */}
                 <div className="flex gap-3">
                   <Button
@@ -241,18 +372,55 @@ const Evaluations = () => {
                 return (
                   <Card key={evaluation.id} className="bg-white shadow-md border-0 rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden">
                     <div className="p-5">
-                      {/* Header with date and status */}
+                      {/* Header with checkbox, date and status */}
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={selectedEvaluations.includes(evaluation.id)}
+                            onCheckedChange={(checked) => handleSelectEvaluation(evaluation.id, checked as boolean)}
+                          />
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                          </div>
                         </div>
-                        {evaluation.is_draft && (
-                          <span className="bg-accent/20 text-accent-foreground px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 font-medium">
-                            <FileText className="h-3 w-3" />
-                            Utkast
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {evaluation.is_draft && (
+                            <span className="bg-accent/20 text-accent-foreground px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 font-medium">
+                              <FileText className="h-3 w-3" />
+                              Utkast
+                            </span>
+                          )}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10 p-2"
+                                title="Ta bort utvärdering"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Är du säker på att du vill ta bort denna utvärdering? Denna åtgärd kan inte ångras.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteSingle(evaluation.id)}
+                                  className="bg-destructive hover:bg-destructive/90"
+                                >
+                                  Ta bort
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </div>
 
                     {/* Address */}
