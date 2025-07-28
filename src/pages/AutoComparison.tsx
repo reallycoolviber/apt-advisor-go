@@ -43,6 +43,9 @@ const AutoComparison = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  console.log('AutoComparison: Rendered with id:', id);
+  console.log('AutoComparison: User:', user);
+
   const [loading, setLoading] = useState(true);
   const [currentEvaluation, setCurrentEvaluation] = useState<Evaluation | null>(null);
   const [comparisonEvaluations, setComparisonEvaluations] = useState<Evaluation[]>([]);
