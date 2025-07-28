@@ -13,6 +13,7 @@ import EvaluationForm from "./pages/EvaluationForm";
 import Evaluations from "./pages/Evaluations";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import Compare from "./pages/Compare";
+import AutoComparison from "./pages/AutoComparison";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -94,6 +95,11 @@ const App = () => (
                   <Route path="/compare" element={
                     <ProtectedRoute>
                       <Compare />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/auto-comparison/:id" element={
+                    <ProtectedRoute>
+                      <AutoComparison />
                     </ProtectedRoute>
                   } />
                   <Route path="/evaluation/:id" element={

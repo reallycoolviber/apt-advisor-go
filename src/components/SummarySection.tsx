@@ -58,20 +58,22 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
         comments: data.comments || null,
       };
 
-      const { error } = await supabase
+      const { data: savedEvaluation, error } = await supabase
         .from('apartment_evaluations')
-        .insert([evaluationData]);
+        .insert([evaluationData])
+        .select()
+        .single();
 
       if (error) throw error;
 
       toast({
         title: "Utvärdering sparad",
-        description: "Din lägenhetsuvärdering har sparats framgångsrikt!",
+        description: "Navigerar till automatisk jämförelse...",
       });
 
-      // Navigate back to dashboard after successful save
+      // Navigate to auto comparison page after successful save
       setTimeout(() => {
-        navigate('/');
+        navigate(`/auto-comparison/${savedEvaluation.id}`);
       }, 1500);
 
     } catch (error) {
