@@ -442,11 +442,11 @@ const Evaluations = () => {
                       <div className="flex items-center gap-2 mb-4 p-3 bg-primary/10 rounded-lg">
                         <Euro className="h-5 w-5 text-primary" />
                         <div>
-                          {evaluation.price && (
-                            <p className="font-semibold text-primary">
-                              {parseInt(evaluation.price.toString()).toLocaleString()} SEK
-                            </p>
-                          )}
+                           {evaluation.price && (
+                             <p className="font-semibold text-primary">
+                               {Number(evaluation.price).toLocaleString('sv-SE')} SEK
+                             </p>
+                           )}
                           {evaluation.monthly_fee && (
                             <p className="text-sm text-primary/80">
                               {parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån
