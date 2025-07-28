@@ -334,18 +334,7 @@ const EvaluationForm = () => {
           </Button>
           
           {currentSection === sections.length - 1 ? (
-            <Button
-              onClick={() => saveEvaluation(false)}
-              disabled={saving}
-              className="flex-1 h-12 text-sm font-medium bg-primary hover:bg-primary/90 min-w-0"
-            >
-              {saving ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent mr-1 flex-shrink-0"></div>
-              ) : (
-                <Save className="h-4 w-4 mr-1 flex-shrink-0" />
-              )}
-              <span className="truncate">{isEditMode ? 'Uppdatera' : 'Slutför'}</span>
-            </Button>
+            <div className="flex-1"></div>
           ) : (
             <Button
               onClick={nextSection}
