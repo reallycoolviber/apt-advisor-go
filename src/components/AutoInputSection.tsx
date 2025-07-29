@@ -16,6 +16,7 @@ interface AutoInputSectionProps {
 export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isScraping, setIsScraping] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const { toast } = useToast();
 
   const scrapeWebsite = async (url: string) => {
@@ -85,6 +86,63 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
     }
   };
 
+  const parseAnnualReport = async (url: string) => {
+    setIsParsing(true);
+    
+    try {
+      console.log('Parsing annual report PDF:', url);
+      
+      const { data, error } = await supabase.functions.invoke('parse-annual-report', {
+        body: { url }
+      });
+      
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Kunde inte anropa PDF-parsningsfunktionen');
+      }
+      
+      if (data.success && data.metrics) {
+        const formatNumber = (value: number) => {
+          return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        };
+
+        const updateFields: any = {};
+        
+        if (data.metrics.debt_per_sqm !== undefined) {
+          updateFields.debtPerSqm = formatNumber(data.metrics.debt_per_sqm);
+        }
+        if (data.metrics.fee_per_sqm !== undefined) {
+          updateFields.feePerSqm = formatNumber(data.metrics.fee_per_sqm);
+        }
+        if (data.metrics.cashflow_per_sqm !== undefined) {
+          updateFields.cashflowPerSqm = formatNumber(data.metrics.cashflow_per_sqm);
+        }
+        
+        updateData(updateFields);
+        
+        toast({
+          title: "Årsredovisning bearbetad",
+          description: data.message || "Ekonomiska nyckeltal har extraheras från PDF:en",
+        });
+      } else {
+        toast({
+          title: "Kunde inte extrahera data",
+          description: data.error || "Inga ekonomiska nyckeltal kunde hittas i PDF:en",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('PDF parsing error:', error);
+      toast({
+        title: "Fel vid PDF-parsning",
+        description: error instanceof Error ? error.message : "Något gick fel vid bearbetning av årsredovisningen",
+        variant: "destructive",
+      });
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
   const handleAutoFill = async () => {
     if (!data.apartmentUrl && !data.annualReportUrl) {
       toast({
@@ -103,21 +161,9 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
         await scrapeWebsite(data.apartmentUrl);
       }
       
-      // Mock processing for annual report (since we don't have real scraping for that yet)
+      // If annual report URL exists, parse the PDF
       if (data.annualReportUrl) {
-        // Simulate processing time for annual report
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        updateData({
-          debtPerSqm: "15000",
-          feePerSqm: "56", 
-          ownsLand: true
-        });
-        
-        toast({
-          title: "Årsredovisning bearbetad",
-          description: "Ekonomiska nyckeltal har fyllts i automatiskt",
-        });
+        await parseAnnualReport(data.annualReportUrl);
       }
     } catch (error) {
       console.error('Error in auto-fill:', error);
@@ -169,13 +215,18 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
 
       <Button
         onClick={handleAutoFill}
-        disabled={isProcessing || isScraping || (!data.apartmentUrl && !data.annualReportUrl)}
+        disabled={isProcessing || isScraping || isParsing || (!data.apartmentUrl && !data.annualReportUrl)}
         className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
       >
-        {isProcessing || isScraping ? (
+        {isProcessing || isScraping || isParsing ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {isScraping ? "Hämtar data från Booli..." : "Bearbetar data..."}
+            {isScraping 
+              ? "Hämtar data från Booli..." 
+              : isParsing 
+              ? "Bearbetar årsredovisning..." 
+              : "Bearbetar data..."
+            }
           </>
         ) : (
           <>

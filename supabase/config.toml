@@ -2,3 +2,6 @@ project_id = "nysfnvsjufhfrnglayqn"
 
 [functions.scrape-booli]
 verify_jwt = false
+
+[functions.parse-annual-report]
+verify_jwt = false
