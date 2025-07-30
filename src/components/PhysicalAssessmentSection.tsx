@@ -29,7 +29,12 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
     updateData({ [`${field}_comment`]: comment });
   };
 
-  const averageRating = assessmentFields.reduce((sum, field) => sum + data[field.key], 0) / assessmentFields.length;
+  // Calculate how many categories have been rated (more than 0 stars)
+  const ratedCategories = assessmentFields.filter(field => data[field.key] > 0);
+  const hasMinimumRatings = ratedCategories.length >= 3;
+  const averageRating = hasMinimumRatings 
+    ? ratedCategories.reduce((sum, field) => sum + data[field.key], 0) / ratedCategories.length
+    : 0;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -64,21 +69,30 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
           <Star className="h-5 w-5 text-primary" />
           <h3 className="font-semibold text-primary">Genomsnittligt betyg</h3>
         </div>
-        <p className="text-4xl font-bold text-primary mb-4">{averageRating.toFixed(1)}</p>
-        <div className="flex justify-center gap-1">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <span
-              key={star}
-              className={`text-2xl transition-colors ${
-                star <= averageRating 
-                  ? 'text-warning' 
-                  : 'text-muted-foreground/40'
-              }`}
-            >
-              ★
-            </span>
-          ))}
-        </div>
+        {hasMinimumRatings ? (
+          <>
+            <p className="text-4xl font-bold text-primary mb-4">{averageRating.toFixed(1)}</p>
+            <div className="flex justify-center gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className={`text-2xl transition-colors ${
+                    star <= averageRating 
+                      ? 'text-warning' 
+                      : 'text-muted-foreground/40'
+                  }`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-2xl font-medium text-muted-foreground mb-4">Ej beräknat</p>
+            <p className="text-sm text-muted-foreground">Betygsätt minst 3 kategorier för att se genomsnittet</p>
+          </>
+        )}
       </StandardizedCard>
 
 

@@ -34,14 +34,14 @@ const EvaluationForm = () => {
     monthlyFee: '',
     
     // Physical assessment (1-5 ratings)
-    planlösning: 3,
-    kitchen: 3,
-    bathroom: 3,
-    bedrooms: 3,
-    surfaces: 3,
-    förvaring: 3,
-    ljusinsläpp: 3,
-    balcony: 3,
+    planlösning: 0,
+    kitchen: 0,
+    bathroom: 0,
+    bedrooms: 0,
+    surfaces: 0,
+    förvaring: 0,
+    ljusinsläpp: 0,
+    balcony: 0,
     
     // Financial data
     debtPerSqm: '',
@@ -79,8 +79,8 @@ const EvaluationForm = () => {
   const sections = [
     { title: 'Automatisk indata', component: AutoInputSection },
     { title: 'Allmän information', component: GeneralInfoSection },
-    { title: 'Fysisk bedömning', component: PhysicalAssessmentSection },
     { title: 'Ekonomi', component: FinancialSection },
+    { title: 'Fysisk bedömning', component: PhysicalAssessmentSection },
     { title: 'Sammanfattning', component: SummarySection }
   ];
 
@@ -112,14 +112,14 @@ const EvaluationForm = () => {
         finalPrice: data.final_price?.toString() || '',
         rooms: data.rooms || '',
         monthlyFee: data.monthly_fee?.toString() || '',
-        planlösning: data.planlösning || 3,
-        kitchen: data.kitchen || 3,
-        bathroom: data.bathroom || 3,
-        bedrooms: data.bedrooms || 3,
-        surfaces: data.surfaces || 3,
-        förvaring: data.förvaring || 3,
-        ljusinsläpp: data.ljusinsläpp || 3,
-        balcony: data.balcony || 3,
+        planlösning: data.planlösning || 0,
+        kitchen: data.kitchen || 0,
+        bathroom: data.bathroom || 0,
+        bedrooms: data.bedrooms || 0,
+        surfaces: data.surfaces || 0,
+        förvaring: data.förvaring || 0,
+        ljusinsläpp: data.ljusinsläpp || 0,
+        balcony: data.balcony || 0,
         debtPerSqm: data.debt_per_sqm?.toString() || '',
         feePerSqm: data.fee_per_sqm?.toString() || '',
         cashflowPerSqm: data.cashflow_per_sqm?.toString() || '',
