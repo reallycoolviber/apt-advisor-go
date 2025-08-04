@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Plus, List, BarChart3, TrendingUp, Shield, Zap, ArrowRight } from 'lucide-react';
-import cityscapePink from '@/assets/cityscape-pink.png';
+import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 
 
@@ -56,11 +56,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Rosa stadsbild bakgrund */}
+      {/* Neutral stadsbild bakgrund */}
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-15"
         style={{
-          backgroundImage: `url(${cityscapePink})`,
+          backgroundImage: `url(${cityscapeNeutral})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center bottom',
           backgroundRepeat: 'no-repeat',
@@ -72,11 +72,11 @@ const Index = () => {
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
         <div className="max-w-lg mx-auto">
           {/* Extremely Minimal Welcome */}
-          <div className="text-center mb-4">
-            <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1">
+          <div className="text-center mb-4 drop-shadow-sm">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1 drop-shadow-sm">
               Välkommen till <span className="text-primary">AptEval</span>
             </h1>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground drop-shadow-sm">
               Professionell lägenhetsutvärdering
             </p>
           </div>
@@ -87,12 +87,12 @@ const Index = () => {
               {features.map((feature, index) => {
                 const IconComponent = feature.icon;
                 return (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                  <div key={index} className="flex items-start gap-3 drop-shadow-sm">
+                    <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0 shadow-sm">
                       <IconComponent className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-foreground font-medium leading-relaxed">
+                      <p className="text-sm text-foreground font-medium leading-relaxed drop-shadow-sm">
                         {feature.text}
                       </p>
                     </div>
@@ -110,7 +110,7 @@ const Index = () => {
                 return (
                   <Card 
                     key={item.title} 
-                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 hover:bg-primary hover:border-primary"
+                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:bg-primary hover:border-primary shadow-sm"
                   >
                     <Button
                       onClick={() => navigate(item.path)}
