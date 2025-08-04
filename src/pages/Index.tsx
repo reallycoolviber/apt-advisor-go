@@ -15,18 +15,9 @@ const Index = () => {
   console.log('Index component rendering');
 
   const features = [
-    {
-      icon: TrendingUp,
-      text: 'Automatisk analys - Extrahera nyckeltal automatiskt från årsredovisningar'
-    },
-    {
-      icon: Shield,
-      text: 'Strukturerad data - Kvalitetssäkrad information från officiella källor'
-    },
-    {
-      icon: Zap,
-      text: 'Snabba beslut - Jämför lägenheter och få insikter på minuter'
-    }
+    'Automatisk analys - Extrahera nyckeltal automatiskt från årsredovisningar',
+    'Strukturerad data - Kvalitetssäkrad information från officiella källor', 
+    'Snabba beslut - Jämför lägenheter och få insikter på minuter'
   ];
 
   const menuItems = [
@@ -55,17 +46,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Cityscape Background - Enhanced Visibility */}
-      <div 
-        className="absolute inset-0 opacity-60"
-        style={{
-          backgroundImage: `url(${cityscapeBackground})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center bottom',
-          backgroundRepeat: 'no-repeat',
-          filter: 'contrast(1.2) brightness(0.8)'
-        }}
-      />
+      {/* Cityscape Background - Removed for debugging */}
       
       {/* Content */}
       <div className="relative pt-4 pb-6 px-4">
@@ -73,25 +54,21 @@ const Index = () => {
           {/* Extremely Minimal Welcome */}
           <div className="text-center mb-4">
             <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1">
-              Välkommen till <span className="text-primary">Outvalue</span>
+              Välkommen till <span className="text-primary">AptEval</span>
             </h1>
             <p className="text-xs text-muted-foreground">
               Professionell lägenhetsutvärdering
             </p>
           </div>
           
-          {/* Features List with Icons */}
+          {/* Compact Features List - No Icons */}
           <div className="max-w-md mx-auto mb-4">
-            <div className="space-y-2">
-              {features.map((feature, index) => {
-                const IconComponent = feature.icon;
-                return (
-                  <div key={index} className="flex items-center justify-center gap-2">
-                    <IconComponent className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-xs text-muted-foreground text-center">{feature.text}</span>
-                  </div>
-                );
-              })}
+            <div className="space-y-1">
+              {features.map((feature, index) => (
+                <div key={index} className="text-center">
+                  <span className="text-xs text-muted-foreground">{feature}</span>
+                </div>
+              ))}
             </div>
           </div>
 
