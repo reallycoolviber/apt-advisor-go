@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Plus, List, BarChart3, TrendingUp, Shield, Zap, ArrowRight } from 'lucide-react';
-import cityscapeBackground from '@/assets/cityscape-background.svg';
+
 
 
 const Index = () => {
@@ -59,7 +59,7 @@ const Index = () => {
       <div 
         className="absolute inset-0"
         style={{
-          backgroundImage: `url(${cityscapeBackground})`,
+          backgroundImage: `url(/cityscape-background.svg)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center bottom',
           backgroundRepeat: 'no-repeat',
