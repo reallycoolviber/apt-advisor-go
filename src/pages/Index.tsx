@@ -57,7 +57,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-foreground relative overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* Cityscape Background */}
       <div 
         className="absolute inset-0 opacity-[0.08]"
