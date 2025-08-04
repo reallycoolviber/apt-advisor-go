@@ -15,9 +15,18 @@ const Index = () => {
   console.log('Index component rendering');
 
   const features = [
-    'Automatisk analys - Extrahera nyckeltal automatiskt från årsredovisningar',
-    'Strukturerad data - Kvalitetssäkrad information från officiella källor', 
-    'Snabba beslut - Jämför lägenheter och få insikter på minuter'
+    {
+      icon: TrendingUp,
+      text: 'Automatisk analys - Extrahera nyckeltal automatiskt från årsredovisningar'
+    },
+    {
+      icon: Shield,
+      text: 'Strukturerad data - Kvalitetssäkrad information från officiella källor'
+    },
+    {
+      icon: Zap,
+      text: 'Snabba beslut - Jämför lägenheter och få insikter på minuter'
+    }
   ];
 
   const menuItems = [
@@ -46,10 +55,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Cityscape Background - Removed for debugging */}
+      {/* Cityscape Background */}
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `url(${cityscapeBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center bottom',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
       
       {/* Content */}
-      <div className="relative pt-4 pb-6 px-4">
+      <div className="relative pt-6 pb-8 px-4">
         <div className="max-w-lg mx-auto">
           {/* Extremely Minimal Welcome */}
           <div className="text-center mb-4">
@@ -61,14 +79,24 @@ const Index = () => {
             </p>
           </div>
           
-          {/* Compact Features List - No Icons */}
-          <div className="max-w-md mx-auto mb-4">
-            <div className="space-y-1">
-              {features.map((feature, index) => (
-                <div key={index} className="text-center">
-                  <span className="text-xs text-muted-foreground">{feature}</span>
-                </div>
-              ))}
+          {/* Features List with Icons */}
+          <div className="max-w-md mx-auto mb-6">
+            <div className="space-y-3">
+              {features.map((feature, index) => {
+                const IconComponent = feature.icon;
+                return (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                      <IconComponent className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-foreground font-medium leading-relaxed">
+                        {feature.text}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
