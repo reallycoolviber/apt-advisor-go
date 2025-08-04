@@ -15,9 +15,18 @@ const Index = () => {
   console.log('Index component rendering');
 
   const features = [
-    'Automatisk analys - Extrahera nyckeltal automatiskt från årsredovisningar',
-    'Strukturerad data - Kvalitetssäkrad information från officiella källor', 
-    'Snabba beslut - Jämför lägenheter och få insikter på minuter'
+    {
+      icon: TrendingUp,
+      text: 'Automatisk analys - Extrahera nyckeltal automatiskt från årsredovisningar'
+    },
+    {
+      icon: Shield,
+      text: 'Strukturerad data - Kvalitetssäkrad information från officiella källor'
+    },
+    {
+      icon: Zap,
+      text: 'Snabba beslut - Jämför lägenheter och få insikter på minuter'
+    }
   ];
 
   const menuItems = [
@@ -48,12 +57,13 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* Cityscape Background - Enhanced Visibility */}
       <div 
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-60"
         style={{
           backgroundImage: `url(${cityscapeBackground})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'no-repeat'
+          backgroundPosition: 'center bottom',
+          backgroundRepeat: 'no-repeat',
+          filter: 'contrast(1.2) brightness(0.8)'
         }}
       />
       
@@ -70,14 +80,18 @@ const Index = () => {
             </p>
           </div>
           
-          {/* Compact Features List - No Icons */}
+          {/* Features List with Icons */}
           <div className="max-w-md mx-auto mb-4">
-            <div className="space-y-1">
-              {features.map((feature, index) => (
-                <div key={index} className="text-center">
-                  <span className="text-xs text-muted-foreground">{feature}</span>
-                </div>
-              ))}
+            <div className="space-y-2">
+              {features.map((feature, index) => {
+                const IconComponent = feature.icon;
+                return (
+                  <div key={index} className="flex items-center justify-center gap-2">
+                    <IconComponent className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span className="text-xs text-muted-foreground text-center">{feature.text}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
