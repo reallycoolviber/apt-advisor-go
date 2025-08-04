@@ -55,19 +55,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Cityscape Background */}
-      <div 
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: `url(${cityscapeBackground})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center bottom',
-          backgroundRepeat: 'no-repeat'
-        }}
+      {/* Cityscape Background - Direct img approach */}
+      <img 
+        src={cityscapeBackground}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
+        style={{ zIndex: 0 }}
       />
       
       {/* Content */}
-      <div className="relative pt-6 pb-8 px-4">
+      <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
         <div className="max-w-lg mx-auto">
           {/* Extremely Minimal Welcome */}
           <div className="text-center mb-4">
