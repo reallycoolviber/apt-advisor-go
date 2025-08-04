@@ -307,16 +307,24 @@ const EvaluationDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-foreground">Laddar utvärdering...</div>
+      <div className="min-h-screen bg-background relative flex items-center justify-center">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <div className="text-foreground relative z-10">Laddar utvärdering...</div>
       </div>
     );
   }
 
   if (!evaluation) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background relative flex items-center justify-center">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <div className="text-center relative z-10">
           <h2 className="text-xl font-bold text-foreground mb-4">Utvärdering hittades inte</h2>
           <Button onClick={() => navigate('/evaluations')}>
             Tillbaka till utvärderingar
@@ -329,9 +337,13 @@ const EvaluationDetail = () => {
   const progress = ((currentSection + 1) / sections.length) * 100;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Background cityscape */}
+      <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+           style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+      </div>
       {/* Header */}
-      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
         <div className="flex items-center gap-3 mb-4">
           <Button
             variant="ghost"
@@ -362,7 +374,7 @@ const EvaluationDetail = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-4 pb-24">
+      <div className="p-4 pb-24 relative z-10">
         <Card className="bg-card shadow-lg border-0">
           <div className="p-6">
             {renderCurrentSection()}
@@ -371,7 +383,7 @@ const EvaluationDetail = () => {
       </div>
 
       {/* Navigation Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 relative z-10">
         <div className="flex justify-between gap-4">
           <Button
             variant="outline"

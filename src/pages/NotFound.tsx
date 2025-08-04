@@ -13,8 +13,12 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
+    <div className="min-h-screen flex items-center justify-center bg-background relative">
+      {/* Background cityscape */}
+      <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+           style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+      </div>
+      <div className="text-center relative z-10">
         <h1 className="text-4xl font-bold mb-4">404</h1>
         <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
         <Link to="/" className="text-blue-500 hover:text-blue-700 underline">

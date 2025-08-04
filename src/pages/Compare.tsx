@@ -357,8 +357,12 @@ const Compare = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="bg-primary text-primary-foreground p-4 shadow-lg">
+      <div className="min-h-screen bg-background relative">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -379,7 +383,7 @@ const Compare = () => {
             <h1 className="text-xl font-bold">Jämför lägenheter</h1>
           </div>
         </div>
-        <div className="p-4 text-center">
+        <div className="p-4 text-center relative z-10">
           <div className="text-foreground">Laddar dina utvärderingar...</div>
         </div>
       </div>
@@ -388,9 +392,13 @@ const Compare = () => {
 
   // Main render
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Background cityscape */}
+      <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+           style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+      </div>
       {/* Header */}
-      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -421,7 +429,7 @@ const Compare = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 relative z-10">
         {evaluations.length === 0 ? (
           <Card className="bg-card shadow-lg border-0 p-6 text-center">
             <h2 className="text-xl font-semibold text-foreground mb-4">

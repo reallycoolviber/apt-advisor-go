@@ -64,8 +64,12 @@ const Auth = () => {
 
   if (showEmailVerification) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-6 shadow-lg">
+      <div className="min-h-screen bg-background relative flex items-center justify-center p-4">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <Card className="w-full max-w-md p-6 shadow-lg relative z-10">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Mail className="h-8 w-8 text-accent" />
@@ -98,8 +102,12 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 shadow-lg">
+    <div className="min-h-screen bg-background relative flex items-center justify-center p-4">
+      {/* Background cityscape */}
+      <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+           style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+      </div>
+      <Card className="w-full max-w-md p-6 shadow-lg relative z-10">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Home className="h-8 w-8 text-accent" />

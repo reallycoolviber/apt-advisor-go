@@ -247,17 +247,25 @@ const EvaluationForm = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-foreground">Laddar utvärdering...</div>
+      <div className="min-h-screen bg-background relative flex items-center justify-center">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <div className="text-foreground relative z-10">Laddar utvärdering...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Background cityscape */}
+      <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+           style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+      </div>
       
       {/* Header */}
-      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
         <div className="flex items-center gap-3 mb-4">
           <Button
             variant="ghost"
@@ -295,7 +303,7 @@ const EvaluationForm = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-4 pb-20">
+      <div className="p-4 pb-20 relative z-10">
         <Card className="bg-card shadow-lg border-border max-w-5xl mx-auto">
           <div className="p-6">
             <CurrentSectionComponent 
@@ -308,7 +316,7 @@ const EvaluationForm = () => {
       </div>
 
       {/* Navigation Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40 relative">
         <div className="flex justify-between gap-3 max-w-5xl mx-auto">
           <Button
             variant="outline"

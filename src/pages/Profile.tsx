@@ -122,17 +122,25 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-foreground">Laddar profil...</div>
+      <div className="min-h-screen bg-background relative flex items-center justify-center">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <div className="text-foreground relative z-10">Laddar profil...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Background cityscape */}
+      <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+           style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+      </div>
       
       {/* Header */}
-      <div className="bg-primary text-primary-foreground p-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -148,7 +156,7 @@ const Profile = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-4 lg:p-8">
+      <div className="p-4 lg:p-8 relative z-10">
         <Card className="max-w-2xl mx-auto bg-card shadow-lg border-0">
           <div className="p-6 lg:p-8">
             <div className="text-center mb-6">

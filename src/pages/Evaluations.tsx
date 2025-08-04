@@ -185,8 +185,12 @@ const Evaluations = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="bg-primary text-primary-foreground p-4 shadow-lg">
+      <div className="min-h-screen bg-background relative">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -207,7 +211,7 @@ const Evaluations = () => {
             <h1 className="text-xl font-bold">Mina utvärderingar</h1>
           </div>
         </div>
-        <div className="p-4 text-center">
+        <div className="p-4 text-center relative z-10">
           <div className="text-foreground">Laddar dina utvärderingar...</div>
         </div>
       </div>
@@ -215,11 +219,15 @@ const Evaluations = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Background cityscape */}
+      <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+           style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+      </div>
       
 
       {/* Main Content */}
-      <div className="pt-20 px-6 pb-8">
+      <div className="pt-20 px-6 pb-8 relative z-10">
         {error && (
           <Card className="bg-destructive/10 border-destructive/20 p-4 mb-4">
             <p className="text-destructive">{error}</p>
