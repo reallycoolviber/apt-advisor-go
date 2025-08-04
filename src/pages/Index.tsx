@@ -55,19 +55,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Cityscape Background - Rosa filter för synlighet */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `url(/cityscape-background.svg)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center bottom',
-          backgroundRepeat: 'no-repeat',
-          filter: 'hue-rotate(300deg) saturate(200%) brightness(1.5)',
-          opacity: 0.8,
-          zIndex: 1
-        }}
-      />
       
       {/* Content */}
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
