@@ -18,15 +18,18 @@ const Index = () => {
   const features = [
     {
       icon: TrendingUp,
-      text: 'Automatisk analys - Extrahera nyckeltal automatiskt från årsredovisningar'
+      title: 'Automatisk analys',
+      description: 'Extrahera nyckeltal automatiskt från årsredovisningar'
     },
     {
       icon: Shield,
-      text: 'Strukturerad data - Kvalitetssäkrad information från officiella källor'
+      title: 'Strukturerad data',
+      description: 'Kvalitetssäkrad information från officiella källor'
     },
     {
       icon: Zap,
-      text: 'Snabba beslut - Jämför lägenheter och få insikter på minuter'
+      title: 'Snabba beslut',
+      description: 'Jämför lägenheter och få insikter på minuter'
     }
   ];
 
@@ -82,7 +85,7 @@ const Index = () => {
           </div>
           
           {/* Features List with Icons */}
-          <div className="max-w-md mx-auto mb-6">
+          <div className="max-w-md mx-auto mb-8">
             <div className="space-y-3">
               {features.map((feature, index) => {
                 const IconComponent = feature.icon;
@@ -92,8 +95,11 @@ const Index = () => {
                       <IconComponent className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-foreground font-medium leading-relaxed drop-shadow-sm">
-                        {feature.text}
+                      <h3 className="text-sm font-bold text-foreground leading-relaxed drop-shadow-sm">
+                        {feature.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed drop-shadow-sm">
+                        {feature.description}
                       </p>
                     </div>
                   </div>
@@ -102,35 +108,35 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Compact Action Cards */}
+          {/* Enhanced Action Cards */}
           <div className="max-w-md mx-auto">
-            <div className="space-y-0.5">
+            <div className="space-y-4">
               {menuItems.map((item, index) => {
                 const IconComponent = item.icon;
                 return (
                   <Card 
                     key={item.title} 
-                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:bg-primary hover:border-primary shadow-sm"
+                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-primary hover:border-primary shadow-md"
                   >
                     <Button
                       onClick={() => navigate(item.path)}
-                      className="w-full h-auto p-2 flex items-center gap-2.5 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-primary-foreground border-0 shadow-none"
+                      className="w-full h-auto p-5 flex items-center gap-4 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-primary-foreground border-0 shadow-none"
                       variant="ghost"
                     >
-                      <div className="p-1 rounded flex-shrink-0 bg-primary/10 group-hover:bg-primary-foreground/20">
-                        <IconComponent className="h-3.5 w-3.5 text-primary group-hover:text-primary-foreground" />
+                      <div className="p-2.5 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-primary-foreground/20">
+                        <IconComponent className="h-5 w-5 text-primary group-hover:text-primary-foreground" />
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-xs font-semibold leading-tight group-hover:text-primary-foreground">
+                        <h3 className="text-sm font-semibold leading-tight group-hover:text-primary-foreground mb-1">
                           {item.title}
                         </h3>
-                        <p className="text-xs text-muted-foreground group-hover:text-primary-foreground/80 leading-snug">
+                        <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80 leading-relaxed">
                           {item.description}
                         </p>
                       </div>
                       
-                      <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 text-muted-foreground group-hover:text-primary-foreground/70" />
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 text-muted-foreground group-hover:text-primary-foreground/70" />
                     </Button>
                   </Card>
                 );
