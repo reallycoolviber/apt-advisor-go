@@ -25,21 +25,21 @@ const EvaluationHub = () => {
       description: 'Grundläggande information om lägenheten',
       icon: Building,
       path: '/evaluate/general',
-      completed: 'not-started' // Temporarily hardcode to avoid getCompletionStatus
+      completed: 'not-started'
     },
     {
       title: 'Föreningsanalys',
       description: 'Ekonomisk information och föreningsdata',
       icon: BarChart3,
       path: '/evaluate/financial',
-      completed: 'not-started' // Temporarily hardcode to avoid getCompletionStatus
+      completed: 'not-started'
     },
     {
       title: 'Din bedömning av lägenheten',
       description: 'Bedömning av lägenhets kvalitet och egenskaper',
       icon: FileText,
       path: '/evaluate/physical',
-      completed: 'not-started' // Temporarily hardcode to avoid getCompletionStatus
+      completed: 'not-started'
     }
   ];
 
