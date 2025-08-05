@@ -6,6 +6,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { EvaluationProvider } from "@/contexts/EvaluationContext";
 import { GlobalHeader } from "@/components/GlobalHeader";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -81,12 +82,16 @@ const App = () => (
                   } />
                   <Route path="/evaluate" element={
                     <ProtectedRoute>
-                      <EvaluationHub />
+                      <EvaluationProvider>
+                        <EvaluationHub />
+                      </EvaluationProvider>
                     </ProtectedRoute>
                   } />
                   <Route path="/evaluate/:section" element={
                     <ProtectedRoute>
-                      <EvaluationSection />
+                      <EvaluationProvider>
+                        <EvaluationSection />
+                      </EvaluationProvider>
                     </ProtectedRoute>
                   } />
                   <Route path="/evaluate/form/:id?" element={

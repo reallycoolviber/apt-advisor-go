@@ -53,21 +53,6 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
       </div>
 
       <div className="space-y-6">
-        <StandardizedFieldGroup
-          title="Adress"
-          description="Fullständig adress för lägenheten"
-          icon={MapPin}
-        >
-          <ValidatedInput
-            id="address"
-            label=""
-            value={data.address || ''}
-            onChange={(e) => updateData({ address: e.target.value })}
-            placeholder="Kungsgatan 1, 111 43 Stockholm"
-            validation={data.validationResults?.address}
-          />
-        </StandardizedFieldGroup>
-
         <div className="grid md:grid-cols-2 gap-6">
           <StandardizedFieldGroup
             title="Storlek (kvm)"
