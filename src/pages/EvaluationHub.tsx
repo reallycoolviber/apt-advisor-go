@@ -29,7 +29,7 @@ const EvaluationHub = () => {
   // Load existing evaluation if edit mode
   useEffect(() => {
     const editId = searchParams.get('edit');
-    if (editId && user) {
+    if (editId && user && !currentEvaluationId) {
       setLoading(true);
       setCurrentEvaluationId(editId);
       
@@ -56,7 +56,7 @@ const EvaluationHub = () => {
 
       fetchEvaluation();
     }
-  }, [searchParams, user, loadEvaluation]);
+  }, [searchParams, user, currentEvaluationId]); // Removed loadEvaluation from deps
 
   const evaluationSections = [
     {
