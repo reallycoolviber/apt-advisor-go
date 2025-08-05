@@ -30,7 +30,7 @@ const EvaluationHub = () => {
       completed: getCompletionStatus('financial')
     },
     {
-      title: 'Kvalitativ bedömning',
+      title: 'Din bedömning av lägenheten',
       description: 'Bedömning av lägenhets kvalitet och egenskaper',
       icon: FileText,
       path: '/evaluate/physical',
@@ -64,48 +64,47 @@ const EvaluationHub = () => {
       {/* Content */}
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
         <div className="max-w-6xl mx-auto">
-          {/* Top navigation and address */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/')}
-                className="p-2 hover:bg-accent"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/')}
-                className="p-2 hover:bg-accent"
-              >
-                <Home className="h-5 w-5" />
-              </Button>
-            </div>
-            
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Ange lägenhetens adress..."
-                  value={data.address || ''}
-                  onChange={(e) => updateAddress(e.target.value)}
-                  className="pl-10 bg-background border-border"
-                />
-              </div>
-            </div>
+          {/* Top navigation */}
+          <div className="flex items-center gap-2 mb-8">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="p-2 hover:bg-accent"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="p-2 hover:bg-accent"
+            >
+              <Home className="h-5 w-5" />
+            </Button>
           </div>
           
           {/* Title */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-foreground mb-2">
               Lägenhetsutvärdering
             </h2>
             <p className="text-muted-foreground">
               Fyll i informationen steg för steg för att skapa en komplett utvärdering
             </p>
+          </div>
+
+          {/* Address input */}
+          <div className="max-w-md mx-auto mb-8">
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Ange lägenhetens adress..."
+                value={data.address || ''}
+                onChange={(e) => updateAddress(e.target.value)}
+                className="pl-10 bg-background border-border"
+              />
+            </div>
           </div>
           
           {/* Main content layout */}

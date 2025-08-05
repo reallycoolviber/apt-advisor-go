@@ -73,14 +73,23 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
 
     const requiredFields = {
       general: ['size', 'rooms', 'price', 'monthlyFee'],
-      financial: [], // Define required fields for financial section
-      physical: []   // Define required fields for physical section
+      financial: ['debtPerSqm', 'feePerSqm', 'cashflowPerSqm', 'majorMaintenanceDone', 'ownsLand'],
+      physical: ['planlösning', 'kitchen', 'bathroom', 'bedrooms', 'surfaces', 'förvaring', 'ljusinsläpp', 'balcony']
     };
 
     const required = requiredFields[section];
     const filledFields = required.filter(field => {
       const value = sectionData[field];
-      return value && value.toString().trim() !== '';
+      if (section === 'physical') {
+        // For physical section, check if rating is > 0
+        return value && value > 0;
+      } else if (section === 'financial' && (field === 'majorMaintenanceDone' || field === 'ownsLand')) {
+        // For boolean fields, check if they are explicitly set
+        return value !== undefined && value !== null;
+      } else {
+        // For text fields, check if they have content
+        return value && value.toString().trim() !== '';
+      }
     });
 
     if (filledFields.length === 0) {
