@@ -100,48 +100,95 @@ const EvaluationHub = () => {
             </p>
           </div>
           
-          {/* Evaluation sections */}
-          <div className="space-y-4 mb-8">
-            {evaluationSections.map((section, index) => {
-              const IconComponent = section.icon;
-              const StatusIcon = section.completed ? CheckCircle : Circle;
-              
-              return (
-                <Card 
-                  key={section.title} 
-                  className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-accent hover:border-accent shadow-md"
-                >
-                  <Button
-                    onClick={() => navigate(section.path)}
-                    className="w-full h-auto p-6 flex items-center gap-4 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-accent-foreground border-0 shadow-none"
-                    variant="ghost"
-                  >
-                    <div className="p-2.5 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
-                      <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
-                    </div>
-                    
-                    <div className="flex-1 text-left">
-                      <h3 className="text-base font-semibold group-hover:text-accent-foreground mb-1">
-                        {section.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground group-hover:text-accent-foreground/70">
-                        {section.description}
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <StatusIcon 
-                        className={`h-5 w-5 ${
+          {/* Main content layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            {/* Evaluation sections - 3 columns on large screens */}
+            <div className="lg:col-span-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {evaluationSections.map((section, index) => {
+                  const IconComponent = section.icon;
+                  const StatusIcon = section.completed ? CheckCircle : Circle;
+                  
+                  return (
+                    <Card 
+                      key={section.title} 
+                      className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-accent hover:border-accent shadow-md h-full"
+                    >
+                      <Button
+                        onClick={() => navigate(section.path)}
+                        className="w-full h-full p-4 flex flex-col items-center gap-3 text-center transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-accent-foreground border-0 shadow-none min-h-[180px]"
+                        variant="ghost"
+                      >
+                        <div className="p-3 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
+                          <IconComponent className="h-6 w-6 text-primary group-hover:text-accent-foreground" />
+                        </div>
+                        
+                        <div className="flex-1 text-center">
+                          <h3 className="text-base font-semibold group-hover:text-accent-foreground mb-2">
+                            {section.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground group-hover:text-accent-foreground/70 leading-relaxed">
+                            {section.description}
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center justify-center">
+                          <StatusIcon 
+                            className={`h-5 w-5 ${
+                              section.completed 
+                                ? 'text-green-500' 
+                                : 'text-muted-foreground group-hover:text-accent-foreground'
+                            }`} 
+                          />
+                        </div>
+                      </Button>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Progress sidebar - 1 column on large screens */}
+            <div className="lg:col-span-1">
+              <Card className="bg-card border shadow-md sticky top-6">
+                <div className="p-4">
+                  <h3 className="font-semibold text-foreground mb-4 text-center">
+                    Framsteg
+                  </h3>
+                  <div className="space-y-3">
+                    {evaluationSections.map((section, index) => (
+                      <div key={section.title} className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
                           section.completed 
-                            ? 'text-green-500' 
-                            : 'text-muted-foreground group-hover:text-accent-foreground'
-                        }`} 
-                      />
+                            ? 'bg-green-500' 
+                            : 'bg-muted-foreground/30'
+                        }`} />
+                        <span className={`text-sm ${
+                          section.completed 
+                            ? 'text-foreground font-medium' 
+                            : 'text-muted-foreground'
+                        }`}>
+                          {section.title}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="mt-4 pt-3 border-t border-border">
+                      <div className="text-xs text-muted-foreground text-center">
+                        {evaluationSections.filter(s => s.completed).length} av {evaluationSections.length} klara
+                      </div>
+                      <div className="w-full bg-muted-foreground/20 rounded-full h-2 mt-2">
+                        <div 
+                          className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${(evaluationSections.filter(s => s.completed).length / evaluationSections.length) * 100}%` 
+                          }}
+                        />
+                      </div>
                     </div>
-                  </Button>
-                </Card>
-              );
-            })}
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
           
           {/* Action buttons */}
