@@ -11,9 +11,13 @@ import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 const EvaluationHub = () => {
+  console.log('EvaluationHub component rendering');
   const { user } = useAuth();
   const { data, updateAddress, getCompletionStatus } = useEvaluation();
   const navigate = useNavigate();
+
+  console.log('EvaluationHub: Current data:', data);
+  console.log('EvaluationHub: User:', user);
 
   const evaluationSections = [
     {
@@ -21,21 +25,21 @@ const EvaluationHub = () => {
       description: 'Grundläggande information om lägenheten',
       icon: Building,
       path: '/evaluate/general',
-      completed: getCompletionStatus('general')
+      completed: 'not-started' // Temporarily hardcode to avoid getCompletionStatus
     },
     {
       title: 'Föreningsanalys',
       description: 'Ekonomisk information och föreningsdata',
       icon: BarChart3,
       path: '/evaluate/financial',
-      completed: getCompletionStatus('financial')
+      completed: 'not-started' // Temporarily hardcode to avoid getCompletionStatus
     },
     {
       title: 'Din bedömning av lägenheten',
       description: 'Bedömning av lägenhets kvalitet och egenskaper',
       icon: FileText,
       path: '/evaluate/physical',
-      completed: getCompletionStatus('physical')
+      completed: 'not-started' // Temporarily hardcode to avoid getCompletionStatus
     }
   ];
 

@@ -37,6 +37,7 @@ export const useEvaluation = () => {
 };
 
 export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
+  console.log('EvaluationProvider rendering');
   const [data, setData] = useState<EvaluationData>({});
 
   const updateAddress = (address: string) => {
