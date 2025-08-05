@@ -227,7 +227,8 @@ const Evaluations = () => {
       
 
       {/* Main Content */}
-      <div className="pt-20 px-6 pb-8 relative z-10">
+      <div className="pt-20 pb-8 px-4 relative z-10">
+        <div className="max-w-lg mx-auto">
         {error && (
           <Card className="bg-destructive/10 border-destructive/20 p-4 mb-4">
             <p className="text-destructive">{error}</p>
@@ -374,7 +375,7 @@ const Evaluations = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {filteredEvaluations.map((evaluation) => {
                 const physicalAvg = calculatePhysicalAverage(evaluation);
                 return (
@@ -519,6 +520,7 @@ const Evaluations = () => {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   );
