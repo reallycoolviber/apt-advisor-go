@@ -11,11 +11,13 @@ import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 const EvaluationHub = () => {
-  console.log('EvaluationHub component rendering');
+  console.log('EvaluationHub component starting to render');
+  
   const { user } = useAuth();
   const { data, updateAddress } = useEvaluation();
   const navigate = useNavigate();
-
+  
+  console.log('EvaluationHub: hooks initialized successfully');
   console.log('EvaluationHub: Current data:', data);
   console.log('EvaluationHub: User:', user);
 
