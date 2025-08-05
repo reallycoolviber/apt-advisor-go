@@ -10,6 +10,8 @@ import { GlobalHeader } from "@/components/GlobalHeader";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
+import EvaluationHub from "./pages/EvaluationHub";
+import EvaluationSection from "./pages/EvaluationSection";
 import Evaluations from "./pages/Evaluations";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import Compare from "./pages/Compare";
@@ -79,10 +81,15 @@ const App = () => (
                   } />
                   <Route path="/evaluate" element={
                     <ProtectedRoute>
-                      <EvaluationForm />
+                      <EvaluationHub />
                     </ProtectedRoute>
                   } />
-                  <Route path="/evaluate/:id" element={
+                  <Route path="/evaluate/:section" element={
+                    <ProtectedRoute>
+                      <EvaluationSection />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/evaluate/form/:id?" element={
                     <ProtectedRoute>
                       <EvaluationForm />
                     </ProtectedRoute>
