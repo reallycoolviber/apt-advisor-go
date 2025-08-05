@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Home } from 'lucide-react';
+import { ArrowLeft, Home, Link, Loader2 } from 'lucide-react';
 import { GeneralInfoSection } from '@/components/GeneralInfoSection';
 import { FinancialSection } from '@/components/FinancialSection';
 import { PhysicalAssessmentSection } from '@/components/PhysicalAssessmentSection';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useEvaluation } from '@/contexts/EvaluationContext';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 const EvaluationSection = () => {
   const [loading, setLoading] = useState(false);
+  const [scraping, setScraping] = useState(false);
+  const [booliUrl, setBooliUrl] = useState('');
   const [apartmentData, setApartmentData] = useState({
     // Auto input data
     apartmentUrl: '',
@@ -59,6 +64,7 @@ const EvaluationSection = () => {
   });
 
   const { user } = useAuth();
+  const { data: contextData, updateGeneralData, updateFinancialData, updatePhysicalData, getCompletionStatus } = useEvaluation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { section } = useParams<{ section: string }>();
@@ -73,7 +79,7 @@ const EvaluationSection = () => {
       component: FinancialSection
     },
     physical: {
-      title: 'Kvalitativ bedömning',
+      title: 'Din bedömning av lägenheten',
       component: PhysicalAssessmentSection
     }
   };
@@ -82,10 +88,106 @@ const EvaluationSection = () => {
 
   const updateData = (newData: Partial<typeof apartmentData>) => {
     setApartmentData(prev => ({ ...prev, ...newData }));
+    
+    // Update context based on section
+    if (section === 'general') {
+      updateGeneralData(newData);
+    } else if (section === 'financial') {
+      updateFinancialData(newData);
+    } else if (section === 'physical') {
+      updatePhysicalData(newData);
+    }
   };
 
   const handleReturn = () => {
     navigate('/evaluate');
+  };
+
+  // Scrape Booli data
+  const scrapeWebsite = async (url: string) => {
+    try {
+      setScraping(true);
+      console.log('Attempting to scrape URL:', url);
+      
+      const { data, error } = await supabase.functions.invoke('scrape-booli', {
+        body: { url }
+      });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to scrape website');
+      }
+
+      if (data && Object.keys(data).length > 0) {
+        console.log('Scraped data received:', data);
+        const newData = {
+          address: data.address || '',
+          size: data.size?.toString() || '',
+          rooms: data.rooms?.toString() || '',
+          price: data.startPrice?.toString() || '',
+          finalPrice: data.finalPrice?.toString() || '',
+          monthlyFee: data.monthlyFee?.toString() || '',
+          apartmentUrl: url,
+          validationResults: data.validationResults || {}
+        };
+        
+        updateData(newData);
+        
+        toast({
+          title: "Framgång",
+          description: "Data har hämtats från Booli",
+          duration: 3000,
+        });
+      } else {
+        throw new Error('Ingen data kunde hämtas från den angivna URL:en');
+      }
+    } catch (error) {
+      console.error('Error scraping website:', error);
+      toast({
+        title: "Fel",
+        description: error instanceof Error ? error.message : "Kunde inte hämta data från Booli",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setScraping(false);
+    }
+  };
+
+  const handleBooliSubmit = () => {
+    if (booliUrl.trim()) {
+      scrapeWebsite(booliUrl.trim());
+    }
+  };
+
+  // Calculate progress for current section
+  const calculateProgress = () => {
+    if (section === 'general') {
+      const fields = ['size', 'rooms', 'price', 'monthlyFee'];
+      const filledFields = fields.filter(field => {
+        const value = apartmentData[field as keyof typeof apartmentData];
+        return value && value.toString().trim() !== '';
+      });
+      return (filledFields.length / fields.length) * 100;
+    } else if (section === 'financial') {
+      const fields = ['debtPerSqm', 'feePerSqm', 'cashflowPerSqm', 'majorMaintenanceDone', 'ownsLand'];
+      const filledFields = fields.filter(field => {
+        const value = apartmentData[field as keyof typeof apartmentData];
+        if (field === 'majorMaintenanceDone' || field === 'ownsLand') {
+          return value !== null && value !== undefined;
+        }
+        return value && value.toString().trim() !== '';
+      });
+      return (filledFields.length / fields.length) * 100;
+    } else if (section === 'physical') {
+      const fields = ['planlösning', 'kitchen', 'bathroom', 'bedrooms', 'surfaces', 'förvaring', 'ljusinsläpp', 'balcony'];
+      const filledFields = fields.filter(field => {
+        const value = apartmentData[field as keyof typeof apartmentData];
+        return value && typeof value === 'number' && value > 0;
+      });
+      return (filledFields.length / fields.length) * 100;
+    }
+    return 0;
   };
 
   if (!currentConfig) {
@@ -112,39 +214,89 @@ const EvaluationSection = () => {
         }}
       />
       
-      {/* Header */}
-      <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="text-primary-foreground hover:bg-primary/80 p-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="text-primary-foreground hover:bg-primary/80 p-2"
-          >
-            <Home className="h-6 w-6" />
-          </Button>
-          <h1 className="text-xl font-bold">{currentConfig.title}</h1>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="p-4 pb-20 relative z-10">
-        <Card className="bg-card shadow-lg border-border max-w-5xl mx-auto">
-          <div className="p-6">
-            <CurrentSectionComponent 
-              data={apartmentData} 
-              updateData={updateData}
-            />
+      {/* Content */}
+      <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
+        <div className="max-w-6xl mx-auto">
+          {/* Top navigation */}
+          <div className="flex items-center gap-2 mb-8">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReturn}
+              className="p-2 hover:bg-accent"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="p-2 hover:bg-accent"
+            >
+              <Home className="h-5 w-5" />
+            </Button>
+            <h1 className="text-xl font-bold text-foreground ml-2">{currentConfig.title}</h1>
           </div>
-        </Card>
+
+          {/* Booli URL input - only show for general section */}
+          {section === 'general' && (
+            <div className="mb-8">
+              <Card className="bg-card shadow-lg border-border">
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Link className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold text-foreground">Automatisk ifyllning från Booli</h3>
+                  </div>
+                  <div className="flex gap-3">
+                    <Input
+                      placeholder="Klistra in Booli-länk här..."
+                      value={booliUrl}
+                      onChange={(e) => setBooliUrl(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      onClick={handleBooliSubmit}
+                      disabled={!booliUrl.trim() || scraping}
+                      className="px-6"
+                    >
+                      {scraping ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Hämtar...
+                        </>
+                      ) : (
+                        'Hämta data'
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <Card className="bg-card shadow-lg border-border">
+            <div className="p-6">
+              <CurrentSectionComponent 
+                data={apartmentData} 
+                updateData={updateData}
+              />
+            </div>
+          </Card>
+
+          {/* Progress Bar */}
+          <div className="mt-8">
+            <Card className="bg-card shadow-lg border-border">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-foreground">Ifyllnadsgrad</span>
+                  <span className="text-sm text-muted-foreground">{Math.round(calculateProgress())}%</span>
+                </div>
+                <Progress value={calculateProgress()} className="w-full" />
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
 
       {/* Navigation Footer */}
