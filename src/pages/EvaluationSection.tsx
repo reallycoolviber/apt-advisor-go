@@ -278,7 +278,7 @@ const EvaluationSection = () => {
       
       {/* Content */}
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-lg mx-auto">
           {/* Top navigation */}
           <div className="flex items-center gap-2 mb-8">
             <Button
@@ -363,7 +363,7 @@ const EvaluationSection = () => {
 
       {/* Navigation Footer */}
       <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40">
-        <div className="flex justify-center max-w-5xl mx-auto">
+        <div className="flex justify-center max-w-lg mx-auto">
           <Button
             onClick={handleReturn}
             variant="outline"

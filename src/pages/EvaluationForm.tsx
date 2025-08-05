@@ -304,7 +304,7 @@ const EvaluationForm = () => {
 
       {/* Main Content */}
       <div className="p-4 pb-20 relative z-10">
-        <Card className="bg-card shadow-lg border-border max-w-5xl mx-auto">
+        <Card className="bg-card shadow-lg border-border max-w-lg mx-auto">
           <div className="p-6">
             <CurrentSectionComponent 
               data={apartmentData} 
@@ -317,7 +317,7 @@ const EvaluationForm = () => {
 
       {/* Navigation Footer */}
       <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-40 relative">
-        <div className="flex justify-between gap-3 max-w-5xl mx-auto">
+        <div className="flex justify-between gap-3 max-w-lg mx-auto">
           <Button
             variant="outline"
             onClick={prevSection}
