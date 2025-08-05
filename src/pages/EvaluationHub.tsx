@@ -1,9 +1,10 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Home, CheckCircle, Circle, FileText, Building, BarChart3, Save, GitCompare } from 'lucide-react';
+import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus } from 'lucide-react';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 const EvaluationHub = () => {
@@ -12,9 +13,9 @@ const EvaluationHub = () => {
 
   // TODO: This should be replaced with actual completion status from localStorage or state management
   const completionStatus = {
-    general: false,
-    financial: false,
-    physical: false
+    general: 'not-started', // 'not-started', 'in-progress', 'completed'
+    financial: 'in-progress',
+    physical: 'completed'
   };
 
   const evaluationSections = [
@@ -104,42 +105,52 @@ const EvaluationHub = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
             {/* Evaluation sections - 3 columns on large screens */}
             <div className="lg:col-span-3">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-3">
                 {evaluationSections.map((section, index) => {
                   const IconComponent = section.icon;
-                  const StatusIcon = section.completed ? CheckCircle : Circle;
+                  
+                  const renderStatusCheckbox = (status: string) => {
+                    if (status === 'completed') {
+                      return <Checkbox checked={true} className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" />;
+                    } else if (status === 'in-progress') {
+                      return (
+                        <div className="relative w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center bg-background">
+                          <Minus className="h-2 w-2 text-primary" />
+                        </div>
+                      );
+                    } else {
+                      return <Checkbox checked={false} />;
+                    }
+                  };
                   
                   return (
                     <Card 
                       key={section.title} 
-                      className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-accent hover:border-accent shadow-md h-full"
+                      className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-accent hover:border-accent shadow-sm"
                     >
                       <Button
                         onClick={() => navigate(section.path)}
-                        className="w-full h-full p-4 flex flex-col items-center gap-3 text-center transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-accent-foreground border-0 shadow-none min-h-[180px]"
+                        className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-accent-foreground border-0 shadow-none h-auto justify-start"
                         variant="ghost"
                       >
-                        <div className="p-3 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
-                          <IconComponent className="h-6 w-6 text-primary group-hover:text-accent-foreground" />
+                        {/* Icon - Left */}
+                        <div className="p-2 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
+                          <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
                         </div>
                         
-                        <div className="flex-1 text-center">
-                          <h3 className="text-base font-semibold group-hover:text-accent-foreground mb-2">
+                        {/* Text - Center */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold group-hover:text-accent-foreground mb-1 truncate">
                             {section.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground group-hover:text-accent-foreground/70 leading-relaxed">
+                          <p className="text-xs text-muted-foreground group-hover:text-accent-foreground/70 line-clamp-2">
                             {section.description}
                           </p>
                         </div>
                         
-                        <div className="flex items-center justify-center">
-                          <StatusIcon 
-                            className={`h-5 w-5 ${
-                              section.completed 
-                                ? 'text-green-500' 
-                                : 'text-muted-foreground group-hover:text-accent-foreground'
-                            }`} 
-                          />
+                        {/* Status - Right */}
+                        <div className="flex-shrink-0">
+                          {renderStatusCheckbox(section.completed)}
                         </div>
                       </Button>
                     </Card>
@@ -155,36 +166,40 @@ const EvaluationHub = () => {
                   <h3 className="font-semibold text-foreground mb-4 text-center">
                     Framsteg
                   </h3>
-                  <div className="space-y-3">
-                    {evaluationSections.map((section, index) => (
-                      <div key={section.title} className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                          section.completed 
-                            ? 'bg-green-500' 
-                            : 'bg-muted-foreground/30'
-                        }`} />
-                        <span className={`text-sm ${
-                          section.completed 
-                            ? 'text-foreground font-medium' 
-                            : 'text-muted-foreground'
-                        }`}>
-                          {section.title}
-                        </span>
-                      </div>
-                    ))}
-                    <div className="mt-4 pt-3 border-t border-border">
-                      <div className="text-xs text-muted-foreground text-center">
-                        {evaluationSections.filter(s => s.completed).length} av {evaluationSections.length} klara
-                      </div>
-                      <div className="w-full bg-muted-foreground/20 rounded-full h-2 mt-2">
-                        <div 
-                          className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${(evaluationSections.filter(s => s.completed).length / evaluationSections.length) * 100}%` 
-                          }}
-                        />
-                      </div>
-                    </div>
+                   <div className="space-y-3">
+                     {evaluationSections.map((section, index) => (
+                       <div key={section.title} className="flex items-center gap-3">
+                         <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                           section.completed === 'completed'
+                             ? 'bg-green-500' 
+                             : section.completed === 'in-progress'
+                             ? 'bg-primary/60'
+                             : 'bg-muted-foreground/30'
+                         }`} />
+                         <span className={`text-sm ${
+                           section.completed === 'completed'
+                             ? 'text-foreground font-medium' 
+                             : section.completed === 'in-progress'
+                             ? 'text-foreground'
+                             : 'text-muted-foreground'
+                         }`}>
+                           {section.title}
+                         </span>
+                       </div>
+                     ))}
+                     <div className="mt-4 pt-3 border-t border-border">
+                       <div className="text-xs text-muted-foreground text-center">
+                         {evaluationSections.filter(s => s.completed === 'completed').length} av {evaluationSections.length} klara
+                       </div>
+                       <div className="w-full bg-muted-foreground/20 rounded-full h-2 mt-2">
+                         <div 
+                           className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                           style={{ 
+                             width: `${(evaluationSections.filter(s => s.completed === 'completed').length / evaluationSections.length) * 100}%` 
+                           }}
+                         />
+                       </div>
+                     </div>
                   </div>
                 </div>
               </Card>
