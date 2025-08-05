@@ -3,10 +3,12 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin } from 'lucide-react';
+import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
@@ -44,6 +46,27 @@ const EvaluationHub = () => {
       completed: 'not-started'
     }
   ];
+
+  // Calculate physical assessment average if data exists
+  const calculatePhysicalAverage = () => {
+    if (!data.physical) return 0;
+    const ratings = [
+      data.physical.planlösning,
+      data.physical.kitchen,
+      data.physical.bathroom,
+      data.physical.bedrooms,
+      data.physical.surfaces,
+      data.physical.förvaring,
+      data.physical.ljusinsläpp,
+      data.physical.balcony
+    ].filter(rating => rating && rating > 0);
+    
+    if (ratings.length === 0) return 0;
+    return ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+  };
+
+  const physicalAverage = calculatePhysicalAverage();
+  const hasAnyData = data.address || data.general?.size || data.general?.price || data.physical || data.financial;
 
   const handleSave = async () => {
     if (!user) {
@@ -263,9 +286,89 @@ const EvaluationHub = () => {
                  </div>
               </div>
             </div>
-          </Card>
-          
-          {/* Action buttons */}
+           </Card>
+           
+           {/* Summary section - shown if there's any data */}
+           {hasAnyData && (
+             <Card className="bg-card border shadow-md mb-8">
+               <div className="p-4">
+                 <h3 className="font-semibold text-foreground mb-4 text-center">
+                   Sammanfattning
+                 </h3>
+                 
+                 {/* Overview Cards */}
+                 <div className="space-y-3 mb-4">
+                   {data.address && (
+                     <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                       <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                       <div className="flex-1 min-w-0">
+                         <p className="text-sm font-medium text-foreground">{data.address}</p>
+                         <p className="text-xs text-muted-foreground">
+                           {data.general?.size && `${data.general.size} kvm`} 
+                           {data.general?.rooms && ` • ${data.general.rooms} rum`}
+                         </p>
+                       </div>
+                     </div>
+                   )}
+                   
+                   {(data.general?.price || data.general?.monthlyFee) && (
+                     <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                       <Euro className="h-4 w-4 text-primary flex-shrink-0" />
+                       <div className="flex-1 min-w-0">
+                         <p className="text-sm font-medium text-foreground">
+                           {data.general?.price ? `${parseInt(data.general.price).toLocaleString()} SEK` : 'Inget pris angivet'}
+                         </p>
+                         <p className="text-xs text-muted-foreground">
+                           {data.general?.monthlyFee && `${parseInt(data.general.monthlyFee).toLocaleString()} SEK/mån`}
+                         </p>
+                       </div>
+                     </div>
+                   )}
+                   
+                   {physicalAverage > 0 && (
+                     <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                       <Star className="h-4 w-4 text-primary flex-shrink-0" />
+                       <div className="flex-1 min-w-0">
+                         <p className="text-sm font-medium text-foreground">
+                           Fysisk bedömning: {physicalAverage.toFixed(1)}/5
+                         </p>
+                         <div className="flex gap-1 mt-1">
+                           {[1, 2, 3, 4, 5].map((star) => (
+                             <span
+                               key={star}
+                               className={`text-xs ${star <= physicalAverage ? 'text-yellow-400' : 'text-muted-foreground'}`}
+                             >
+                               ★
+                             </span>
+                           ))}
+                         </div>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+                 
+                 {/* Comments */}
+                 <div className="space-y-2">
+                   <Label htmlFor="comments" className="text-sm font-medium text-foreground">
+                     Slutkommentarer
+                   </Label>
+                   <Textarea
+                     id="comments"
+                     value={data.physical?.comments || ''}
+                     onChange={(e) => {
+                       // Update comments in the evaluation context
+                       const updatedPhysical = { ...data.physical, comments: e.target.value };
+                       // This would need to be implemented in the context
+                     }}
+                     placeholder="Lägg till dina reflektioner och slutsatser om lägenheten..."
+                     className="min-h-[80px] resize-none text-sm"
+                   />
+                 </div>
+               </div>
+             </Card>
+           )}
+           
+           {/* Action buttons */}
           <div className="flex gap-4">
             <Button
               onClick={handleSave}
