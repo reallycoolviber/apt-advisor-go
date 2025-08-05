@@ -168,107 +168,100 @@ const EvaluationHub = () => {
             </div>
           </div>
           
-          {/* Main content layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-            {/* Evaluation sections - 3 columns on large screens */}
-            <div className="lg:col-span-3">
-              <div className="space-y-3">
-                {evaluationSections.map((section, index) => {
-                  const IconComponent = section.icon;
-                  
-                  const renderStatusCheckbox = (status: string) => {
-                    if (status === 'completed') {
-                      return <Checkbox checked={true} className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" />;
-                    } else if (status === 'in-progress') {
-                      return (
-                        <div className="relative w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center bg-background">
-                          <Minus className="h-2 w-2 text-primary" />
-                        </div>
-                      );
-                    } else {
-                      return <Checkbox checked={false} />;
-                    }
-                  };
-                  
+          {/* Evaluation sections */}
+          <div className="space-y-3 mb-8">
+            {evaluationSections.map((section, index) => {
+              const IconComponent = section.icon;
+              
+              const renderStatusCheckbox = (status: string) => {
+                if (status === 'completed') {
+                  return <Checkbox checked={true} className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" />;
+                } else if (status === 'in-progress') {
                   return (
-                    <Card 
-                      key={section.title} 
-                      className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-accent hover:border-accent shadow-sm cursor-pointer"
-                      onClick={() => navigate(section.path)}
-                    >
-                      <div className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300">
-                        {/* Icon - Left */}
-                        <div className="p-2 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
-                          <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
-                        </div>
-                        
-                        {/* Text - Center */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold group-hover:text-accent-foreground mb-1 truncate">
-                            {section.title}
-                          </h3>
-                          <p className="text-xs text-muted-foreground group-hover:text-accent-foreground/70 line-clamp-2">
-                            {section.description}
-                          </p>
-                        </div>
-                        
-                        {/* Status - Right */}
-                        <div className="flex-shrink-0">
-                          {renderStatusCheckbox(section.completed)}
-                        </div>
-                      </div>
-                    </Card>
+                    <div className="relative w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center bg-background">
+                      <Minus className="h-2 w-2 text-primary" />
+                    </div>
                   );
-                })}
+                } else {
+                  return <Checkbox checked={false} />;
+                }
+              };
+              
+              return (
+                <Card 
+                  key={section.title} 
+                  className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-accent hover:border-accent shadow-sm cursor-pointer"
+                  onClick={() => navigate(section.path)}
+                >
+                  <div className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300">
+                    {/* Icon - Left */}
+                    <div className="p-2 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
+                      <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
+                    </div>
+                    
+                    {/* Text - Center */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold group-hover:text-accent-foreground mb-1 truncate">
+                        {section.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground group-hover:text-accent-foreground/70 line-clamp-2">
+                        {section.description}
+                      </p>
+                    </div>
+                    
+                    {/* Status - Right */}
+                    <div className="flex-shrink-0">
+                      {renderStatusCheckbox(section.completed)}
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+          
+          {/* Progress section - always below cards */}
+          <Card className="bg-card border shadow-md mb-8">
+            <div className="p-4">
+              <h3 className="font-semibold text-foreground mb-4 text-center">
+                Framsteg
+              </h3>
+               <div className="space-y-3">
+                 {evaluationSections.map((section, index) => (
+                   <div key={section.title} className="flex items-center gap-3">
+                     <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                       section.completed === 'completed'
+                         ? 'bg-green-500' 
+                         : section.completed === 'in-progress'
+                         ? 'bg-primary/60'
+                         : 'bg-muted-foreground/30'
+                     }`} />
+                     <span className={`text-sm ${
+                       section.completed === 'completed'
+                         ? 'text-foreground font-medium' 
+                         : section.completed === 'in-progress'
+                         ? 'text-foreground'
+                         : 'text-muted-foreground'
+                     }`}>
+                       {section.title}
+                     </span>
+                   </div>
+                 ))}
+                 <div className="mt-4 pt-3 border-t border-border">
+                   <div className="text-xs text-muted-foreground text-center">
+                     {evaluationSections.filter(s => s.completed === 'completed').length} av {evaluationSections.length} klara
+                   </div>
+                   <div className="w-full bg-muted-foreground/20 rounded-full h-2 mt-2">
+                     <div 
+                       className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                       style={{ 
+                         width: `${(evaluationSections.filter(s => s.completed === 'completed').length / evaluationSections.length) * 100}%` 
+                       }}
+                     />
+                   </div>
+                 </div>
               </div>
             </div>
-            
-            {/* Progress sidebar - 1 column on large screens */}
-            <div className="lg:col-span-1">
-              <Card className="bg-card border shadow-md sticky top-6">
-                <div className="p-4">
-                  <h3 className="font-semibold text-foreground mb-4 text-center">
-                    Framsteg
-                  </h3>
-                   <div className="space-y-3">
-                     {evaluationSections.map((section, index) => (
-                       <div key={section.title} className="flex items-center gap-3">
-                         <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                           section.completed === 'completed'
-                             ? 'bg-green-500' 
-                             : section.completed === 'in-progress'
-                             ? 'bg-primary/60'
-                             : 'bg-muted-foreground/30'
-                         }`} />
-                         <span className={`text-sm ${
-                           section.completed === 'completed'
-                             ? 'text-foreground font-medium' 
-                             : section.completed === 'in-progress'
-                             ? 'text-foreground'
-                             : 'text-muted-foreground'
-                         }`}>
-                           {section.title}
-                         </span>
-                       </div>
-                     ))}
-                     <div className="mt-4 pt-3 border-t border-border">
-                       <div className="text-xs text-muted-foreground text-center">
-                         {evaluationSections.filter(s => s.completed === 'completed').length} av {evaluationSections.length} klara
-                       </div>
-                       <div className="w-full bg-muted-foreground/20 rounded-full h-2 mt-2">
-                         <div 
-                           className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                           style={{ 
-                             width: `${(evaluationSections.filter(s => s.completed === 'completed').length / evaluationSections.length) * 100}%` 
-                           }}
-                         />
-                       </div>
-                     </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
+          </Card>
           
           {/* Action buttons */}
           <div className="flex gap-4">
