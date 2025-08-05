@@ -116,24 +116,24 @@ const Index = () => {
                 return (
                   <Card 
                     key={item.title} 
-                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-red-800 hover:border-red-800 shadow-md"
+                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-accent hover:border-accent shadow-md"
                   >
                     <Button
                       onClick={() => navigate(item.path)}
-                      className="w-full h-auto p-6 flex items-center gap-4 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-white border-0 shadow-none"
+                      className="w-full h-auto p-6 flex items-center gap-2 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-accent-foreground border-0 shadow-none"
                       variant="ghost"
                     >
-                      <div className="p-2.5 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-white/20">
-                        <IconComponent className="h-5 w-5 text-primary group-hover:text-white" />
+                      <div className="p-2.5 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
+                        <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
                       </div>
                       
                       <div className="flex-1 text-left">
-                        <h3 className="text-base font-semibold text-left group-hover:text-white">
+                        <h3 className="text-base font-semibold text-left group-hover:text-accent-foreground">
                           {item.title}
                         </h3>
                       </div>
                       
-                      <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1 text-gray-800 group-hover:text-white" />
+                      <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1 text-gray-800 group-hover:text-accent-foreground" />
                     </Button>
                   </Card>
                 );
