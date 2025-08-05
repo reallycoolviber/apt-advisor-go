@@ -132,13 +132,10 @@ const EvaluationHub = () => {
                   return (
                     <Card 
                       key={section.title} 
-                      className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-accent hover:border-accent shadow-sm"
+                      className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-accent hover:border-accent shadow-sm cursor-pointer"
+                      onClick={() => navigate(section.path)}
                     >
-                      <Button
-                        onClick={() => navigate(section.path)}
-                        className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-accent-foreground border-0 shadow-none h-auto justify-start"
-                        variant="ghost"
-                      >
+                      <div className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300">
                         {/* Icon - Left */}
                         <div className="p-2 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
                           <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
@@ -158,7 +155,7 @@ const EvaluationHub = () => {
                         <div className="flex-shrink-0">
                           {renderStatusCheckbox(section.completed)}
                         </div>
-                      </Button>
+                      </div>
                     </Card>
                   );
                 })}
