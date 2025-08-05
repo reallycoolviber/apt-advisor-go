@@ -116,27 +116,24 @@ const Index = () => {
                 return (
                   <Card 
                     key={item.title} 
-                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-primary hover:border-primary shadow-md"
+                    className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-red-800 hover:border-red-800 shadow-md"
                   >
                     <Button
                       onClick={() => navigate(item.path)}
-                      className="w-full h-auto p-5 flex items-center gap-4 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-primary-foreground border-0 shadow-none"
+                      className="w-full h-auto p-6 flex items-center justify-center gap-4 text-center transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-white border-0 shadow-none"
                       variant="ghost"
                     >
-                      <div className="p-2.5 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-primary-foreground/20">
-                        <IconComponent className="h-5 w-5 text-primary group-hover:text-primary-foreground" />
+                      <div className="p-2.5 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-white/20">
+                        <IconComponent className="h-5 w-5 text-primary group-hover:text-white" />
                       </div>
                       
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold leading-tight group-hover:text-primary-foreground mb-1">
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-center group-hover:text-white">
                           {item.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80 leading-relaxed">
-                          {item.description}
-                        </p>
                       </div>
                       
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 text-muted-foreground group-hover:text-primary-foreground/70" />
+                      <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1 text-gray-800 group-hover:text-white" />
                     </Button>
                   </Card>
                 );
