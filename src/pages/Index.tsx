@@ -73,7 +73,7 @@ const Index = () => {
       
       {/* Content */}
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-md mx-auto">
           {/* Extremely Minimal Welcome */}
           <div className="text-center mb-4 drop-shadow-sm">
             <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1 drop-shadow-sm">

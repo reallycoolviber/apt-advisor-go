@@ -149,7 +149,7 @@ const EvaluationHub = () => {
       
       {/* Content */}
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-md mx-auto">
           {/* Top navigation */}
           <div className="flex items-center gap-2 mb-8">
             <Button
