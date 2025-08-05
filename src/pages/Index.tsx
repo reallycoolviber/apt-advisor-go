@@ -120,15 +120,15 @@ const Index = () => {
                   >
                     <Button
                       onClick={() => navigate(item.path)}
-                      className="w-full h-auto p-6 flex items-center justify-center gap-4 text-center transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-white border-0 shadow-none"
+                      className="w-full h-auto p-6 flex items-center gap-4 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-white border-0 shadow-none"
                       variant="ghost"
                     >
                       <div className="p-2.5 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-white/20">
                         <IconComponent className="h-5 w-5 text-primary group-hover:text-white" />
                       </div>
                       
-                      <div className="flex-1">
-                        <h3 className="text-base font-semibold text-center group-hover:text-white">
+                      <div className="flex-1 text-left">
+                        <h3 className="text-base font-semibold text-left group-hover:text-white">
                           {item.title}
                         </h3>
                       </div>
