@@ -370,7 +370,7 @@ const EvaluationSection = () => {
             className="h-12 px-8 text-sm font-medium"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Återgå
+            Spara och återgå
           </Button>
         </div>
       </div>
