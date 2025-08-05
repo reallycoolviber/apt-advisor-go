@@ -13,7 +13,7 @@ import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 const EvaluationHub = () => {
   console.log('EvaluationHub component rendering');
   const { user } = useAuth();
-  const { data, updateAddress, getCompletionStatus } = useEvaluation();
+  const { data, updateAddress } = useEvaluation();
   const navigate = useNavigate();
 
   console.log('EvaluationHub: Current data:', data);
