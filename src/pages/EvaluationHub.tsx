@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 const EvaluationHub = () => {
@@ -38,9 +39,65 @@ const EvaluationHub = () => {
     }
   ];
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    console.log('Saving evaluation...');
+  const handleSave = async () => {
+    if (!user) {
+      console.error('No user logged in');
+      return;
+    }
+
+    if (!data.address) {
+      console.error('No address provided');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('apartment_evaluations')
+        .insert({
+          user_id: user.id,
+          address: data.address,
+          // General data
+          size: data.general?.size ? parseFloat(data.general.size) : null,
+          rooms: data.general?.rooms || null,
+          price: data.general?.price ? parseFloat(data.general.price) : null,
+          final_price: data.general?.finalPrice ? parseFloat(data.general.finalPrice) : null,
+          monthly_fee: data.general?.monthlyFee ? parseFloat(data.general.monthlyFee) : null,
+          // Financial data
+          debt_per_sqm: data.financial?.debtPerSqm ? parseFloat(data.financial.debtPerSqm) : null,
+          fee_per_sqm: data.financial?.feePerSqm ? parseFloat(data.financial.feePerSqm) : null,
+          cashflow_per_sqm: data.financial?.cashflowPerSqm ? parseFloat(data.financial.cashflowPerSqm) : null,
+          major_maintenance_done: data.financial?.majorMaintenanceDone,
+          owns_land: data.financial?.ownsLand,
+          underhållsplan: data.financial?.underhållsplan,
+          // Physical data
+          planlösning: data.physical?.planlösning || null,
+          kitchen: data.physical?.kitchen || null,
+          bathroom: data.physical?.bathroom || null,
+          bedrooms: data.physical?.bedrooms || null,
+          surfaces: data.physical?.surfaces || null,
+          förvaring: data.physical?.förvaring || null,
+          ljusinsläpp: data.physical?.ljusinsläpp || null,
+          balcony: data.physical?.balcony || null,
+          // Comments
+          planlösning_comment: data.physical?.planlösning_comment,
+          kitchen_comment: data.physical?.kitchen_comment,
+          bathroom_comment: data.physical?.bathroom_comment,
+          bedrooms_comment: data.physical?.bedrooms_comment,
+          surfaces_comment: data.physical?.surfaces_comment,
+          förvaring_comment: data.physical?.förvaring_comment,
+          ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
+          balcony_comment: data.physical?.balcony_comment,
+          comments: data.physical?.comments,
+          is_draft: false
+        });
+
+      if (error) throw error;
+
+      console.log('Evaluation saved successfully');
+      navigate('/evaluations');
+    } catch (err) {
+      console.error('Error saving evaluation:', err);
+    }
   };
 
   const handleCompare = () => {
