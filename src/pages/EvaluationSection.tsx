@@ -118,26 +118,31 @@ const EvaluationSection = () => {
         throw new Error(error.message || 'Failed to scrape website');
       }
 
-      if (data && Object.keys(data).length > 0) {
-        console.log('Scraped data received:', data);
+      console.log('Response from scrape-booli:', data);
+
+      if (data && data.success && data.data && Object.keys(data.data).length > 0) {
+        console.log('Scraped data received:', data.data);
+        const scrapedData = data.data;
+        
         const newData = {
-          address: data.address || '',
-          size: data.size?.toString() || '',
-          rooms: data.rooms?.toString() || '',
-          price: data.startPrice?.toString() || '',
-          finalPrice: data.finalPrice?.toString() || '',
-          monthlyFee: data.monthlyFee?.toString() || '',
+          address: scrapedData.address || '',
+          size: scrapedData.size?.toString() || '',
+          rooms: scrapedData.rooms?.toString() || '',
+          price: scrapedData.startPrice?.toString() || '',
+          finalPrice: scrapedData.finalPrice?.toString() || '',
+          monthlyFee: scrapedData.monthlyFee?.toString() || '',
           apartmentUrl: url,
-          validationResults: data.validationResults || {}
         };
         
         updateData(newData);
         
         toast({
           title: "Framgång",
-          description: "Data har hämtats från Booli",
-          duration: 3000,
+          description: "Data har hämtats från Booli och fälten har fyllts i automatiskt",
+          duration: 5000,
         });
+      } else if (data && !data.success) {
+        throw new Error(data.error || 'Ingen data kunde hämtas från den angivna URL:en');
       } else {
         throw new Error('Ingen data kunde hämtas från den angivna URL:en');
       }
@@ -145,7 +150,7 @@ const EvaluationSection = () => {
       console.error('Error scraping website:', error);
       toast({
         title: "Fel",
-        description: error instanceof Error ? error.message : "Kunde inte hämta data från Booli",
+        description: error instanceof Error ? error.message : "Kunde inte hämta data från Booli. Kontrollera att länken är korrekt.",
         variant: "destructive",
         duration: 5000,
       });
