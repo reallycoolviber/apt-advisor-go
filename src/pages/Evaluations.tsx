@@ -506,7 +506,7 @@ const Evaluations = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/evaluation/${evaluation.id}`)}
+                          onClick={() => navigate(`/evaluate?edit=${evaluation.id}`)}
                           className="px-3 py-2.5"
                           title="Redigera"
                         >

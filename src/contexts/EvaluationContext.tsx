@@ -24,6 +24,8 @@ interface EvaluationContextType {
   updateFinancialData: (data: any) => void;
   updatePhysicalData: (data: any) => void;
   getCompletionStatus: (section: 'general' | 'financial' | 'physical') => 'not-started' | 'in-progress' | 'completed';
+  loadEvaluation: (evaluationData: any) => void;
+  clearEvaluation: () => void;
 }
 
 const EvaluationContext = createContext<EvaluationContextType | undefined>(undefined);
@@ -102,6 +104,61 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Function to load existing evaluation data
+  const loadEvaluation = (evaluationData: any) => {
+    setData({
+      address: evaluationData.address || '',
+      general: {
+        size: evaluationData.size?.toString() || '',
+        rooms: evaluationData.rooms || '',
+        price: evaluationData.price?.toString() || '',
+        finalPrice: evaluationData.final_price?.toString() || '',
+        monthlyFee: evaluationData.monthly_fee?.toString() || ''
+      },
+      financial: {
+        debtPerSqm: evaluationData.debt_per_sqm?.toString() || '',
+        feePerSqm: evaluationData.fee_per_sqm?.toString() || '',
+        cashflowPerSqm: evaluationData.cashflow_per_sqm?.toString() || '',
+        majorMaintenanceDone: evaluationData.major_maintenance_done || false,
+        ownsLand: evaluationData.owns_land || false,
+        underhållsplan: evaluationData.underhållsplan || ''
+      },
+      physical: {
+        planlösning: evaluationData.planlösning || 0,
+        kitchen: evaluationData.kitchen || 0,
+        bathroom: evaluationData.bathroom || 0,
+        bedrooms: evaluationData.bedrooms || 0,
+        surfaces: evaluationData.surfaces || 0,
+        förvaring: evaluationData.förvaring || 0,
+        ljusinsläpp: evaluationData.ljusinsläpp || 0,
+        balcony: evaluationData.balcony || 0,
+        planlösning_comment: evaluationData.planlösning_comment || '',
+        kitchen_comment: evaluationData.kitchen_comment || '',
+        bathroom_comment: evaluationData.bathroom_comment || '',
+        bedrooms_comment: evaluationData.bedrooms_comment || '',
+        surfaces_comment: evaluationData.surfaces_comment || '',
+        förvaring_comment: evaluationData.förvaring_comment || '',
+        ljusinsläpp_comment: evaluationData.ljusinsläpp_comment || '',
+        balcony_comment: evaluationData.balcony_comment || '',
+        comments: evaluationData.comments || ''
+      }
+    });
+  };
+
+  // Function to clear evaluation data
+  const clearEvaluation = () => {
+    setData({
+      address: '',
+      general: { size: '', rooms: '', price: '', finalPrice: '', monthlyFee: '' },
+      financial: { debtPerSqm: '', feePerSqm: '', cashflowPerSqm: '', majorMaintenanceDone: false, ownsLand: false, underhållsplan: '' },
+      physical: { 
+        planlösning: 0, kitchen: 0, bathroom: 0, bedrooms: 0, surfaces: 0, förvaring: 0, ljusinsläpp: 0, balcony: 0,
+        planlösning_comment: '', kitchen_comment: '', bathroom_comment: '', bedrooms_comment: '', 
+        surfaces_comment: '', förvaring_comment: '', ljusinsläpp_comment: '', balcony_comment: '', comments: ''
+      }
+    });
+  };
+
   return (
     <EvaluationContext.Provider value={{
       data,
@@ -109,7 +166,9 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
       updateGeneralData,
       updateFinancialData,
       updatePhysicalData,
-      getCompletionStatus
+      getCompletionStatus,
+      loadEvaluation,
+      clearEvaluation
     }}>
       {children}
     </EvaluationContext.Provider>
