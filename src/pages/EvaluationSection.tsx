@@ -99,7 +99,64 @@ const EvaluationSection = () => {
     }
   };
 
-  const handleReturn = () => {
+  const saveCurrentData = async () => {
+    if (!user?.id) return;
+
+    try {
+      setLoading(true);
+      
+      const saveData = {
+        user_id: user.id,
+        address: apartmentData.address || '',
+        size: parseFloat(apartmentData.size) || null,
+        rooms: apartmentData.rooms || '',
+        price: parseFloat(apartmentData.price) || null,
+        final_price: parseFloat(apartmentData.finalPrice) || null,
+        monthly_fee: parseFloat(apartmentData.monthlyFee) || null,
+        debt_per_sqm: parseFloat(apartmentData.debtPerSqm) || null,
+        fee_per_sqm: parseFloat(apartmentData.feePerSqm) || null,
+        cashflow_per_sqm: parseFloat(apartmentData.cashflowPerSqm) || null,
+        major_maintenance_done: apartmentData.majorMaintenanceDone,
+        owns_land: apartmentData.ownsLand,
+        planlösning: apartmentData.planlösning || 0,
+        kitchen: apartmentData.kitchen || 0,
+        bathroom: apartmentData.bathroom || 0,
+        bedrooms: apartmentData.bedrooms || 0,
+        surfaces: apartmentData.surfaces || 0,
+        förvaring: apartmentData.förvaring || 0,
+        ljusinsläpp: apartmentData.ljusinsläpp || 0,
+        balcony: apartmentData.balcony || 0,
+        planlösning_comment: apartmentData.planlösning_comment || '',
+        kitchen_comment: apartmentData.kitchen_comment || '',
+        bathroom_comment: apartmentData.bathroom_comment || '',
+        bedrooms_comment: apartmentData.bedrooms_comment || '',
+        surfaces_comment: apartmentData.surfaces_comment || '',
+        förvaring_comment: apartmentData.förvaring_comment || '',
+        ljusinsläpp_comment: apartmentData.ljusinsläpp_comment || '',
+        balcony_comment: apartmentData.balcony_comment || '',
+        apartment_url: apartmentData.apartmentUrl || '',
+        is_draft: true
+      };
+
+      const { error } = await supabase
+        .from('apartment_evaluations')
+        .upsert(saveData, { 
+          onConflict: 'user_id,address',
+          ignoreDuplicates: false 
+        });
+
+      if (error) {
+        console.error('Error saving evaluation:', error);
+      }
+    } catch (error) {
+      console.error('Error saving evaluation:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReturn = async () => {
+    await saveCurrentData();
     navigate('/evaluate');
   };
 
