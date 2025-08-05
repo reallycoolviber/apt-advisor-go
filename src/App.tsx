@@ -77,7 +77,9 @@ const App = () => (
                   } />
                   <Route path="/" element={
                     <ProtectedRoute>
-                      <Index />
+                      <EvaluationProvider>
+                        <Index />
+                      </EvaluationProvider>
                     </ProtectedRoute>
                   } />
                   <Route path="/evaluate" element={

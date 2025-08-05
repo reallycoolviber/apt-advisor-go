@@ -1,17 +1,21 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useEvaluation } from '@/contexts/EvaluationContext';
 import { Plus, List, BarChart3, TrendingUp, Shield, Zap, ArrowRight } from 'lucide-react';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
+import { CreateEvaluationModal } from '@/components/CreateEvaluationModal';
 
 
 
 const Index = () => {
   const { user } = useAuth();
+  const { updateAddress } = useEvaluation();
   const navigate = useNavigate();
+  const [showCreateModal, setShowCreateModal] = useState(false);
   
   console.log('Index component rendering');
 
@@ -33,12 +37,18 @@ const Index = () => {
     }
   ];
 
+  const handleCreateEvaluation = (address: string) => {
+    updateAddress(address);
+    setShowCreateModal(false);
+    navigate('/evaluate');
+  };
+
   const menuItems = [
     {
       title: 'Skapa ny utvärdering',
       description: 'Lägg till och utvärdera en ny lägenhet med automatisk datainhämtning',
       icon: Plus,
-      path: '/evaluate',
+      action: () => setShowCreateModal(true),
       primary: true
     },
     {
@@ -119,7 +129,7 @@ const Index = () => {
                     className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-accent hover:border-accent shadow-md"
                   >
                     <Button
-                      onClick={() => navigate(item.path)}
+                      onClick={() => item.action ? item.action() : navigate(item.path)}
                       className="w-full h-auto p-6 flex items-center gap-2 text-left transition-all duration-300 bg-transparent hover:bg-transparent text-foreground group-hover:text-accent-foreground border-0 shadow-none"
                       variant="ghost"
                     >
@@ -142,6 +152,12 @@ const Index = () => {
           </div>
         </div>
       </div>
+      
+      <CreateEvaluationModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onContinue={handleCreateEvaluation}
+      />
     </div>
   );
 };

@@ -180,18 +180,18 @@ const EvaluationHub = () => {
             </p>
           </div>
 
-          {/* Address input */}
-          <div className="max-w-md mx-auto mb-8">
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Ange lägenhetens adress..."
-                value={data.address || ''}
-                onChange={(e) => updateAddress(e.target.value)}
-                className="pl-10 bg-background border-border"
-              />
+          {/* Address display */}
+          {data.address && (
+            <div className="max-w-md mx-auto mb-8">
+              <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border">
+                <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{data.address}</p>
+                  <p className="text-xs text-muted-foreground">Adress för utvärdering</p>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
           
           {/* Evaluation sections */}
           <div className="space-y-3 mb-8">
