@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star } from 'lucide-react';
+import EvaluationComparison from '@/components/EvaluationComparison';
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
@@ -334,49 +335,11 @@ const EvaluationHub = () => {
             })}
           </div>
           
-          {/* Progress section - always below cards */}
-          <Card className="bg-card border shadow-md mb-8">
-            <div className="p-4">
-              <h3 className="font-semibold text-foreground mb-4 text-center">
-                Framsteg
-              </h3>
-               <div className="space-y-3">
-                 {evaluationSections.map((section, index) => (
-                   <div key={section.title} className="flex items-center gap-3">
-                     <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                       section.completed === 'completed'
-                         ? 'bg-green-500' 
-                         : section.completed === 'in-progress'
-                         ? 'bg-primary/60'
-                         : 'bg-muted-foreground/30'
-                     }`} />
-                     <span className={`text-sm ${
-                       section.completed === 'completed'
-                         ? 'text-foreground font-medium' 
-                         : section.completed === 'in-progress'
-                         ? 'text-foreground'
-                         : 'text-muted-foreground'
-                     }`}>
-                       {section.title}
-                     </span>
-                   </div>
-                 ))}
-                 <div className="mt-4 pt-3 border-t border-border">
-                   <div className="text-xs text-muted-foreground text-center">
-                     {evaluationSections.filter(s => s.completed === 'completed').length} av {evaluationSections.length} klara
-                   </div>
-                   <div className="w-full bg-muted-foreground/20 rounded-full h-2 mt-2">
-                     <div 
-                       className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                       style={{ 
-                         width: `${(evaluationSections.filter(s => s.completed === 'completed').length / evaluationSections.length) * 100}%` 
-                       }}
-                     />
-                   </div>
-                 </div>
-              </div>
-            </div>
-           </Card>
+          {/* Comparison section - shows comparison with other evaluations */}
+          <EvaluationComparison 
+            currentEvaluationId={currentEvaluationId}
+            currentData={data}
+          />
            
            {/* Summary section - shown if there's any data */}
            {hasAnyData && (
