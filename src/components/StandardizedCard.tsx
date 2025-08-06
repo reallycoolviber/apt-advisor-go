@@ -35,7 +35,7 @@ export const StandardizedCard = React.forwardRef<
         "rounded-xl border shadow-sm transition-all duration-200",
         variantClasses[variant],
         sizeClasses[size],
-        hover && "hover:shadow-md hover:scale-[1.01]",
+        hover && "hover:shadow-md hover:scale-[1.01] hover:bg-hover",
         className
       )}
       {...props}
