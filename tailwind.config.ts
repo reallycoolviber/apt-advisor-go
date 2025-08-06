@@ -69,6 +69,10 @@ export default {
 				warning: {
 					DEFAULT: 'hsl(var(--warning))',
 					foreground: 'hsl(var(--warning-foreground))'
+				},
+				'address-field': {
+					DEFAULT: 'hsl(var(--address-field))',
+					foreground: 'hsl(var(--address-field-foreground))'
 				}
 			},
 			borderRadius: {

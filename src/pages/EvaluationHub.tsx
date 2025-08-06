@@ -26,6 +26,7 @@ const EvaluationHub = () => {
   const [activeTab, setActiveTab] = useState<'input' | 'evaluation' | 'comparison'>('input');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editedAddress, setEditedAddress] = useState('');
+  const [hasAutoSaved, setHasAutoSaved] = useState(false);
   
   console.log('EvaluationHub: hooks initialized successfully');
   console.log('EvaluationHub: Current data:', data);
@@ -107,6 +108,105 @@ const EvaluationHub = () => {
 
   const physicalAverage = calculatePhysicalAverage();
   const hasAnyData = data.address || data.general?.size || data.general?.price || data.physical || data.financial;
+
+  // Auto-save effect - saves whenever there's data and user is present
+  useEffect(() => {
+    const autoSave = async () => {
+      if (!user || !hasAnyData || !data.address || hasAutoSaved) return;
+      
+      try {
+        if (currentEvaluationId) {
+          // Update existing evaluation as draft
+          await supabase
+            .from('apartment_evaluations')
+            .update({
+              address: data.address,
+              size: data.general?.size ? parseFloat(data.general.size) : null,
+              rooms: data.general?.rooms || null,
+              price: data.general?.price ? parseFloat(data.general.price) : null,
+              final_price: data.general?.finalPrice ? parseFloat(data.general.finalPrice) : null,
+              monthly_fee: data.general?.monthlyFee ? parseFloat(data.general.monthlyFee) : null,
+              debt_per_sqm: data.financial?.debtPerSqm ? parseFloat(data.financial.debtPerSqm) : null,
+              fee_per_sqm: data.financial?.feePerSqm ? parseFloat(data.financial.feePerSqm) : null,
+              cashflow_per_sqm: data.financial?.cashflowPerSqm ? parseFloat(data.financial.cashflowPerSqm) : null,
+              major_maintenance_done: data.financial?.majorMaintenanceDone,
+              owns_land: data.financial?.ownsLand,
+              underhållsplan: data.financial?.underhållsplan,
+              planlösning: data.physical?.planlösning || null,
+              kitchen: data.physical?.kitchen || null,
+              bathroom: data.physical?.bathroom || null,
+              bedrooms: data.physical?.bedrooms || null,
+              surfaces: data.physical?.surfaces || null,
+              förvaring: data.physical?.förvaring || null,
+              ljusinsläpp: data.physical?.ljusinsläpp || null,
+              balcony: data.physical?.balcony || null,
+              planlösning_comment: data.physical?.planlösning_comment,
+              kitchen_comment: data.physical?.kitchen_comment,
+              bathroom_comment: data.physical?.bathroom_comment,
+              bedrooms_comment: data.physical?.bedrooms_comment,
+              surfaces_comment: data.physical?.surfaces_comment,
+              förvaring_comment: data.physical?.förvaring_comment,
+              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
+              balcony_comment: data.physical?.balcony_comment,
+              comments: data.physical?.comments,
+              is_draft: true
+            })
+            .eq('id', currentEvaluationId)
+            .eq('user_id', user.id);
+        } else {
+          // Create new evaluation as draft
+          const { data: newEvaluation } = await supabase
+            .from('apartment_evaluations')
+            .insert({
+              user_id: user.id,
+              address: data.address,
+              size: data.general?.size ? parseFloat(data.general.size) : null,
+              rooms: data.general?.rooms || null,
+              price: data.general?.price ? parseFloat(data.general.price) : null,
+              final_price: data.general?.finalPrice ? parseFloat(data.general.finalPrice) : null,
+              monthly_fee: data.general?.monthlyFee ? parseFloat(data.general.monthlyFee) : null,
+              debt_per_sqm: data.financial?.debtPerSqm ? parseFloat(data.financial.debtPerSqm) : null,
+              fee_per_sqm: data.financial?.feePerSqm ? parseFloat(data.financial.feePerSqm) : null,
+              cashflow_per_sqm: data.financial?.cashflowPerSqm ? parseFloat(data.financial.cashflowPerSqm) : null,
+              major_maintenance_done: data.financial?.majorMaintenanceDone,
+              owns_land: data.financial?.ownsLand,
+              underhållsplan: data.financial?.underhållsplan,
+              planlösning: data.physical?.planlösning || null,
+              kitchen: data.physical?.kitchen || null,
+              bathroom: data.physical?.bathroom || null,
+              bedrooms: data.physical?.bedrooms || null,
+              surfaces: data.physical?.surfaces || null,
+              förvaring: data.physical?.förvaring || null,
+              ljusinsläpp: data.physical?.ljusinsläpp || null,
+              balcony: data.physical?.balcony || null,
+              planlösning_comment: data.physical?.planlösning_comment,
+              kitchen_comment: data.physical?.kitchen_comment,
+              bathroom_comment: data.physical?.bathroom_comment,
+              bedrooms_comment: data.physical?.bedrooms_comment,
+              surfaces_comment: data.physical?.surfaces_comment,
+              förvaring_comment: data.physical?.förvaring_comment,
+              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
+              balcony_comment: data.physical?.balcony_comment,
+              comments: data.physical?.comments,
+              is_draft: true
+            })
+            .select('id')
+            .single();
+          
+          if (newEvaluation) {
+            setCurrentEvaluationId(newEvaluation.id);
+          }
+        }
+        setHasAutoSaved(true);
+        console.log('Auto-saved evaluation');
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      }
+    };
+
+    const timer = setTimeout(autoSave, 2000); // Auto-save after 2 seconds
+    return () => clearTimeout(timer);
+  }, [user, hasAnyData, data, currentEvaluationId, hasAutoSaved]);
 
   const handleSave = async () => {
     if (!user) {
@@ -293,8 +393,8 @@ const EvaluationHub = () => {
            {/* Address display */}
            {data.address && (
              <div className="max-w-md mx-auto mb-6">
-               <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border">
-                 <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+               <div className="flex items-center gap-3 p-4 bg-address-field rounded-lg border-2 border-address-field shadow-lg">
+                 <MapPin className="h-5 w-5 text-address-field-foreground flex-shrink-0" />
                  <div className="flex-1 min-w-0">
                    {isEditingAddress ? (
                      <div className="space-y-2">
@@ -332,8 +432,8 @@ const EvaluationHub = () => {
                      </div>
                    ) : (
                      <>
-                       <p className="text-sm font-medium text-foreground">{data.address}</p>
-                       <p className="text-xs text-muted-foreground">Adress för utvärdering</p>
+                       <p className="text-sm font-semibold text-address-field-foreground">{data.address}</p>
+                       <p className="text-xs text-address-field-foreground/80">Adress för utvärdering</p>
                      </>
                    )}
                  </div>
@@ -342,10 +442,10 @@ const EvaluationHub = () => {
                      variant="ghost"
                      size="sm"
                      onClick={handleEditAddress}
-                     className="p-2 hover:bg-accent flex-shrink-0"
+                     className="p-2 hover:bg-address-field-foreground/20 text-address-field-foreground flex-shrink-0"
                      title="Redigera adress"
                    >
-                     <Edit className="h-4 w-4" />
+                     <Edit className="h-5 w-5" />
                    </Button>
                  )}
                </div>

@@ -74,6 +74,10 @@ All colors MUST be HSL.
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;          /* Amber for warnings */
     --warning-foreground: 0 0% 100%;
+    
+    /* Prominent address field variant */
+    --address-field: 142 69% 58%;   /* Darker prominent green */
+    --address-field-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 20%;
