@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star, Edit } from 'lucide-react';
-import EvaluationComparison from '@/components/EvaluationComparison';
+import AutoComparisonWidget from '@/components/AutoComparisonWidget';
 import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
@@ -624,14 +624,11 @@ const EvaluationHub = () => {
              </Card>
            )}
 
-           {activeTab === 'comparison' && (
-             <div className="mb-8">
-               <EvaluationComparison 
-                 currentEvaluationId={currentEvaluationId}
-                 currentData={data}
-               />
-             </div>
-           )}
+           {activeTab === 'comparison' && currentEvaluationId && (
+              <div className="mb-8">
+                <AutoComparisonWidget evaluationId={currentEvaluationId} />
+              </div>
+            )}
            
            {/* Action buttons */}
           <div className="flex gap-4">
