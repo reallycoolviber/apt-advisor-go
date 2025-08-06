@@ -73,6 +73,10 @@ export default {
 				'address-field': {
 					DEFAULT: 'hsl(var(--address-field))',
 					foreground: 'hsl(var(--address-field-foreground))'
+				},
+				hover: {
+					DEFAULT: 'hsl(var(--hover))',
+					foreground: 'hsl(var(--hover-foreground))'
 				}
 			},
 			borderRadius: {
