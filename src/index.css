@@ -141,38 +141,4 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
-
-  /* Fix hover effects on touch devices */
-  @media (hover: none) and (pointer: coarse) {
-    .hover\:bg-hover:hover {
-      background-color: transparent !important;
-    }
-    
-    .hover\:bg-accent:hover {
-      background-color: transparent !important;
-    }
-    
-    .hover\:text-hover-foreground:hover {
-      color: inherit !important;
-    }
-    
-    .group:hover .group-hover\:text-hover-foreground {
-      color: inherit !important;
-    }
-    
-    .group:hover .group-hover\:bg-hover-foreground\/20 {
-      background-color: transparent !important;
-    }
-  }
-
-  /* Enhanced hover for devices that support it */
-  @media (hover: hover) and (pointer: fine) {
-    .enhanced-hover {
-      transition: all 0.2s ease-in-out;
-    }
-    
-    .enhanced-hover:hover {
-      transform: translateY(-1px);
-    }
-  }
 }
