@@ -245,6 +245,14 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     return metrics;
   }, [currentEvaluation, comparisonEvaluations]);
 
+  const getPercentileText = (percentile: number, totalCount: number): string => {
+    if (percentile >= 99) {
+      const betterThan = Math.floor((percentile / 100) * totalCount);
+      return `bättre än ${betterThan} av ${totalCount}`;
+    }
+    return `${percentile.toFixed(0)}:e percentilen`;
+  };
+
   const formatValue = (value: number, unit: string): string => {
     if (unit === 'SEK/kvm') {
       return `${Math.round(value).toLocaleString()} ${unit}`;
@@ -374,7 +382,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                       Snitt: {formatValue(metric.average, metric.unit)}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {metric.percentile.toFixed(0)}:e percentilen
+                      {getPercentileText(metric.percentile, comparisonEvaluations.length + 1)}
                     </div>
                   </div>
                   
