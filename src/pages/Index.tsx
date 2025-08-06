@@ -138,12 +138,12 @@ const Index = () => {
                       </div>
                       
                       <div className="flex-1 text-left">
-                        <h3 className="text-base font-semibold text-left group-hover:text-accent-foreground">
+                        <h3 className="text-base font-semibold text-left group-hover:text-hover-foreground">
                           {item.title}
                         </h3>
                       </div>
                       
-                      <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1 text-gray-800 group-hover:text-accent-foreground" />
+                      <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1 text-gray-800 group-hover:text-hover-foreground" />
                     </Button>
                   </Card>
                 );

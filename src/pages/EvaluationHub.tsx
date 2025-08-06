@@ -492,10 +492,10 @@ const EvaluationHub = () => {
                        
                        {/* Text - Center */}
                        <div className="flex-1 min-w-0">
-                         <h3 className="text-sm font-semibold group-hover:text-accent-foreground mb-1 truncate">
-                           {section.title}
-                         </h3>
-                         <p className="text-xs text-muted-foreground group-hover:text-accent-foreground/70 line-clamp-2">
+                          <h3 className="text-sm font-semibold group-hover:text-hover-foreground mb-1 truncate">
+                            {section.title}
+                          </h3>
+                          <p className="text-xs text-muted-foreground group-hover:text-hover-foreground/70 line-clamp-2">
                            {section.description}
                          </p>
                        </div>
