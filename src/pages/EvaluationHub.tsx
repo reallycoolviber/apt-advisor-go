@@ -243,34 +243,32 @@ const EvaluationHub = () => {
       {/* Content */}
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
         <div className="max-w-md mx-auto">
-          {/* Top navigation */}
-          <div className="flex items-center gap-2 mb-8">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="p-2 hover:bg-accent"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="p-2 hover:bg-accent"
-            >
-              <Home className="h-5 w-5" />
-            </Button>
-          </div>
-          
-          {/* Title */}
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-foreground mb-2">
+          {/* Top navigation with title */}
+          <div className="flex items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-accent"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-accent"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <h2 className="text-xl font-bold text-foreground">
               Lägenhetsutvärdering
             </h2>
-            <p className="text-muted-foreground">
-              Fyll i informationen steg för steg för att skapa en komplett utvärdering
-            </p>
+            
+            <div className="w-20"></div> {/* Spacer for balance */}
           </div>
 
            {/* Address display */}
