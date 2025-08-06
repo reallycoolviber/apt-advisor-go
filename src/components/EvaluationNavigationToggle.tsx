@@ -27,7 +27,7 @@ const EvaluationNavigationToggle: React.FC<NavigationToggleProps> = ({
               "flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2",
               activeTab === tab.id
                 ? "bg-primary text-primary-foreground border-primary"
-                : "bg-muted hover:bg-muted/80 text-muted-foreground border-transparent hover:text-foreground"
+                : "bg-muted hover:bg-hover text-muted-foreground border-transparent hover:text-hover-foreground"
             )}
           >
             {tab.label}
