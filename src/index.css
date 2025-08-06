@@ -76,7 +76,7 @@ All colors MUST be HSL.
     --warning-foreground: 0 0% 100%;
     
     /* Prominent address field variant */
-    --address-field: 142 69% 58%;   /* Darker prominent green */
+    --address-field: 105 45% 45%;   /* Deeper green for prominence */
     --address-field-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
