@@ -285,7 +285,7 @@ const EvaluationSection = () => {
               variant="ghost"
               size="sm"
               onClick={handleReturn}
-              className="p-2 hover:bg-accent"
+              className="p-2 hover:bg-hover"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -293,7 +293,7 @@ const EvaluationSection = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="p-2 hover:bg-accent"
+              className="p-2 hover:bg-hover"
             >
               <Home className="h-5 w-5" />
             </Button>
