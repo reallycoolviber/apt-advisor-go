@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star } from 'lucide-react';
+import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star, Edit } from 'lucide-react';
 import EvaluationComparison from '@/components/EvaluationComparison';
 import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +24,8 @@ const EvaluationHub = () => {
   const [loading, setLoading] = useState(false);
   const [currentEvaluationId, setCurrentEvaluationId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'input' | 'evaluation' | 'comparison'>('input');
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [editedAddress, setEditedAddress] = useState('');
   
   console.log('EvaluationHub: hooks initialized successfully');
   console.log('EvaluationHub: Current data:', data);
@@ -218,6 +220,23 @@ const EvaluationHub = () => {
     navigate('/compare');
   };
 
+  const handleEditAddress = () => {
+    setEditedAddress(data.address || '');
+    setIsEditingAddress(true);
+  };
+
+  const handleSaveAddress = () => {
+    if (editedAddress.trim()) {
+      updateAddress(editedAddress.trim());
+    }
+    setIsEditingAddress(false);
+  };
+
+  const handleCancelAddressEdit = () => {
+    setIsEditingAddress(false);
+    setEditedAddress('');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background relative flex items-center justify-center">
@@ -277,9 +296,58 @@ const EvaluationHub = () => {
                <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border">
                  <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                  <div className="flex-1 min-w-0">
-                   <p className="text-sm font-medium text-foreground">{data.address}</p>
-                   <p className="text-xs text-muted-foreground">Adress för utvärdering</p>
+                   {isEditingAddress ? (
+                     <div className="space-y-2">
+                       <Input
+                         value={editedAddress}
+                         onChange={(e) => setEditedAddress(e.target.value)}
+                         placeholder="Ange adress"
+                         className="text-sm"
+                         onKeyDown={(e) => {
+                           if (e.key === 'Enter') {
+                             handleSaveAddress();
+                           } else if (e.key === 'Escape') {
+                             handleCancelAddressEdit();
+                           }
+                         }}
+                         autoFocus
+                       />
+                       <div className="flex gap-2">
+                         <Button
+                           size="sm"
+                           onClick={handleSaveAddress}
+                           className="h-6 px-2 text-xs"
+                         >
+                           Spara
+                         </Button>
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           onClick={handleCancelAddressEdit}
+                           className="h-6 px-2 text-xs"
+                         >
+                           Avbryt
+                         </Button>
+                       </div>
+                     </div>
+                   ) : (
+                     <>
+                       <p className="text-sm font-medium text-foreground">{data.address}</p>
+                       <p className="text-xs text-muted-foreground">Adress för utvärdering</p>
+                     </>
+                   )}
                  </div>
+                 {!isEditingAddress && (
+                   <Button
+                     variant="ghost"
+                     size="sm"
+                     onClick={handleEditAddress}
+                     className="p-2 hover:bg-accent flex-shrink-0"
+                     title="Redigera adress"
+                   >
+                     <Edit className="h-4 w-4" />
+                   </Button>
+                 )}
                </div>
              </div>
            )}
