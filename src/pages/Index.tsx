@@ -23,7 +23,7 @@ const Index = () => {
     {
       icon: TrendingUp,
       title: 'Automatisk analys',
-      description: 'Extrahera nyckeltal automatiskt från årsredovisningar'
+      description: 'Extrahera data och nyckeltal automatiskt'
     },
     {
       icon: Shield,
