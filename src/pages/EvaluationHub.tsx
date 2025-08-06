@@ -393,8 +393,8 @@ const EvaluationHub = () => {
            {/* Address display */}
            {data.address && (
              <div className="max-w-md mx-auto mb-6">
-               <div className="flex items-center gap-3 p-4 bg-address-field rounded-lg border-2 border-address-field shadow-lg">
-                 <MapPin className="h-5 w-5 text-address-field-foreground flex-shrink-0" />
+               <div className="flex items-center gap-3 p-4 bg-primary rounded-lg border-2 border-primary shadow-lg">
+                 <MapPin className="h-5 w-5 text-primary-foreground flex-shrink-0" />
                  <div className="flex-1 min-w-0">
                    {isEditingAddress ? (
                      <div className="space-y-2">
@@ -432,8 +432,8 @@ const EvaluationHub = () => {
                      </div>
                    ) : (
                      <>
-                       <p className="text-sm font-semibold text-address-field-foreground">{data.address}</p>
-                       <p className="text-xs text-address-field-foreground/80">Adress för utvärdering</p>
+                       <p className="text-sm font-semibold text-primary-foreground">{data.address}</p>
+                       <p className="text-xs text-primary-foreground/80">Adress för utvärdering</p>
                      </>
                    )}
                  </div>
@@ -442,7 +442,7 @@ const EvaluationHub = () => {
                      variant="ghost"
                      size="sm"
                      onClick={handleEditAddress}
-                     className="p-2 hover:bg-address-field-foreground/20 text-address-field-foreground flex-shrink-0"
+                     className="p-2 hover:bg-primary-foreground/20 text-primary-foreground flex-shrink-0"
                      title="Redigera adress"
                    >
                      <Edit className="h-5 w-5" />
