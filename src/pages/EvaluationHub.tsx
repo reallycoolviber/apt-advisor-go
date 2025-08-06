@@ -10,6 +10,7 @@ import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star } from 'lucide-react';
 import EvaluationComparison from '@/components/EvaluationComparison';
+import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
@@ -22,6 +23,7 @@ const EvaluationHub = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [currentEvaluationId, setCurrentEvaluationId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'input' | 'evaluation' | 'comparison'>('input');
   
   console.log('EvaluationHub: hooks initialized successfully');
   console.log('EvaluationHub: Current data:', data);
@@ -271,78 +273,79 @@ const EvaluationHub = () => {
             </p>
           </div>
 
-          {/* Address display */}
-          {data.address && (
-            <div className="max-w-md mx-auto mb-8">
-              <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border">
-                <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{data.address}</p>
-                  <p className="text-xs text-muted-foreground">Adress för utvärdering</p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Evaluation sections */}
-          <div className="space-y-3 mb-8">
-            {evaluationSections.map((section, index) => {
-              const IconComponent = section.icon;
-              
-              const renderStatusCheckbox = (status: string) => {
-                if (status === 'completed') {
-                  return <Checkbox checked={true} className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" />;
-                } else if (status === 'in-progress') {
-                  return (
-                    <div className="relative w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center bg-background">
-                      <Minus className="h-2 w-2 text-primary" />
-                    </div>
-                  );
-                } else {
-                  return <Checkbox checked={false} />;
-                }
-              };
-              
-              return (
-                <Card 
-                  key={section.title} 
-                  className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-accent hover:border-accent shadow-sm cursor-pointer"
-                  onClick={() => navigate(section.path)}
-                >
-                  <div className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300">
-                    {/* Icon - Left */}
-                    <div className="p-2 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
-                      <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
-                    </div>
-                    
-                    {/* Text - Center */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold group-hover:text-accent-foreground mb-1 truncate">
-                        {section.title}
-                      </h3>
-                      <p className="text-xs text-muted-foreground group-hover:text-accent-foreground/70 line-clamp-2">
-                        {section.description}
-                      </p>
-                    </div>
-                    
-                    {/* Status - Right */}
-                    <div className="flex-shrink-0">
-                      {renderStatusCheckbox(section.completed)}
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-          
-          {/* Comparison section - shows comparison with other evaluations */}
-          <EvaluationComparison 
-            currentEvaluationId={currentEvaluationId}
-            currentData={data}
-          />
+           {/* Address display */}
+           {data.address && (
+             <div className="max-w-md mx-auto mb-6">
+               <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border">
+                 <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                 <div className="flex-1 min-w-0">
+                   <p className="text-sm font-medium text-foreground">{data.address}</p>
+                   <p className="text-xs text-muted-foreground">Adress för utvärdering</p>
+                 </div>
+               </div>
+             </div>
+           )}
+
+           {/* Navigation Toggle */}
+           <EvaluationNavigationToggle 
+             activeTab={activeTab}
+             onTabChange={setActiveTab}
+           />
            
-           {/* Summary section - shown if there's any data */}
-           {hasAnyData && (
+           {/* Content based on active tab */}
+           {activeTab === 'input' && (
+             <div className="space-y-3 mb-8">
+               {evaluationSections.map((section, index) => {
+                 const IconComponent = section.icon;
+                 
+                 const renderStatusCheckbox = (status: string) => {
+                   if (status === 'completed') {
+                     return <Checkbox checked={true} className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" />;
+                   } else if (status === 'in-progress') {
+                     return (
+                       <div className="relative w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center bg-background">
+                         <Minus className="h-2 w-2 text-primary" />
+                       </div>
+                     );
+                   } else {
+                     return <Checkbox checked={false} />;
+                   }
+                 };
+                 
+                 return (
+                   <Card 
+                     key={section.title} 
+                     className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-accent hover:border-accent shadow-sm cursor-pointer"
+                     onClick={() => navigate(section.path)}
+                   >
+                     <div className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300">
+                       {/* Icon - Left */}
+                       <div className="p-2 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-accent-foreground/20">
+                         <IconComponent className="h-5 w-5 text-primary group-hover:text-accent-foreground" />
+                       </div>
+                       
+                       {/* Text - Center */}
+                       <div className="flex-1 min-w-0">
+                         <h3 className="text-sm font-semibold group-hover:text-accent-foreground mb-1 truncate">
+                           {section.title}
+                         </h3>
+                         <p className="text-xs text-muted-foreground group-hover:text-accent-foreground/70 line-clamp-2">
+                           {section.description}
+                         </p>
+                       </div>
+                       
+                       {/* Status - Right */}
+                       <div className="flex-shrink-0">
+                         {renderStatusCheckbox(section.completed)}
+                       </div>
+                     </div>
+                   </Card>
+                 );
+               })}
+             </div>
+           )}
+
+           {activeTab === 'evaluation' && hasAnyData && (
              <Card className="bg-card border shadow-md mb-8">
                <div className="p-4">
                  <h3 className="font-semibold text-foreground mb-4 text-center">
@@ -417,6 +420,15 @@ const EvaluationHub = () => {
                  </div>
                </div>
              </Card>
+           )}
+
+           {activeTab === 'comparison' && (
+             <div className="mb-8">
+               <EvaluationComparison 
+                 currentEvaluationId={currentEvaluationId}
+                 currentData={data}
+               />
+             </div>
            )}
            
            {/* Action buttons */}
