@@ -342,6 +342,42 @@ const EvaluationHub = () => {
                    </Card>
                  );
                })}
+               
+               {/* Progress section under input cards */}
+               <Card className="bg-card border shadow-md mt-6">
+                 <div className="p-4">
+                   <h3 className="font-semibold text-foreground mb-4 text-center">
+                     Framsteg
+                   </h3>
+                   
+                   <div className="space-y-3">
+                     {evaluationSections.map((section) => {
+                       const IconComponent = section.icon;
+                       const completed = section.completed === 'completed';
+                       const inProgress = section.completed === 'in-progress';
+                       
+                       return (
+                         <div key={section.title} className="flex items-center gap-3 p-2 rounded-lg bg-secondary/30">
+                           <div className={`p-1 rounded ${completed ? 'bg-green-100' : inProgress ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+                             <IconComponent className={`h-4 w-4 ${completed ? 'text-green-600' : inProgress ? 'text-yellow-600' : 'text-gray-500'}`} />
+                           </div>
+                           <div className="flex-1">
+                             <p className="text-sm font-medium text-foreground">{section.title}</p>
+                             <p className="text-xs text-muted-foreground">
+                               {completed ? 'Slutförd' : inProgress ? 'Påbörjad' : 'Ej påbörjad'}
+                             </p>
+                           </div>
+                           <div className="flex-shrink-0">
+                             {completed && <div className="w-2 h-2 bg-green-500 rounded-full" />}
+                             {inProgress && <div className="w-2 h-2 bg-yellow-500 rounded-full" />}
+                             {!completed && !inProgress && <div className="w-2 h-2 bg-gray-300 rounded-full" />}
+                           </div>
+                         </div>
+                       );
+                     })}
+                   </div>
+                 </div>
+               </Card>
              </div>
            )}
 
