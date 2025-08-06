@@ -282,14 +282,6 @@ const AutoComparison = () => {
       <TrendingDown className="h-4 w-4 text-red-500" />;
   };
 
-  const getPercentileText = (percentile: number, totalCount: number): string => {
-    if (percentile >= 99) {
-      const betterThan = Math.floor((percentile / 100) * totalCount);
-      return `bättre än ${betterThan} av ${totalCount}`;
-    }
-    return `bättre än ${percentile.toFixed(0)}% av jämförelserna`;
-  };
-
   const getComparisonBaseLabel = (base: ComparisonBase): string => {
     switch (base) {
       case 'last-month': return 'Senaste månadens utvärderingar';
@@ -465,7 +457,7 @@ const AutoComparison = () => {
                         </ResponsiveContainer>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1 text-center">
-                        {getPercentileText(metric.percentile, comparisonEvaluations.length + 1)}
+                        Bättre än {metric.percentile}% av jämförelserna
                       </div>
                     </div>
                   </div>
