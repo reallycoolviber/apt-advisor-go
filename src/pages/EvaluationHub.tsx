@@ -646,7 +646,7 @@ const EvaluationHub = () => {
               className="flex-1 h-12"
             >
               <GitCompare className="h-4 w-4 mr-2" />
-              Jämför
+              Slutför
             </Button>
           </div>
         </div>
