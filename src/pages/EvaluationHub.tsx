@@ -2,40 +2,53 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star, Edit, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, ClipboardCheck } from 'lucide-react';
 import AutoComparisonWidget from '@/components/AutoComparisonWidget';
 import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
+import EvaluationAddressEditor from '@/components/form/EvaluationAddressEditor';
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
-import { useLoadingButton } from '@/hooks/useLoadingButton';
+import { useEvaluationStore } from '@/stores/evaluationStore';
 
 const EvaluationHub = () => {
   console.log('EvaluationHub component starting to render');
   
   const { user } = useAuth();
-  const { data, updateField, evaluationId, setEvaluationId, loadEvaluation, getCompletionStatus } = useEvaluation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { id: urlEvaluationId } = useParams();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentEvaluationId, setCurrentEvaluationId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'input' | 'evaluation' | 'comparison'>('input');
-  const [isEditingAddress, setIsEditingAddress] = useState(false);
-  const [editedAddress, setEditedAddress] = useState('');
-  const [hasAutoSaved, setHasAutoSaved] = useState(false);
-  const [checklistProgress, setChecklistProgress] = useState({ filled: 0, total: 16 });
-  const { isLoading: saveLoading, executeWithLoading } = useLoadingButton();
   
+  // Use central store - Single Source of Truth
+  const { 
+    currentEvaluation, 
+    currentEvaluationId,
+    currentEvaluationLoading,
+    updateField, 
+    loadEvaluation,
+    saveCurrentEvaluation
+  } = useEvaluationStore();
+
+  // Only UI state, no evaluation data copies
+  const [activeTab, setActiveTab] = useState<'input' | 'evaluation' | 'comparison'>('input');
+  const [checklistProgress, setChecklistProgress] = useState({ filled: 0, total: 16 });
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Read data directly from central store
+  const data = currentEvaluation || {
+    address: '',
+    general: { size: '', rooms: '', price: '', finalPrice: '', monthlyFee: '' },
+    financial: { debtPerSqm: '', cashflowPerSqm: '', majorMaintenanceDone: false, ownsLand: false, underhållsplan: '' },
+    physical: { planlösning: 0, kitchen: 0, bathroom: 0, bedrooms: 0, surfaces: 0, förvaring: 0, ljusinsläpp: 0, balcony: 0, planlösning_comment: '', kitchen_comment: '', bathroom_comment: '', bedrooms_comment: '', surfaces_comment: '', förvaring_comment: '', ljusinsläpp_comment: '', balcony_comment: '', comments: '' }
+  };
+
   console.log('EvaluationHub: hooks initialized successfully');
   console.log('EvaluationHub: Current data:', data);
   console.log('EvaluationHub: User:', user);
@@ -79,23 +92,18 @@ const EvaluationHub = () => {
   useEffect(() => {
     const editId = searchParams.get('edit') || urlEvaluationId;
     if (editId && user && editId !== currentEvaluationId) {
-      setLoading(true);
-      
       const fetchEvaluation = async () => {
         try {
           await loadEvaluation(editId);
-          setCurrentEvaluationId(editId);
         } catch (err) {
           console.error('Error loading evaluation for editing:', err);
           setError('Kunde inte ladda utvärderingen. Försök igen senare.');
-        } finally {
-          setLoading(false);
         }
       };
 
       fetchEvaluation();
     }
-  }, [searchParams, urlEvaluationId, user?.id, currentEvaluationId]);
+  }, [searchParams, urlEvaluationId, user?.id, currentEvaluationId, loadEvaluation]);
 
   // Helper function to calculate progress for a section
   const calculateSectionProgress = (section: 'general' | 'financial' | 'physical' | 'checklist') => {
@@ -121,7 +129,7 @@ const EvaluationHub = () => {
       description: 'Grundläggande information om lägenheten',
       icon: Building,
       path: '/evaluate/general/Lägenhetsdata',
-      completed: getCompletionStatus('general'),
+      completed: 'not-started' as const,
       progress: calculateSectionProgress('general')
     },
     {
@@ -129,7 +137,7 @@ const EvaluationHub = () => {
       description: 'Ekonomisk information och föreningsdata',
       icon: BarChart3,
       path: '/evaluate/financial/Föreningsanalys',
-      completed: getCompletionStatus('financial'),
+      completed: 'not-started' as const,
       progress: calculateSectionProgress('financial')
     },
     {
@@ -137,7 +145,7 @@ const EvaluationHub = () => {
       description: 'Kvalitativ bedömning av lägenheten',
       icon: FileText,
       path: '/evaluate/physical/Lägenhetsbedömning',
-      completed: getCompletionStatus('physical'),
+      completed: 'not-started' as const,
       progress: calculateSectionProgress('physical')
     },
     {
@@ -145,7 +153,7 @@ const EvaluationHub = () => {
       description: 'Viktiga punkter att kontrollera under visning',
       icon: ClipboardCheck,
       path: '/evaluate/checklist/Checklista under visning',
-      completed: 'not-started',
+      completed: 'not-started' as const,
       progress: calculateSectionProgress('checklist')
     }
   ];
@@ -188,120 +196,26 @@ const EvaluationHub = () => {
            data.physical?.ljusinsläpp || data.physical?.balcony || data.physical?.comments;
   };
 
-  // Remove legacy auto-save logic - now handled by EvaluationContext
-
+  // Use central store for saving
   const handleSave = async () => {
-    await executeWithLoading(async () => {
-      if (!user || !data.address) return;
-      
-      try {
-        if (currentEvaluationId) {
-          // Update existing evaluation as completed
-          await supabase
-            .from('apartment_evaluations')
-            .update({
-              address: data.address,
-              size: data.general?.size ? toBase(data.general.size) : null,
-              rooms: data.general?.rooms || null,
-              price: toBase(data.general?.price),
-              final_price: toBase(data.general?.finalPrice),
-              monthly_fee: toBase(data.general?.monthlyFee),
-              debt_per_sqm: toBase(data.financial?.debtPerSqm),
-              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
-              major_maintenance_done: data.financial?.majorMaintenanceDone,
-              owns_land: data.financial?.ownsLand,
-              underhållsplan: data.financial?.underhållsplan,
-              planlösning: data.physical?.planlösning || null,
-              kitchen: data.physical?.kitchen || null,
-              bathroom: data.physical?.bathroom || null,
-              bedrooms: data.physical?.bedrooms || null,
-              surfaces: data.physical?.surfaces || null,
-              förvaring: data.physical?.förvaring || null,
-              ljusinsläpp: data.physical?.ljusinsläpp || null,
-              balcony: data.physical?.balcony || null,
-              planlösning_comment: data.physical?.planlösning_comment,
-              kitchen_comment: data.physical?.kitchen_comment,
-              bathroom_comment: data.physical?.bathroom_comment,
-              bedrooms_comment: data.physical?.bedrooms_comment,
-              surfaces_comment: data.physical?.surfaces_comment,
-              förvaring_comment: data.physical?.förvaring_comment,
-              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
-              balcony_comment: data.physical?.balcony_comment,
-              comments: data.physical?.comments,
-              is_draft: false
-            })
-            .eq('id', currentEvaluationId)
-            .eq('user_id', user.id);
-        } else {
-          // Create new evaluation as completed
-          await supabase
-            .from('apartment_evaluations')
-            .insert({
-              user_id: user.id,
-              address: data.address,
-              size: data.general?.size ? toBase(data.general.size) : null,
-              rooms: data.general?.rooms || null,
-              price: toBase(data.general?.price),
-              final_price: toBase(data.general?.finalPrice),
-              monthly_fee: toBase(data.general?.monthlyFee),
-              debt_per_sqm: toBase(data.financial?.debtPerSqm),
-              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
-              major_maintenance_done: data.financial?.majorMaintenanceDone,
-              owns_land: data.financial?.ownsLand,
-              underhållsplan: data.financial?.underhållsplan,
-              planlösning: data.physical?.planlösning || null,
-              kitchen: data.physical?.kitchen || null,
-              bathroom: data.physical?.bathroom || null,
-              bedrooms: data.physical?.bedrooms || null,
-              surfaces: data.physical?.surfaces || null,
-              förvaring: data.physical?.förvaring || null,
-              ljusinsläpp: data.physical?.ljusinsläpp || null,
-              balcony: data.physical?.balcony || null,
-              planlösning_comment: data.physical?.planlösning_comment,
-              kitchen_comment: data.physical?.kitchen_comment,
-              bathroom_comment: data.physical?.bathroom_comment,
-              bedrooms_comment: data.physical?.bedrooms_comment,
-              surfaces_comment: data.physical?.surfaces_comment,
-              förvaring_comment: data.physical?.förvaring_comment,
-              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
-              balcony_comment: data.physical?.balcony_comment,
-              comments: data.physical?.comments,
-              is_draft: false
-            });
-        }
-        
-        navigate('/evaluations');
-      } catch (err) {
-        console.error('Error saving evaluation:', err);
-        setError('Kunde inte spara utvärderingen. Försök igen.');
-        throw err;
-      }
-    });
+    setSaveLoading(true);
+    try {
+      await saveCurrentEvaluation();
+      navigate('/evaluations');
+    } catch (err) {
+      console.error('Error saving evaluation:', err);
+      setError('Kunde inte spara utvärderingen. Försök igen.');
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   const handleCompare = () => {
     navigate('/compare');
   };
 
-  const handleEditAddress = () => {
-    setEditedAddress(data.address || '');
-    setIsEditingAddress(true);
-  };
-
-  const handleSaveAddress = () => {
-    if (editedAddress.trim()) {
-      updateField('address' as any, '', editedAddress.trim());
-    }
-    setIsEditingAddress(false);
-  };
-
-  const handleCancelAddressEdit = () => {
-    setIsEditingAddress(false);
-    setEditedAddress('');
-  };
-
   // Loading state
-  if (loading) {
+  if (currentEvaluationLoading) {
     return (
       <div className="min-h-screen bg-app-background relative">
         {/* Background cityscape */}
@@ -346,7 +260,6 @@ const EvaluationHub = () => {
   if (error) {
     const handleRetry = () => {
       setError(null);
-      setLoading(true);
       window.location.reload();
     };
 
@@ -439,67 +352,8 @@ const EvaluationHub = () => {
             <div className="w-20"></div> {/* Spacer for balance */}
           </div>
 
-           {/* Address display */}
-           {data.address && (
-             <div className="max-w-md mx-auto mb-6">
-               <div className="flex items-center gap-3 p-4 bg-primary rounded-lg border-2 border-primary shadow-lg">
-                 <MapPin className="h-5 w-5 text-primary-foreground flex-shrink-0" />
-                 <div className="flex-1 min-w-0">
-                   {isEditingAddress ? (
-                     <div className="space-y-2">
-                       <Input
-                         value={editedAddress}
-                         onChange={(e) => setEditedAddress(e.target.value)}
-                         placeholder="Ange adress"
-                         className="text-sm"
-                         onKeyDown={(e) => {
-                           if (e.key === 'Enter') {
-                             handleSaveAddress();
-                           } else if (e.key === 'Escape') {
-                             handleCancelAddressEdit();
-                           }
-                         }}
-                         autoFocus
-                       />
-                       <div className="flex gap-2">
-                         <Button
-                           size="sm"
-                           onClick={handleSaveAddress}
-                           className="h-6 px-2 text-xs"
-                         >
-                           Spara
-                         </Button>
-                         <Button
-                           size="sm"
-                           variant="outline"
-                           onClick={handleCancelAddressEdit}
-                           className="h-6 px-2 text-xs"
-                         >
-                           Avbryt
-                         </Button>
-                       </div>
-                     </div>
-                   ) : (
-                     <>
-                       <p className="text-sm font-semibold text-primary-foreground">{data.address}</p>
-                       <p className="text-xs text-primary-foreground/80">Adress för utvärdering</p>
-                     </>
-                   )}
-                 </div>
-                 {!isEditingAddress && (
-                   <Button
-                     variant="ghost"
-                     size="sm"
-                     onClick={handleEditAddress}
-                     className="p-2 hover:bg-primary-foreground/20 text-primary-foreground flex-shrink-0"
-                     title="Redigera adress"
-                   >
-                     <Edit className="h-5 w-5" />
-                   </Button>
-                 )}
-               </div>
-             </div>
-           )}
+           {/* Address display using new component */}
+           <EvaluationAddressEditor />
 
            {/* Navigation Toggle */}
            <EvaluationNavigationToggle 
