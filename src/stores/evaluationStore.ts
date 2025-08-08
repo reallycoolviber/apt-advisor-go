@@ -394,15 +394,18 @@ export const useEvaluationStore = create<EvaluationStore>()(
           
           try {
             let evaluationId = state.currentEvaluationId;
+            const evaluationData = formDataToEvaluationData(state.currentEvaluation);
             
-            // Create new evaluation if needed
-            if (!evaluationId) {
+            // Om vi redan har ett evaluationId, uppdatera befintlig utvärdering
+            if (evaluationId) {
+              await saveEvaluation(evaluationId, evaluationData);
+            } else {
+              // Skapa ny utvärdering endast om vi inte har ett ID
               const address = state.currentEvaluation.address;
               if (!address || address.trim() === '') {
                 throw new Error('Adress krävs för att spara utvärdering');
               }
               const sourceId = generateSourceId(undefined, address);
-              const evaluationData = formDataToEvaluationData(state.currentEvaluation);
               const result = await getOrCreateEvaluation(sourceId, address, evaluationData);
               evaluationId = result.data.id!;
               
@@ -410,10 +413,6 @@ export const useEvaluationStore = create<EvaluationStore>()(
                 currentEvaluationId: evaluationId
               });
             }
-            
-            // Save the evaluation
-            const evaluationData = formDataToEvaluationData(state.currentEvaluation);
-            await saveEvaluation(evaluationId, evaluationData);
             
             // Update the evaluations list
             const updatedEvaluations = state.evaluations.map(e => 
