@@ -243,7 +243,7 @@ const Evaluations = () => {
               >
                 <Home className="h-5 w-5" />
               </Button>
-              <h1 className="text-3xl font-bold text-foreground">Mina utvärderingar</h1>
+              <h1 className="text-xl font-bold text-foreground">Mina utvärderingar</h1>
             </div>
             <div className="text-foreground">Laddar dina utvärderingar...</div>
           </div>
@@ -284,7 +284,7 @@ const Evaluations = () => {
             >
               <Home className="h-5 w-5" />
             </Button>
-            <h1 className="text-3xl font-bold text-foreground">Mina utvärderingar</h1>
+            <h1 className="text-xl font-bold text-foreground">Mina utvärderingar</h1>
             {evaluations.length > 0 && (
               <span className="bg-muted text-muted-foreground px-4 py-2 rounded-full text-lg font-medium">
                 {evaluations.length}
