@@ -14,6 +14,9 @@ import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle'
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 import { formatValue as formatDisplayValue } from '@/utils/formatValue';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { ErrorState } from '@/components/ui/error-state';
+import { useLoadingButton } from '@/hooks/useLoadingButton';
 
 const EvaluationHub = () => {
   console.log('EvaluationHub component starting to render');
@@ -23,12 +26,14 @@ const EvaluationHub = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [currentEvaluationId, setCurrentEvaluationId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'input' | 'evaluation' | 'comparison'>('input');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editedAddress, setEditedAddress] = useState('');
   const [hasAutoSaved, setHasAutoSaved] = useState(false);
   const [checklistProgress, setChecklistProgress] = useState({ filled: 0, total: 16 });
+  const { isLoading: saveLoading, executeWithLoading } = useLoadingButton();
   
   console.log('EvaluationHub: hooks initialized successfully');
   console.log('EvaluationHub: Current data:', data);
@@ -92,6 +97,7 @@ const EvaluationHub = () => {
           }
         } catch (err) {
           console.error('Error loading evaluation for editing:', err);
+          setError('Kunde inte ladda utvärderingen. Försök igen senare.');
         } finally {
           setLoading(false);
         }
@@ -290,110 +296,92 @@ const EvaluationHub = () => {
   }, [user, hasAnyData, data, currentEvaluationId, hasAutoSaved]);
 
   const handleSave = async () => {
-    if (!user) {
-      console.error('No user logged in');
-      return;
-    }
-
-    if (!data.address) {
-      console.error('No address provided');
-      return;
-    }
-
-    try {
-      if (currentEvaluationId) {
-        // Update existing evaluation
-        const { error } = await supabase
-          .from('apartment_evaluations')
-          .update({
-            address: data.address,
-            // General data
-            size: data.general?.size ? toBase(data.general.size) : null,
-            rooms: data.general?.rooms || null,
-            price: toBase(data.general?.price),
-            final_price: toBase(data.general?.finalPrice),
-            monthly_fee: toBase(data.general?.monthlyFee),
-            // Financial data
-            debt_per_sqm: toBase(data.financial?.debtPerSqm),
-            cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
-            major_maintenance_done: data.financial?.majorMaintenanceDone,
-            owns_land: data.financial?.ownsLand,
-            underhållsplan: data.financial?.underhållsplan,
-            // Physical data
-            planlösning: data.physical?.planlösning || null,
-            kitchen: data.physical?.kitchen || null,
-            bathroom: data.physical?.bathroom || null,
-            bedrooms: data.physical?.bedrooms || null,
-            surfaces: data.physical?.surfaces || null,
-            förvaring: data.physical?.förvaring || null,
-            ljusinsläpp: data.physical?.ljusinsläpp || null,
-            balcony: data.physical?.balcony || null,
-            // Comments
-            planlösning_comment: data.physical?.planlösning_comment,
-            kitchen_comment: data.physical?.kitchen_comment,
-            bathroom_comment: data.physical?.bathroom_comment,
-            bedrooms_comment: data.physical?.bedrooms_comment,
-            surfaces_comment: data.physical?.surfaces_comment,
-            förvaring_comment: data.physical?.förvaring_comment,
-            ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
-            balcony_comment: data.physical?.balcony_comment,
-            comments: data.physical?.comments,
-            is_draft: false
-          })
-          .eq('id', currentEvaluationId)
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-        console.log('Evaluation updated successfully');
-      } else {
-        // Create new evaluation
-        const { error } = await supabase
-          .from('apartment_evaluations')
-          .insert({
-            user_id: user.id,
-            address: data.address,
-            // General data
-            size: data.general?.size ? toBase(data.general.size) : null,
-            rooms: data.general?.rooms || null,
-            price: toBase(data.general?.price),
-            final_price: toBase(data.general?.finalPrice),
-            monthly_fee: toBase(data.general?.monthlyFee),
-            // Financial data
-            debt_per_sqm: toBase(data.financial?.debtPerSqm),
-            
-            cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
-            major_maintenance_done: data.financial?.majorMaintenanceDone,
-            owns_land: data.financial?.ownsLand,
-            underhållsplan: data.financial?.underhållsplan,
-            // Physical data
-            planlösning: data.physical?.planlösning || null,
-            kitchen: data.physical?.kitchen || null,
-            bathroom: data.physical?.bathroom || null,
-            bedrooms: data.physical?.bedrooms || null,
-            surfaces: data.physical?.surfaces || null,
-            förvaring: data.physical?.förvaring || null,
-            ljusinsläpp: data.physical?.ljusinsläpp || null,
-            balcony: data.physical?.balcony || null,
-            // Comments
-            planlösning_comment: data.physical?.planlösning_comment,
-            kitchen_comment: data.physical?.kitchen_comment,
-            bathroom_comment: data.physical?.bathroom_comment,
-            bedrooms_comment: data.physical?.bedrooms_comment,
-            surfaces_comment: data.physical?.surfaces_comment,
-            förvaring_comment: data.physical?.förvaring_comment,
-            ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
-            balcony_comment: data.physical?.balcony_comment,
-            comments: data.physical?.comments,
-            is_draft: false
-          });
-
-        if (error) throw error;
-        console.log('Evaluation created successfully');
+    await executeWithLoading(async () => {
+      if (!user || !data.address) return;
+      
+      try {
+        if (currentEvaluationId) {
+          // Update existing evaluation as completed
+          await supabase
+            .from('apartment_evaluations')
+            .update({
+              address: data.address,
+              size: data.general?.size ? toBase(data.general.size) : null,
+              rooms: data.general?.rooms || null,
+              price: toBase(data.general?.price),
+              final_price: toBase(data.general?.finalPrice),
+              monthly_fee: toBase(data.general?.monthlyFee),
+              debt_per_sqm: toBase(data.financial?.debtPerSqm),
+              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
+              major_maintenance_done: data.financial?.majorMaintenanceDone,
+              owns_land: data.financial?.ownsLand,
+              underhållsplan: data.financial?.underhållsplan,
+              planlösning: data.physical?.planlösning || null,
+              kitchen: data.physical?.kitchen || null,
+              bathroom: data.physical?.bathroom || null,
+              bedrooms: data.physical?.bedrooms || null,
+              surfaces: data.physical?.surfaces || null,
+              förvaring: data.physical?.förvaring || null,
+              ljusinsläpp: data.physical?.ljusinsläpp || null,
+              balcony: data.physical?.balcony || null,
+              planlösning_comment: data.physical?.planlösning_comment,
+              kitchen_comment: data.physical?.kitchen_comment,
+              bathroom_comment: data.physical?.bathroom_comment,
+              bedrooms_comment: data.physical?.bedrooms_comment,
+              surfaces_comment: data.physical?.surfaces_comment,
+              förvaring_comment: data.physical?.förvaring_comment,
+              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
+              balcony_comment: data.physical?.balcony_comment,
+              comments: data.physical?.comments,
+              is_draft: false
+            })
+            .eq('id', currentEvaluationId)
+            .eq('user_id', user.id);
+        } else {
+          // Create new evaluation as completed
+          await supabase
+            .from('apartment_evaluations')
+            .insert({
+              user_id: user.id,
+              address: data.address,
+              size: data.general?.size ? toBase(data.general.size) : null,
+              rooms: data.general?.rooms || null,
+              price: toBase(data.general?.price),
+              final_price: toBase(data.general?.finalPrice),
+              monthly_fee: toBase(data.general?.monthlyFee),
+              debt_per_sqm: toBase(data.financial?.debtPerSqm),
+              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
+              major_maintenance_done: data.financial?.majorMaintenanceDone,
+              owns_land: data.financial?.ownsLand,
+              underhållsplan: data.financial?.underhållsplan,
+              planlösning: data.physical?.planlösning || null,
+              kitchen: data.physical?.kitchen || null,
+              bathroom: data.physical?.bathroom || null,
+              bedrooms: data.physical?.bedrooms || null,
+              surfaces: data.physical?.surfaces || null,
+              förvaring: data.physical?.förvaring || null,
+              ljusinsläpp: data.physical?.ljusinsläpp || null,
+              balcony: data.physical?.balcony || null,
+              planlösning_comment: data.physical?.planlösning_comment,
+              kitchen_comment: data.physical?.kitchen_comment,
+              bathroom_comment: data.physical?.bathroom_comment,
+              bedrooms_comment: data.physical?.bedrooms_comment,
+              surfaces_comment: data.physical?.surfaces_comment,
+              förvaring_comment: data.physical?.förvaring_comment,
+              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
+              balcony_comment: data.physical?.balcony_comment,
+              comments: data.physical?.comments,
+              is_draft: false
+            });
+        }
+        
+        navigate('/evaluations');
+      } catch (err) {
+        console.error('Error saving evaluation:', err);
+        setError('Kunde inte spara utvärderingen. Försök igen.');
+        throw err;
       }
-      navigate('/evaluations');
-    } catch (err) {
-      console.error('Error saving evaluation:', err);
-    }
+    });
   };
 
   const handleCompare = () => {
@@ -417,10 +405,96 @@ const EvaluationHub = () => {
     setEditedAddress('');
   };
 
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background relative flex items-center justify-center">
-        <div className="text-foreground">Laddar utvärdering...</div>
+      <div className="min-h-screen bg-app-background relative">
+        {/* Background cityscape */}
+        <div 
+          className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+          style={{ backgroundImage: `url(${cityscapeNeutral})` }}
+        />
+        
+        {/* Header */}
+        <div className="container mx-auto p-6">
+          <div className="p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-hover"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-hover"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-bold text-foreground">Lägenhetsutvärdering</h1>
+            </div>
+          </div>
+        </div>
+        
+        <div className="container mx-auto p-6 relative z-10">
+          <LoadingSkeleton type="form" rows={8} />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    const handleRetry = () => {
+      setError(null);
+      setLoading(true);
+      window.location.reload();
+    };
+
+    return (
+      <div className="min-h-screen bg-app-background relative">
+        {/* Background cityscape */}
+        <div 
+          className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+          style={{ backgroundImage: `url(${cityscapeNeutral})` }}
+        />
+        
+        <div className="container mx-auto p-6">
+          <div className="p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-hover"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-hover"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-bold text-foreground">Lägenhetsutvärdering</h1>
+            </div>
+          </div>
+        </div>
+        
+        <div className="container mx-auto p-6 relative z-10">
+          <ErrorState 
+            title="Kunde inte ladda utvärdering"
+            message={error}
+            onRetry={handleRetry}
+            size="lg"
+          />
+        </div>
       </div>
     );
   }
@@ -824,16 +898,27 @@ const EvaluationHub = () => {
           <div className="flex gap-4">
             <Button
               onClick={handleSave}
+              disabled={saveLoading}
               className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Save className="h-4 w-4 mr-2" />
-              Spara
+              {saveLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
+                  Sparar...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Spara
+                </>
+              )}
             </Button>
             
             <Button
               onClick={() => navigate('/evaluations')}
               variant="outline"
               className="flex-1 h-12"
+              disabled={saveLoading}
             >
               <GitCompare className="h-4 w-4 mr-2" />
               Slutför
