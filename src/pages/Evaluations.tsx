@@ -502,15 +502,15 @@ const Evaluations = () => {
                             <div className="flex items-center gap-2">
                               <Euro className="h-4 w-4 text-primary" />
                               <span className="text-sm text-muted-foreground">Pris:</span>
-                              <span className="font-medium text-foreground">
-                                {evaluation.price ? formatDisplayValue(evaluation.price, 'currency') : 'Ej angivet'}
-                              </span>
-                            </div>
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Avgift:</span>
-                              <span className="font-medium text-foreground ml-1">
-                                {evaluation.monthly_fee ? formatDisplayValue(evaluation.monthly_fee, 'currency') : 'Ej angivet'}
-                              </span>
+                               <span className="font-medium text-foreground">
+                                 {evaluation.price ? formatDisplayValue(evaluation.price, 'price') : 'Ej angivet'}
+                               </span>
+                             </div>
+                             <div className="text-sm">
+                               <span className="text-muted-foreground">Avgift:</span>
+                               <span className="font-medium text-foreground ml-1">
+                                 {evaluation.monthly_fee ? formatDisplayValue(evaluation.monthly_fee, 'fee') : 'Ej angivet'}
+                               </span>
                             </div>
                           </div>
 

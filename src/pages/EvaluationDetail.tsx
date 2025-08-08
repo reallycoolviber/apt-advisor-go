@@ -193,20 +193,20 @@ const EvaluationDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4">
-          <label className="text-sm font-medium text-foreground">Skuld per kvm</label>
-          <p className="text-lg text-foreground">{evaluation?.debt_per_sqm ? `${parseInt(evaluation.debt_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
-        </Card>
+         <Card className="p-4">
+           <label className="text-sm font-medium text-foreground">Skuld per kvm</label>
+           <p className="text-lg text-foreground">{evaluation?.debt_per_sqm ? formatDisplayValue(evaluation.debt_per_sqm, 'debt_per_sqm') : 'Ej angivet'}</p>
+         </Card>
+         
+         <Card className="p-4">
+           <label className="text-sm font-medium text-foreground">Avgift per kvm</label>
+           <p className="text-lg text-foreground">{evaluation?.fee_per_sqm ? formatDisplayValue(evaluation.fee_per_sqm, 'fee_per_sqm') : 'Ej angivet'}</p>
+         </Card>
         
-        <Card className="p-4">
-          <label className="text-sm font-medium text-foreground">Avgift per kvm</label>
-          <p className="text-lg text-foreground">{evaluation?.fee_per_sqm ? `${parseInt(evaluation.fee_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
-        </Card>
-        
-        <Card className="p-4">
-          <label className="text-sm font-medium text-foreground">Kassaflöde per kvm</label>
-          <p className="text-lg text-foreground">{evaluation?.cashflow_per_sqm ? `${parseInt(evaluation.cashflow_per_sqm.toString()).toLocaleString()} SEK/kvm` : 'Ej angivet'}</p>
-        </Card>
+         <Card className="p-4">
+           <label className="text-sm font-medium text-foreground">Kassaflöde per kvm</label>
+           <p className="text-lg text-foreground">{evaluation?.cashflow_per_sqm ? formatDisplayValue(evaluation.cashflow_per_sqm, 'fee_per_sqm') : 'Ej angivet'}</p>
+         </Card>
         
         <Card className="p-4">
           <label className="text-sm font-medium text-muted-foreground">Äger mark</label>

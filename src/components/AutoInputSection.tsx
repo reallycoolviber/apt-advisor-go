@@ -39,9 +39,9 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
         if (data.success) {
           // Map the scraped data to our form fields
           const scrapedData = data.data;
-          const formatNumber = (value: string) => {
-            const number = value.replace(/\D/g, '');
-            return number.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+          // Store in base units (raw numbers) - RULE 1 enforcement
+          const toBaseUnit = (value: string) => {
+            return value.replace(/\D/g, ''); // Store raw digits only
           };
 
           const updateFields: any = {};
@@ -49,9 +49,9 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
           if (scrapedData.address) updateFields.address = scrapedData.address;
           if (scrapedData.size) updateFields.size = scrapedData.size;
           if (scrapedData.rooms) updateFields.rooms = scrapedData.rooms;
-          if (scrapedData.startPrice) updateFields.price = formatNumber(scrapedData.startPrice);
-          if (scrapedData.finalPrice) updateFields.finalPrice = formatNumber(scrapedData.finalPrice);
-          if (scrapedData.monthlyFee) updateFields.monthlyFee = formatNumber(scrapedData.monthlyFee);
+          if (scrapedData.startPrice) updateFields.price = toBaseUnit(scrapedData.startPrice);
+          if (scrapedData.finalPrice) updateFields.finalPrice = toBaseUnit(scrapedData.finalPrice);
+          if (scrapedData.monthlyFee) updateFields.monthlyFee = toBaseUnit(scrapedData.monthlyFee);
           
           updateData(updateFields);
           
@@ -102,10 +102,7 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
       }
       
       if (data.success && data.metrics) {
-        const formatNumber = (value: number) => {
-          return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-        };
-
+        // Store in base units (raw numbers) - RULE 1 enforcement
         const parseNum = (v: any): number | null => {
           const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/\s/g, '').replace(',', '.'));
           return isNaN(n) ? null : n;
@@ -122,15 +119,15 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
         
         if (data.metrics.debt_per_sqm !== undefined) {
           const val = toKrIfTkrDebt(data.metrics.debt_per_sqm);
-          if (val !== null) updateFields.debtPerSqm = formatNumber(Math.round(val));
+          if (val !== null) updateFields.debtPerSqm = Math.round(val).toString(); // Store as string number
         }
         if (data.metrics.fee_per_sqm !== undefined) {
           const n = parseNum(data.metrics.fee_per_sqm);
-          if (n !== null) updateFields.feePerSqm = formatNumber(Math.round(n));
+          if (n !== null) updateFields.feePerSqm = Math.round(n).toString(); // Store as string number
         }
         if (data.metrics.cashflow_per_sqm !== undefined) {
           const n = parseNum(data.metrics.cashflow_per_sqm);
-          if (n !== null) updateFields.cashflowPerSqm = formatNumber(Math.round(n));
+          if (n !== null) updateFields.cashflowPerSqm = Math.round(n).toString(); // Store as string number
         }
         
         updateData(updateFields);

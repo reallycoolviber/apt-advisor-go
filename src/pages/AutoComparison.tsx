@@ -324,7 +324,7 @@ const comparisonMetrics = useMemo(() => {
 
   const formatValue = (value: number, unit: string): string => {
     if (unit === 'SEK/kvm') {
-      return `${Math.round(value).toLocaleString()} ${unit}`;
+      return `${Math.round(value).toLocaleString('sv-SE')} ${unit}`;
     }
     return `${value.toFixed(1)}${unit}`;
   };
@@ -598,7 +598,7 @@ const comparisonMetrics = useMemo(() => {
           });
 
           const formatTableValue = (value: number) => {
-            if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()}`;
+            if (chartField.type === 'currency') return `${Math.round(value).toLocaleString('sv-SE')}`;
             if (chartField.type === 'stars') return `${value.toFixed(1)}`;
             return value.toFixed(1);
           };

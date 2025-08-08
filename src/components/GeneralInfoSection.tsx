@@ -18,18 +18,21 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatNumber(e.target.value);
-    updateData({ price: formatted });
+    const rawValue = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    const formatted = formatNumber(rawValue); // For display
+    updateData({ price: rawValue }); // Store base unit (raw number string)
   };
 
   const handleFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatNumber(e.target.value);
-    updateData({ monthlyFee: formatted });
+    const rawValue = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    const formatted = formatNumber(rawValue); // For display
+    updateData({ monthlyFee: rawValue }); // Store base unit (raw number string)
   };
 
   const handleFinalPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatNumber(e.target.value);
-    updateData({ finalPrice: formatted });
+    const rawValue = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    const formatted = formatNumber(rawValue); // For display
+    updateData({ finalPrice: rawValue }); // Store base unit (raw number string)
   };
 
   // Calculate fee per square meter
@@ -102,9 +105,9 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             <ValidatedInput
               id="price"
               label=""
-              value={data.price || ''}
-              onChange={handlePriceChange}
-              placeholder="3 500 000"
+               value={data.price ? formatNumber(data.price) : ''}
+               onChange={handlePriceChange}
+               placeholder="3 500 000"
               validation={data.validationResults?.price}
             />
           </StandardizedFieldGroup>
@@ -117,9 +120,9 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             <ValidatedInput
               id="finalPrice"
               label=""
-              value={data.finalPrice || ''}
-              onChange={handleFinalPriceChange}
-              placeholder="3 200 000"
+               value={data.finalPrice ? formatNumber(data.finalPrice) : ''}
+               onChange={handleFinalPriceChange}
+               placeholder="3 200 000"
               validation={data.validationResults?.finalPrice}
             />
         </StandardizedFieldGroup>
@@ -132,9 +135,9 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           <ValidatedInput
             id="monthlyFee"
             label=""
-            value={data.monthlyFee || ''}
-            onChange={handleFeeChange}
-            placeholder="4 200"
+               value={data.monthlyFee ? formatNumber(data.monthlyFee) : ''}
+               onChange={handleFeeChange}
+               placeholder="4 200"
             validation={data.validationResults?.monthlyFee}
           />
         </StandardizedFieldGroup>
@@ -149,7 +152,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
                   <Calculator className="h-5 w-5 text-primary mx-auto mb-2" />
                   <p className="text-small text-muted-foreground mb-1">Pris per kvm</p>
                   <p className="text-prominent font-bold text-primary">
-                    {formatDisplayValue(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)), 'fee_per_sqm')}
+                    {formatDisplayValue(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)), 'price_per_sqm')}
                   </p>
                 </div>
               )}

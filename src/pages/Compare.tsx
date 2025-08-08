@@ -679,20 +679,20 @@ const Compare = () => {
                                         <h3 className="font-semibold text-foreground truncate">
                                           {evaluation.address || 'Ingen adress'}
                                         </h3>
-                                        <p className="text-sm text-muted-foreground">
-                                          {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
-                                          {evaluation.size && ` • ${evaluation.size} kvm`}
-                                          {evaluation.rooms && ` • ${evaluation.rooms} rum`}
-                                          {evaluation.price_per_sqm && ` • ${Math.round(evaluation.price_per_sqm).toLocaleString('sv-SE')} kr/kvm`}
+                                         <p className="text-sm text-muted-foreground">
+                                           {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
+                                           {evaluation.size && ` • ${formatDisplayValue(evaluation.size, 'area')}`}
+                                           {evaluation.rooms && ` • ${formatDisplayValue(evaluation.rooms, 'rooms')}`}
+                                           {evaluation.price_per_sqm && ` • ${formatDisplayValue(evaluation.price_per_sqm, 'price_per_sqm')}`}
                                         </p>
                                       </div>
                                       
                                       {evaluation.price && (
                                         <div className="flex items-center gap-1 text-accent">
                                           <Euro className="h-4 w-4" />
-                                          <span className="text-sm font-semibold">
-                                            {parseInt(evaluation.price.toString()).toLocaleString('sv-SE')} kr
-                                          </span>
+                                           <span className="text-sm font-semibold">
+                                             {formatDisplayValue(evaluation.price, 'price')}
+                                           </span>
                                         </div>
                                       )}
 

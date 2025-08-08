@@ -24,6 +24,7 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
   const toBase = (v: any): number | null => {
     if (v === null || v === undefined || v === '') return null;
     if (typeof v === 'number') return v;
+    // Ensure base unit storage - convert string to number without formatting
     const num = parseFloat(v.toString().replace(/\s/g, '').replace(',', '.'));
     return isNaN(num) ? null : num;
   };
