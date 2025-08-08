@@ -8,6 +8,7 @@ interface StandardizedTextareaProps {
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
   rows?: number;
   error?: string;
@@ -26,6 +27,7 @@ export const StandardizedTextarea = React.forwardRef<
   label, 
   value, 
   onChange, 
+  onBlur,
   placeholder, 
   rows = 3,
   error,
@@ -58,6 +60,7 @@ export const StandardizedTextarea = React.forwardRef<
         id={id}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         placeholder={placeholder}
         rows={rows}
         disabled={disabled}

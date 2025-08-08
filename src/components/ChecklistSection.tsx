@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ArrowLeft, Home, ClipboardCheck, MessageSquare, Save, Building2, Eye, FileText } from 'lucide-react';
+import { StandardizedTextarea } from '@/components/StandardizedTextarea';
+import { ArrowLeft, Home, ClipboardCheck, MessageSquare, Building2, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useChecklistAutoSave } from '@/hooks/useChecklistAutoSave';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 interface ChecklistItem {
@@ -25,7 +26,12 @@ const ChecklistSection = () => {
   const [comments, setComments] = useState<Record<string, string>>({});
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+
+  // Initialize auto-save hook
+  const { debouncedSave, saveImmediately, cleanup } = useChecklistAutoSave({
+    userId: user?.id || '',
+    delay: 1500
+  });
 
   const checklistItems = [
     {
@@ -57,6 +63,13 @@ const ChecklistSection = () => {
       ]
     }
   ];
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, [cleanup]);
 
   // Load existing checklist data
   useEffect(() => {
@@ -99,37 +112,6 @@ const ChecklistSection = () => {
     }
   };
 
-  const saveChecklistItem = async (categoryIndex: number, itemIndex: number, isChecked: boolean, comment: string) => {
-    if (!user) return;
-
-    const category = checklistItems[categoryIndex].category;
-    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
-
-    try {
-      const { error } = await supabase
-        .from('checklist_items')
-        .upsert({
-          user_id: user.id,
-          item_category: category,
-          item_index: itemIndex,
-          item_text: itemText,
-          is_checked: isChecked,
-          comment: comment,
-        }, {
-          onConflict: 'user_id,item_category,item_index'
-        });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error saving checklist item:', error);
-      toast({
-        title: "Fel vid sparning",
-        description: "Kunde inte spara checklistobjekt",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleCheckboxChange = async (itemId: string, checked: boolean) => {
     setCheckedItems(prev => ({
       ...prev,
@@ -137,28 +119,37 @@ const ChecklistSection = () => {
     }));
 
     const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
+    const category = checklistItems[categoryIndex].category;
+    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
     const comment = comments[itemId] || '';
-    await saveChecklistItem(categoryIndex, itemIndex, checked, comment);
+    
+    await saveImmediately(categoryIndex, itemIndex, itemText, checked, comment, category, itemId);
   };
 
-  const handleCommentSave = async (itemId: string) => {
-    setSaving(true);
+  const handleCommentChange = (itemId: string, newComment: string) => {
+    setComments(prev => ({
+      ...prev,
+      [itemId]: newComment
+    }));
+
     const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
+    const category = checklistItems[categoryIndex].category;
+    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
+    const isChecked = checkedItems[itemId] || false;
+    
+    // Use debounced save for comment changes
+    debouncedSave(itemId, categoryIndex, itemIndex, itemText, isChecked, newComment, category);
+  };
+
+  const handleCommentBlur = async (itemId: string) => {
+    const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
+    const category = checklistItems[categoryIndex].category;
+    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
     const isChecked = checkedItems[itemId] || false;
     const comment = comments[itemId] || '';
     
-    await saveChecklistItem(categoryIndex, itemIndex, isChecked, comment);
-    
-    setExpandedComments(prev => ({
-      ...prev,
-      [itemId]: false
-    }));
-    setSaving(false);
-    
-    toast({
-      title: "Kommentar sparad",
-      description: "Din kommentar har sparats",
-    });
+    // Save immediately on blur
+    await saveImmediately(categoryIndex, itemIndex, itemText, isChecked, comment, category, itemId);
   };
 
   const toggleCommentExpansion = (itemId: string) => {
@@ -307,33 +298,16 @@ const ChecklistSection = () => {
                           {/* Collapsible comment section */}
                           <Collapsible open={isExpanded} onOpenChange={() => toggleCommentExpansion(itemId)}>
                             <CollapsibleContent className="mt-4 ml-7">
-                              <div className="space-y-3 p-3 bg-secondary/30 rounded-md">
-                                <Textarea
-                                  placeholder="Lägg till din kommentar här..."
-                                  value={comments[itemId] || ''}
-                                  onChange={(e) => setComments(prev => ({ ...prev, [itemId]: e.target.value }))}
-                                  className="min-h-[80px] text-sm"
-                                />
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleCommentSave(itemId)}
-                                    disabled={saving}
-                                    className="h-8"
-                                  >
-                                    <Save className="h-3 w-3 mr-1" />
-                                    {saving ? 'Sparar...' : 'Spara'}
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => toggleCommentExpansion(itemId)}
-                                    className="h-8"
-                                  >
-                                    Avbryt
-                                  </Button>
-                                </div>
-                              </div>
+                              <StandardizedTextarea
+                                id={`comment-${itemId}`}
+                                label="Kommentar (valfritt)"
+                                value={comments[itemId] || ''}
+                                onChange={(e) => handleCommentChange(itemId, e.target.value)}
+                                onBlur={() => handleCommentBlur(itemId)}
+                                placeholder="Lägg till din kommentar här..."
+                                rows={3}
+                                className="mb-2"
+                              />
                             </CollapsibleContent>
                           </Collapsible>
                         </div>
