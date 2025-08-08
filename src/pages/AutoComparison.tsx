@@ -17,7 +17,9 @@ import {
   BarChart3,
   Filter,
   Eye,
-  RotateCcw
+  RotateCcw,
+  Banknote,
+  Wallet
 } from 'lucide-react';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
@@ -32,9 +34,12 @@ interface ComparisonMetric {
   average: number;
   best: number;
   worst: number;
-  percentile: number;
+  percentile: number; // 0-100
   unit: string;
   icon: React.ReactNode;
+  betterCount: number; // X i "bättre än X av N"
+  total: number; // N i jämförelsegruppen
+  higherIsBetter: boolean; // kontextberoende
 }
 
 const AutoComparison = () => {
@@ -164,103 +169,157 @@ const AutoComparison = () => {
     return ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
   };
 
-  const calculateEconomicIndex = (evaluation: Evaluation): number => {
-    // Economic index combining debt, fee, and cashflow per sqm
-    const debt = evaluation.debt_per_sqm || 0;
-    const fee = evaluation.fee_per_sqm || 0;
-    const cashflow = evaluation.cashflow_per_sqm || 0;
-    
-    // Lower debt and fee is better, higher cashflow is better
-    // Normalize to 0-10 scale
-    const debtScore = Math.max(0, 10 - (debt / 1000));
-    const feeScore = Math.max(0, 10 - (fee / 100));
-    const cashflowScore = Math.max(0, Math.min(10, (cashflow + 100) / 20));
-    
-    return (debtScore + feeScore + cashflowScore) / 3;
-  };
+// Hjälpfunktioner för beräkningar
+const getFeePerSqm = (e: Evaluation): number | null => {
+  if (e.fee_per_sqm !== null && e.fee_per_sqm !== undefined) return e.fee_per_sqm;
+  if (e.monthly_fee && e.size) return e.monthly_fee / e.size;
+  return null;
+};
 
-  const comparisonMetrics = useMemo(() => {
-    if (!currentEvaluation || comparisonEvaluations.length === 0) return [];
+const computeStats = (
+  values: number[],
+  current: number,
+  higherIsBetter: boolean
+) => {
+  const clean = values.filter(v => Number.isFinite(v));
+  const total = clean.length; // jämförelsegruppens N (exkl. current)
+  if (total === 0) return null as any;
+  const average = clean.reduce((s, v) => s + v, 0) / total;
+  const best = higherIsBetter ? Math.max(...clean) : Math.min(...clean);
+  const worst = higherIsBetter ? Math.min(...clean) : Math.max(...clean);
+  const betterCount = higherIsBetter
+    ? clean.filter(v => v < current).length // högre är bättre => bättre än de under current
+    : clean.filter(v => v > current).length; // lägre är bättre => bättre än de över current
+  const percentile = (betterCount / total) * 100;
+  return { average, best, worst, betterCount, total, percentile };
+};
 
-    const metrics: ComparisonMetric[] = [];
+const comparisonMetrics = useMemo(() => {
+  if (!currentEvaluation || comparisonEvaluations.length === 0) return [] as ComparisonMetric[];
 
-    // Price per sqm comparison
-    if (currentEvaluation.price_per_sqm) {
-      const pricesPerSqm = comparisonEvaluations
-        .map(e => e.price_per_sqm)
-        .filter(Boolean) as number[];
-      
-      if (pricesPerSqm.length > 0) {
-        pricesPerSqm.push(currentEvaluation.price_per_sqm);
-        pricesPerSqm.sort((a, b) => a - b);
-        const rank = pricesPerSqm.indexOf(currentEvaluation.price_per_sqm) + 1;
-        const percentile = Math.round((rank / pricesPerSqm.length) * 100);
+  const metrics: ComparisonMetric[] = [];
 
-        metrics.push({
-          name: 'Pris per kvadratmeter',
-          value: currentEvaluation.price_per_sqm,
-          average: pricesPerSqm.reduce((sum, p) => sum + p, 0) / pricesPerSqm.length,
-          best: Math.min(...pricesPerSqm),
-          worst: Math.max(...pricesPerSqm),
-          percentile,
-          unit: 'SEK/kvm',
-          icon: <Euro className="h-5 w-5" />
-        });
-      }
-    }
-
-    // Physical rating comparison
-    const currentPhysical = calculatePhysicalAverage(currentEvaluation);
-    if (currentPhysical > 0) {
-      const physicalRatings = comparisonEvaluations
-        .map(calculatePhysicalAverage)
-        .filter(r => r > 0);
-      
-      if (physicalRatings.length > 0) {
-        physicalRatings.push(currentPhysical);
-        physicalRatings.sort((a, b) => b - a); // Higher is better
-        const rank = physicalRatings.indexOf(currentPhysical) + 1;
-        const percentile = Math.round(((physicalRatings.length - rank + 1) / physicalRatings.length) * 100);
-
-        metrics.push({
-          name: 'Fysisk bedömning',
-          value: currentPhysical,
-          average: physicalRatings.reduce((sum, r) => sum + r, 0) / physicalRatings.length,
-          best: Math.max(...physicalRatings),
-          worst: Math.min(...physicalRatings),
-          percentile,
-          unit: '/5',
-          icon: <Star className="h-5 w-5" />
-        });
-      }
-    }
-
-    // Economic index comparison
-    const currentEconomic = calculateEconomicIndex(currentEvaluation);
-    const economicIndexes = comparisonEvaluations
-      .map(calculateEconomicIndex)
-      .filter(i => i > 0);
-    
-    if (economicIndexes.length > 0) {
-      economicIndexes.push(currentEconomic);
-      economicIndexes.sort((a, b) => b - a); // Higher is better
-      const rank = economicIndexes.indexOf(currentEconomic) + 1;
-      const percentile = Math.round(((economicIndexes.length - rank + 1) / economicIndexes.length) * 100);
-
+  // 1) Pris per kvm (lägre är bättre)
+  if (currentEvaluation.price_per_sqm) {
+    const arr = comparisonEvaluations
+      .map(e => e.price_per_sqm as number | null)
+      .filter((v): v is number => v !== null && v !== undefined);
+    const stats = computeStats(arr, currentEvaluation.price_per_sqm, false);
+    if (stats) {
       metrics.push({
-        name: 'Ekonomisk bedömning',
-        value: currentEconomic,
-        average: economicIndexes.reduce((sum, i) => sum + i, 0) / economicIndexes.length,
-        best: Math.max(...economicIndexes),
-        worst: Math.min(...economicIndexes),
-        percentile,
-        unit: '/10',
-        icon: <BarChart3 className="h-5 w-5" />
+        name: 'Pris per kvm',
+        value: currentEvaluation.price_per_sqm,
+        average: stats.average,
+        best: stats.best,
+        worst: stats.worst,
+        percentile: stats.percentile,
+        unit: 'SEK/kvm',
+        icon: <Euro className="h-5 w-5" />,
+        betterCount: stats.betterCount,
+        total: stats.total,
+        higherIsBetter: false,
       });
     }
+  }
 
-    return metrics;
-  }, [currentEvaluation, comparisonEvaluations]);
+  // 2) Avgift per kvm (lägre är bättre)
+  const currentFee = getFeePerSqm(currentEvaluation);
+  if (currentFee !== null) {
+    const arr = comparisonEvaluations
+      .map(getFeePerSqm)
+      .filter((v): v is number => v !== null);
+    const stats = computeStats(arr, currentFee, false);
+    if (stats) {
+      metrics.push({
+        name: 'Avgift per kvm',
+        value: currentFee,
+        average: stats.average,
+        best: stats.best,
+        worst: stats.worst,
+        percentile: stats.percentile,
+        unit: 'SEK/kvm',
+        icon: <Home className="h-5 w-5" />,
+        betterCount: stats.betterCount,
+        total: stats.total,
+        higherIsBetter: false,
+      });
+    }
+  }
+
+  // 3) Skuld per kvm (lägre är bättre)
+  if (currentEvaluation.debt_per_sqm !== null && currentEvaluation.debt_per_sqm !== undefined) {
+    const currentDebt = currentEvaluation.debt_per_sqm as number;
+    const arr = comparisonEvaluations
+      .map(e => e.debt_per_sqm as number | null)
+      .filter((v): v is number => v !== null && v !== undefined);
+    const stats = computeStats(arr, currentDebt, false);
+    if (stats) {
+      metrics.push({
+        name: 'Skuld per kvm',
+        value: currentDebt,
+        average: stats.average,
+        best: stats.best,
+        worst: stats.worst,
+        percentile: stats.percentile,
+        unit: 'SEK/kvm',
+        icon: <Banknote className="h-5 w-5" />,
+        betterCount: stats.betterCount,
+        total: stats.total,
+        higherIsBetter: false,
+      });
+    }
+  }
+
+  // 4) Kassaflöde per kvm (högre är bättre)
+  if (currentEvaluation.cashflow_per_sqm !== null && currentEvaluation.cashflow_per_sqm !== undefined) {
+    const currentCash = currentEvaluation.cashflow_per_sqm as number;
+    const arr = comparisonEvaluations
+      .map(e => e.cashflow_per_sqm as number | null)
+      .filter((v): v is number => v !== null && v !== undefined);
+    const stats = computeStats(arr, currentCash, true);
+    if (stats) {
+      metrics.push({
+        name: 'Kassaflöde per kvm',
+        value: currentCash,
+        average: stats.average,
+        best: stats.best,
+        worst: stats.worst,
+        percentile: stats.percentile,
+        unit: 'SEK/kvm',
+        icon: <Wallet className="h-5 w-5" />,
+        betterCount: stats.betterCount,
+        total: stats.total,
+        higherIsBetter: true,
+      });
+    }
+  }
+
+  // 5) Fysisk bedömning (högre är bättre)
+  const currentPhysical = calculatePhysicalAverage(currentEvaluation);
+  if (currentPhysical > 0) {
+    const arr = comparisonEvaluations
+      .map(calculatePhysicalAverage)
+      .filter(v => v > 0);
+    const stats = computeStats(arr, currentPhysical, true);
+    if (stats) {
+      metrics.push({
+        name: 'Fysisk bedömning',
+        value: currentPhysical,
+        average: stats.average,
+        best: stats.best,
+        worst: stats.worst,
+        percentile: stats.percentile,
+        unit: '/5',
+        icon: <Star className="h-5 w-5" />,
+        betterCount: stats.betterCount,
+        total: stats.total,
+        higherIsBetter: true,
+      });
+    }
+  }
+
+  return metrics;
+}, [currentEvaluation, comparisonEvaluations]);
 
   const formatValue = (value: number, unit: string): string => {
     if (unit === 'SEK/kvm') {
@@ -399,9 +458,11 @@ const AutoComparison = () => {
                       {metric.icon}
                       <h3 className="font-semibold text-foreground">{metric.name}</h3>
                     </div>
-                    <Badge variant={metric.percentile >= 70 ? "default" : metric.percentile >= 30 ? "secondary" : "destructive"}>
-                      Top {100 - metric.percentile}%
-                    </Badge>
+<Badge variant={metric.percentile >= 70 ? "default" : metric.percentile >= 30 ? "secondary" : "destructive"}>
+  {metric.total <= 10
+    ? `Bättre än ${metric.betterCount} av ${metric.total} lägenheter`
+    : `${Math.round(metric.percentile)}:e percentilen`}
+</Badge>
                   </div>
 
                   <div className="space-y-2">
@@ -411,11 +472,11 @@ const AutoComparison = () => {
                         <span className="font-bold text-lg text-foreground">
                           {formatValue(metric.value, metric.unit)}
                         </span>
-                        {getTrendIcon(
-                          metric.value, 
-                          metric.average, 
-                          metric.name !== 'Pris per kvadratmeter' // Price per sqm: lower is better
-                        )}
+{getTrendIcon(
+  metric.value, 
+  metric.average, 
+  metric.higherIsBetter
+)}
                       </div>
                     </div>
 
@@ -457,7 +518,7 @@ const AutoComparison = () => {
                         </ResponsiveContainer>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1 text-center">
-                        Bättre än {metric.percentile}% av jämförelserna
+                        {metric.total <= 10 ? `Bättre än ${metric.betterCount} av ${metric.total} lägenheter` : `${Math.round(metric.percentile)}:e percentilen`}
                       </div>
                     </div>
                   </div>
