@@ -121,7 +121,9 @@ const AppContent = () => {
                   } />
                   <Route path="/evaluations" element={
                     <ProtectedRoute>
-                      <Evaluations />
+                      <EvaluationProvider>
+                        <Evaluations />
+                      </EvaluationProvider>
                     </ProtectedRoute>
                   } />
                   <Route path="/compare" element={
