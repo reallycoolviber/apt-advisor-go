@@ -106,16 +106,27 @@ export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) =>
           return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         };
 
+        const toKrIfTkr = (v: any) => {
+          const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/\s/g, '').replace(',', '.'));
+          if (isNaN(n)) return null;
+          // Heuristic: many ARs report skuld i tkr/kvm; upscale small values
+          return n > 0 && n < 1000 ? n * 1000 : n;
+        };
+
         const updateFields: any = {};
         
         if (data.metrics.debt_per_sqm !== undefined) {
-          updateFields.debtPerSqm = formatNumber(data.metrics.debt_per_sqm);
+          const val = toKrIfTkr(data.metrics.debt_per_sqm);
+          if (val !== null) updateFields.debtPerSqm = formatNumber(Math.round(val));
         }
         if (data.metrics.fee_per_sqm !== undefined) {
-          updateFields.feePerSqm = formatNumber(data.metrics.fee_per_sqm);
+          // fee per sqm is already in kr/kvm (typically 40-80)
+          const n = toKrIfTkr(data.metrics.fee_per_sqm);
+          if (n !== null) updateFields.feePerSqm = formatNumber(Math.round(n));
         }
         if (data.metrics.cashflow_per_sqm !== undefined) {
-          updateFields.cashflowPerSqm = formatNumber(data.metrics.cashflow_per_sqm);
+          const n = toKrIfTkr(data.metrics.cashflow_per_sqm);
+          if (n !== null) updateFields.cashflowPerSqm = formatNumber(Math.round(n));
         }
         
         updateData(updateFields);
