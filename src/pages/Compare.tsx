@@ -21,6 +21,9 @@ import {
   Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { LoadingSkeleton, EvaluationCardSkeleton, ComparisonTableSkeleton } from '@/components/ui/loading-skeleton';
+import { ErrorState, InlineErrorState } from '@/components/ui/error-state';
+import { useLoadingButton } from '@/hooks/useLoadingButton';
 import { Evaluation, TimeFilterConfig, ComparisonField, SavedComparison } from '@/components/comparison/types';
 import { COMPARISON_FIELDS_WITH_COMPUTED, DEFAULT_FIELDS } from '@/components/comparison/constants';
 import TimeFilterComponent from '@/components/comparison/TimeFilter';
@@ -59,8 +62,10 @@ const Compare = () => {
   
   // UI state
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  const { isLoading: buttonLoading, executeWithLoading } = useLoadingButton();
   
   // Current comparison data
   const [currentComparison, setCurrentComparison] = useState<{
@@ -238,6 +243,7 @@ const Compare = () => {
         }
       } catch (err) {
         console.error('Error fetching evaluations:', err);
+        setError("Kunde inte ladda dina utvärderingar. Försök igen senare.");
         toast({
           title: "Fel",
           description: "Kunde inte ladda dina utvärderingar. Försök igen senare.",
@@ -397,8 +403,54 @@ const Compare = () => {
             <h1 className="text-xl font-bold">Jämför lägenheter</h1>
           </div>
         </div>
-        <div className="p-4 text-center relative z-10">
-          <div className="text-foreground">Laddar dina utvärderingar...</div>
+        <div className="p-4 relative z-10">
+          <LoadingSkeleton type="card" rows={2} />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    const handleRetry = () => {
+      setError(null);
+      setLoading(true);
+    };
+
+    return (
+      <div className="min-h-screen bg-background relative">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-primary-foreground hover:bg-primary/90 p-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-primary-foreground hover:bg-primary/90 p-2"
+            >
+              <Home className="h-6 w-6" />
+            </Button>
+            <h1 className="text-xl font-bold">Jämför lägenheter</h1>
+          </div>
+        </div>
+        <div className="p-4 relative z-10">
+          <ErrorState 
+            title="Kunde inte ladda utvärderingar"
+            message={error}
+            onRetry={handleRetry}
+            size="lg"
+          />
         </div>
       </div>
     );

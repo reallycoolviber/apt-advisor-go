@@ -8,6 +8,9 @@ import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Do
 import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { EvaluationCardSkeleton } from '@/components/ui/loading-skeleton';
+import { ErrorState } from '@/components/ui/error-state';
+import { useLoadingButton } from '@/hooks/useLoadingButton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -226,7 +229,7 @@ const Evaluations = () => {
         {/* Header */}
         <div className="container mx-auto p-6">
           <div className="p-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-6">
               <Button
                 variant="ghost"
                 size="sm"
@@ -245,12 +248,62 @@ const Evaluations = () => {
               </Button>
               <h1 className="text-xl font-bold text-foreground">Mina utvärderingar</h1>
             </div>
-            <div className="text-foreground">Laddar dina utvärderingar...</div>
           </div>
         </div>
         
-        <div className="container mx-auto p-6 text-center relative z-10">
-          <div className="text-foreground">Laddar dina utvärderingar...</div>
+        <div className="container mx-auto p-6 relative z-10">
+          <EvaluationCardSkeleton count={6} />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    const handleRetry = () => {
+      setError(null);
+      setLoading(true);
+      // Trigger re-fetch by updating a dependency
+      window.location.reload();
+    };
+
+    return (
+      <div className="min-h-screen bg-app-background relative">
+        {/* Background cityscape */}
+        <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
+             style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
+        </div>
+        
+        <div className="container mx-auto p-6">
+          <div className="p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-hover"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-hover"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-bold text-foreground">Mina utvärderingar</h1>
+            </div>
+          </div>
+        </div>
+        
+        <div className="container mx-auto p-6 relative z-10">
+          <ErrorState 
+            title="Kunde inte ladda utvärderingar"
+            message={error}
+            onRetry={handleRetry}
+            size="lg"
+          />
         </div>
       </div>
     );
@@ -407,11 +460,6 @@ const Evaluations = () => {
             </Button>
           </div>
         </div>
-        {error && (
-          <Card className="bg-destructive/10 border-destructive/20 p-4 mb-6">
-            <p className="text-destructive">{error}</p>
-          </Card>
-        )}
 
         {evaluations.length === 0 ? (
           <div className="flex items-center justify-center min-h-[400px]">

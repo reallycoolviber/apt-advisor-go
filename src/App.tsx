@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { EvaluationProvider } from "@/contexts/EvaluationContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { GlobalHeader } from "@/components/GlobalHeader";
+import { QualityOfLifeProvider } from "@/components/QualityOfLifeProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
@@ -60,19 +61,15 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthProvider>
-        <BrowserRouter basename={import.meta.env.PROD ? "/apt-advisor-go" : ""}>
-          <ErrorBoundary>
-            <SidebarProvider>
-              <div className="min-h-screen w-full bg-background text-foreground">
-                <GlobalHeader />
-              <div className="pt-14">
-                <Routes>
+const AppContent = () => {
+  return (
+    <QualityOfLifeProvider>
+      <ErrorBoundary>
+        <SidebarProvider>
+          <div className="min-h-screen w-full bg-background text-foreground">
+            <GlobalHeader />
+          <div className="pt-14">
+            <Routes>
                   <Route path="/auth" element={
                     <PublicRoute>
                       <Auth />
@@ -145,12 +142,24 @@ const App = () => (
                       <Profile />
                     </ProtectedRoute>
                   } />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                </div>
-              </div>
-            </SidebarProvider>
-          </ErrorBoundary>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+            </div>
+          </div>
+        </SidebarProvider>
+      </ErrorBoundary>
+    </QualityOfLifeProvider>
+  );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <AuthProvider>
+        <BrowserRouter basename={import.meta.env.PROD ? "/apt-advisor-go" : ""}>
+          <AppContent />
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
