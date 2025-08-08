@@ -237,23 +237,19 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
           higherIsBetter: false,
         });
       }
-    } else if (currentFee === null && feeComparisonArray.length > 0) {
-      // Show comparison data even if current evaluation doesn't have fee data
-      const average = feeComparisonArray.reduce((s, v) => s + v, 0) / feeComparisonArray.length;
-      const best = Math.min(...feeComparisonArray);
-      const worst = Math.max(...feeComparisonArray);
-      
+    } else {
+      // Show card even without comparison data to indicate missing information
       metrics.push({
         name: 'Avgift per kvm',
-        value: 0,
-        average: average,
-        best: best,
-        worst: worst,
+        value: currentFee || 0,
+        average: 0,
+        best: 0,
+        worst: 0,
         percentile: 0,
         unit: 'SEK/kvm',
         icon: <Home className="h-4 w-4" />,
         betterCount: 0,
-        total: feeComparisonArray.length,
+        total: 0,
         higherIsBetter: false,
       });
     }
@@ -284,23 +280,19 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
           higherIsBetter: false,
         });
       }
-    } else if ((currentDebt === null || currentDebt === undefined) && debtComparisonArray.length > 0) {
-      // Show comparison data even if current evaluation doesn't have debt data
-      const average = debtComparisonArray.reduce((s, v) => s + v, 0) / debtComparisonArray.length;
-      const best = Math.min(...debtComparisonArray);
-      const worst = Math.max(...debtComparisonArray);
-      
+    } else {
+      // Show card even without comparison data to indicate missing information
       metrics.push({
         name: 'Skuld per kvm',
         value: 0,
-        average: average,
-        best: best,
-        worst: worst,
+        average: 0,
+        best: 0,
+        worst: 0,
         percentile: 0,
         unit: 'SEK/kvm',
         icon: <Banknote className="h-4 w-4" />,
         betterCount: 0,
-        total: debtComparisonArray.length,
+        total: 0,
         higherIsBetter: false,
       });
     }
