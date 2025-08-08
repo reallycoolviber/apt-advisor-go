@@ -37,7 +37,7 @@ const EvaluationHub = () => {
 
   // Only UI state, no evaluation data copies
   const [activeTab, setActiveTab] = useState<'input' | 'evaluation' | 'comparison'>('input');
-  const [checklistProgress, setChecklistProgress] = useState({ filled: 0, total: 16 });
+  const [checklistProgress, setChecklistProgress] = useState({ filled: 0, total: 0 });
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -65,7 +65,8 @@ const EvaluationHub = () => {
       if (error) throw error;
 
       const filled = items?.filter(item => item.is_checked).length || 0;
-      const progress = { filled, total: 16 };
+      const total = 16; // 8 + 8 items from predefined checklist structure
+      const progress = { filled, total };
       setChecklistProgress(progress);
       return progress;
     } catch (error) {

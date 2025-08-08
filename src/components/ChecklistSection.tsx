@@ -8,31 +8,27 @@ import { PageHeader } from '@/components/PageHeader';
 import { ArrowLeft, Home, ClipboardCheck, MessageSquare, Building2, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useChecklistAutoSave } from '@/hooks/useChecklistAutoSave';
+import { useEvaluationStore } from '@/stores/evaluationStore';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
-
-interface ChecklistItem {
-  id: string;
-  is_checked: boolean;
-  comment: string;
-}
 
 const ChecklistSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-  const [comments, setComments] = useState<Record<string, string>>({});
-  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
-  const [loading, setLoading] = useState(true);
+  
+  // Use central store - Single Source of Truth
+  const { 
+    checklistItems: storeChecklistItems, 
+    checklistLoading, 
+    checklistError,
+    loadChecklistItems, 
+    updateChecklistItem,
+    getChecklistProgress
+  } = useEvaluationStore();
 
-  // Initialize auto-save hook with error handling
-  const { debouncedSave, saveImmediately, cleanup } = useChecklistAutoSave({
-    userId: user?.id || '',
-    delay: 1500
-  });
+  // Only UI state, no checklist data copies
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
 
   // Add safety check for user
   useEffect(() => {
@@ -41,7 +37,10 @@ const ChecklistSection = () => {
       navigate('/auth');
       return;
     }
-  }, [user, navigate]);
+    
+    // Load checklist items from central store
+    loadChecklistItems(user.id);
+  }, [user, navigate, loadChecklistItems]);
 
   const checklistItems = [
     {
@@ -74,92 +73,39 @@ const ChecklistSection = () => {
     }
   ];
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      cleanup();
-    };
-  }, [cleanup]);
-
-  // Load existing checklist data
-  useEffect(() => {
-    if (user) {
-      loadChecklistData();
-    }
-  }, [user]);
-
-  const loadChecklistData = async () => {
-    if (!user) return;
-    
+  // Handle checkbox changes using central store
+  const handleCheckboxChange = async (itemId: string, checked: boolean) => {
     try {
-      const { data: items, error } = await supabase
-        .from('checklist_items')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      const checkedState: Record<string, boolean> = {};
-      const commentsState: Record<string, string> = {};
-
-      items?.forEach(item => {
-        const itemId = `${item.item_category}-${item.item_index}`;
-        checkedState[itemId] = item.is_checked;
-        commentsState[itemId] = item.comment || '';
-      });
-
-      setCheckedItems(checkedState);
-      setComments(commentsState);
+      const currentComment = storeChecklistItems[itemId]?.comment || '';
+      await updateChecklistItem(itemId, checked, currentComment);
     } catch (error) {
-      console.error('Error loading checklist data:', error);
+      console.error('Error updating checkbox:', error);
       toast({
-        title: "Fel vid laddning",
-        description: "Kunde inte ladda checklistdata",
+        title: "Fel vid sparning",
+        description: "Kunde inte spara checklistobjekt",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleCheckboxChange = async (itemId: string, checked: boolean) => {
-    setCheckedItems(prev => ({
-      ...prev,
-      [itemId]: checked
-    }));
-
-    const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
-    const category = checklistItems[categoryIndex].category;
-    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
-    const comment = comments[itemId] || '';
-    
-    await saveImmediately(categoryIndex, itemIndex, itemText, checked, comment, category, itemId);
-  };
-
+  // Handle comment changes using central store
   const handleCommentChange = (itemId: string, newComment: string) => {
-    setComments(prev => ({
-      ...prev,
-      [itemId]: newComment
-    }));
-
-    const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
-    const category = checklistItems[categoryIndex].category;
-    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
-    const isChecked = checkedItems[itemId] || false;
-    
-    // Use debounced save for comment changes
-    debouncedSave(itemId, categoryIndex, itemIndex, itemText, isChecked, newComment, category);
+    // For UI responsiveness, we could add local optimistic updates here
+    // But for now, we'll update immediately to ensure data consistency
   };
 
-  const handleCommentBlur = async (itemId: string) => {
-    const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
-    const category = checklistItems[categoryIndex].category;
-    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
-    const isChecked = checkedItems[itemId] || false;
-    const comment = comments[itemId] || '';
-    
-    // Save immediately on blur
-    await saveImmediately(categoryIndex, itemIndex, itemText, isChecked, comment, category, itemId);
+  const handleCommentBlur = async (itemId: string, comment: string) => {
+    try {
+      const isChecked = storeChecklistItems[itemId]?.is_checked || false;
+      await updateChecklistItem(itemId, isChecked, comment);
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      toast({
+        title: "Fel vid sparning",
+        description: "Kunde inte spara kommentar",
+        variant: "destructive",
+      });
+    }
   };
 
   const toggleCommentExpansion = (itemId: string) => {
@@ -169,22 +115,11 @@ const ChecklistSection = () => {
     }));
   };
 
-  const getTotalItems = () => {
-    return checklistItems.reduce((total, category) => total + category.items.length, 0);
-  };
-
-  const getCheckedCount = () => {
-    return Object.values(checkedItems).filter(Boolean).length;
-  };
-
-  const getProgressPercentage = () => {
-    const total = getTotalItems();
-    const checked = getCheckedCount();
-    return total > 0 ? Math.round((checked / total) * 100) : 0;
-  };
+  // Use central store for progress calculation
+  const progress = getChecklistProgress();
 
   // Show loading state
-  if (loading) {
+  if (checklistLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
         <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
@@ -248,13 +183,13 @@ const ChecklistSection = () => {
               <div className="flex items-center gap-3 mb-2">
                 <ClipboardCheck className="h-5 w-5 text-primary" />
                 <span className="text-body font-medium">
-                  {getCheckedCount()} av {getTotalItems()} punkter klara
+                  {progress.filled} av {progress.total} punkter klara
                 </span>
               </div>
               <div className="w-full bg-secondary rounded-full h-2">
                 <div 
                   className="bg-primary h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${getProgressPercentage()}%` }}
+                  style={{ width: `${progress.total > 0 ? Math.round((progress.filled / progress.total) * 100) : 0}%` }}
                 />
               </div>
             </CardContent>
@@ -277,8 +212,10 @@ const ChecklistSection = () => {
                   <CardContent className="space-y-4">
                     {category.items.map((item, itemIndex) => {
                       const itemId = `${categoryIndex}-${itemIndex}`;
-                      const isChecked = checkedItems[itemId] || false;
-                      const hasComment = comments[itemId] && comments[itemId].trim() !== '';
+                      const checklistItem = storeChecklistItems[itemId];
+                      const isChecked = checklistItem?.is_checked || false;
+                      const comment = checklistItem?.comment || '';
+                      const hasComment = comment.trim() !== '';
                       const isExpanded = expandedComments[itemId] || false;
                       
                       return (
@@ -324,9 +261,9 @@ const ChecklistSection = () => {
                               <StandardizedTextarea
                                 id={`comment-${itemId}`}
                                 label="Kommentar (valfritt)"
-                                value={comments[itemId] || ''}
+                                value={comment}
                                 onChange={(e) => handleCommentChange(itemId, e.target.value)}
-                                onBlur={() => handleCommentBlur(itemId)}
+                                onBlur={(e) => handleCommentBlur(itemId, e.target.value)}
                                 placeholder="Lägg till din kommentar här..."
                                 rows={3}
                                 className="mb-2"
@@ -343,7 +280,7 @@ const ChecklistSection = () => {
           </div>
 
           {/* Completion message */}
-          {getProgressPercentage() === 100 && (
+          {progress.filled === progress.total && progress.total > 0 && (
             <Card className="mt-6 bg-success/10 border-success/20">
               <CardContent className="p-6 text-center">
                 <div className="flex items-center justify-center gap-2 text-success font-medium">
@@ -357,12 +294,19 @@ const ChecklistSection = () => {
             </Card>
           )}
 
-          {loading && (
-            <Card className="mt-6">
+          {/* Show error state if needed */}
+          {checklistError && (
+            <Card className="mt-6 bg-destructive/10 border-destructive/20">
               <CardContent className="p-6 text-center">
-                <div className="text-muted-foreground">
-                  Laddar din checklista...
+                <div className="text-destructive font-medium mb-2">
+                  {checklistError}
                 </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => user && loadChecklistItems(user.id)}
+                >
+                  Försök igen
+                </Button>
               </CardContent>
             </Card>
           )}

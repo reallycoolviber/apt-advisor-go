@@ -4,6 +4,19 @@ import { EvaluationFormData, EvaluationData, AutoSaveStatus } from '@/types/eval
 import { saveEvaluation, getEvaluationById, getOrCreateEvaluation, generateSourceId } from '@/services/evaluationService';
 import { supabase } from '@/integrations/supabase/client';
 
+interface ChecklistItem {
+  id: string;
+  user_id: string;
+  evaluation_id: string | null;
+  item_index: number;
+  is_checked: boolean;
+  comment: string | null;
+  item_category: string;
+  item_text: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface EvaluationStore {
   // All evaluations list (for /evaluations page)
   evaluations: EvaluationData[];
@@ -18,6 +31,11 @@ interface EvaluationStore {
   isDraft: boolean;
   hasUnsavedChanges: boolean;
   
+  // Checklist items (Single Source of Truth)
+  checklistItems: Record<string, ChecklistItem>;
+  checklistLoading: boolean;
+  checklistError: string | null;
+  
   // Auto-save status
   autoSaveStatus: AutoSaveStatus;
   
@@ -31,6 +49,11 @@ interface EvaluationStore {
   updateField: (section: keyof EvaluationFormData, field: string, value: any) => void;
   saveCurrentEvaluation: () => Promise<void>;
   clearCurrentEvaluation: () => void;
+  
+  // Actions for checklist (Single Source of Truth)
+  loadChecklistItems: (userId: string) => Promise<void>;
+  updateChecklistItem: (itemId: string, isChecked: boolean, comment?: string) => Promise<void>;
+  getChecklistProgress: () => { filled: number; total: number };
   
   // Internal helpers
   _setAutoSaveStatus: (status: AutoSaveStatus) => void;
@@ -190,6 +213,11 @@ export const useEvaluationStore = create<EvaluationStore>()(
         currentEvaluationError: null,
         isDraft: true,
         hasUnsavedChanges: false,
+        
+        // Checklist state (Single Source of Truth)
+        checklistItems: {},
+        checklistLoading: false,
+        checklistError: null,
         
         autoSaveStatus: {
           saving: false,
@@ -384,6 +412,134 @@ export const useEvaluationStore = create<EvaluationStore>()(
             hasUnsavedChanges: false,
             currentEvaluationError: null
           });
+        },
+
+        // Checklist actions (Single Source of Truth)
+        loadChecklistItems: async (userId: string) => {
+          set({ checklistLoading: true, checklistError: null });
+          
+          try {
+            const { data: items, error } = await supabase
+              .from('checklist_items')
+              .select('*')
+              .eq('user_id', userId);
+
+            if (error) throw error;
+
+            const checklistItems: Record<string, ChecklistItem> = {};
+            items?.forEach(item => {
+              const itemId = `${item.item_category}-${item.item_index}`;
+              checklistItems[itemId] = item;
+            });
+
+            set({ 
+              checklistItems,
+              checklistLoading: false 
+            });
+          } catch (error) {
+            console.error('Error loading checklist items:', error);
+            set({
+              checklistError: 'Kunde inte ladda checklistdata',
+              checklistLoading: false
+            });
+          }
+        },
+
+        updateChecklistItem: async (itemId: string, isChecked: boolean, comment?: string) => {
+          const state = get();
+          const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
+          
+          // Pre-defined checklist structure for mapping
+          const checklistCategories = [
+            'Föreningen - Viktiga Frågor till Mäklaren & Styrelsen',
+            'Lägenheten - Din Personliga Inspektion'
+          ];
+          
+          const checklistTexts = [
+            // Category 0: Föreningen
+            ['När gjordes stambyte senast? När är nästa planerat?', 'När byttes fönster/tak/fasad senast?', 'Finns några stora planerade renoveringar eller avgiftshöjningar?', 'Vad ingår i avgiften (värme, vatten, TV, bredband)?', 'Finns det några kända problem med skadedjur, fukt eller buller i fastigheten?', 'Hur är situationen med förråd, tvättstuga, cykelrum och parkering?', 'Vilka regler gäller för husdjur, uthyrning och renovering?', 'Har föreningen några ekonomiska utmaningar eller skulder?'],
+            // Category 1: Lägenheten
+            ['Kontrollera badrummet noggrant: Finns tecken på fukt/mögel? Hur ser golvbrunnen ut? Fråga efter kvalitetsdokument/våtrumsintyg.', 'Kontrollera köket: Testa alla vitvaror. Kolla trycket i vattenkranen.', 'Öppna och stäng fönster och dörrar. Är de i gott skick?', 'Lyssna efter störande ljud från grannar, trapphus eller utifrån.', 'Kontrollera elen: Finns jordade uttag i alla rum? Ser elcentralen modern ut?', 'Undersök golv, väggar och tak efter sprickor, fläckar eller skador.', 'Testa ventilationen i badrum och kök. Fungerar den korrekt?', 'Kontrollera värmesystemet: Radiatorernas skick och temperaturkontroll.']
+          ];
+          
+          try {
+            // Get current user from auth context - this should be passed as parameter in real implementation
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('User not authenticated');
+
+            const category = checklistCategories[categoryIndex];
+            const itemText = checklistTexts[categoryIndex]?.[itemIndex] || '';
+
+            // Check if item exists
+            const existingItem = state.checklistItems[itemId];
+            
+            if (existingItem) {
+              // Update existing item
+              const { error } = await supabase
+                .from('checklist_items')
+                .update({
+                  is_checked: isChecked,
+                  comment: comment || null,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', existingItem.id);
+
+              if (error) throw error;
+
+              // Update local state
+              set(state => ({
+                checklistItems: {
+                  ...state.checklistItems,
+                  [itemId]: {
+                    ...existingItem,
+                    is_checked: isChecked,
+                    comment: comment || null,
+                    updated_at: new Date().toISOString()
+                  }
+                }
+              }));
+            } else {
+              // Create new item
+              const { data: newItem, error } = await supabase
+                .from('checklist_items')
+                .insert({
+                  user_id: user.id,
+                  evaluation_id: state.currentEvaluationId,
+                  item_index: itemIndex,
+                  is_checked: isChecked,
+                  comment: comment || null,
+                  item_category: category,
+                  item_text: itemText
+                })
+                .select()
+                .single();
+
+              if (error) throw error;
+
+              // Update local state
+              set(state => ({
+                checklistItems: {
+                  ...state.checklistItems,
+                  [itemId]: newItem
+                }
+              }));
+            }
+          } catch (error) {
+            console.error('Error updating checklist item:', error);
+            throw new Error('Kunde inte spara checklistobjekt');
+          }
+        },
+
+        getChecklistProgress: () => {
+          const state = get();
+          const items = Object.values(state.checklistItems);
+          const totalItems = 16; // 8 + 8 items from pre-defined structure
+          const checkedItems = items.filter(item => item.is_checked).length;
+          
+          return {
+            filled: checkedItems,
+            total: totalItems
+          };
         },
 
         // Internal helpers
