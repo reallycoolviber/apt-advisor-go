@@ -14,7 +14,9 @@ import {
   BarChart3,
   Filter,
   Banknote,
-  Wallet
+  Wallet,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from 'recharts';
 import { Evaluation } from '@/components/comparison/types';
@@ -45,6 +47,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   const [currentEvaluation, setCurrentEvaluation] = useState<Evaluation | null>(null);
   const [comparisonEvaluations, setComparisonEvaluations] = useState<Evaluation[]>([]);
   const [comparisonBase, setComparisonBase] = useState<ComparisonBase>('last-month');
+  const [expandedMetric, setExpandedMetric] = useState<string | null>(null);
 
   // Fetch current evaluation
   useEffect(() => {
@@ -303,20 +306,40 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     return `${value.toFixed(1)}${unit}`;
   };
 
-  const getTrendIcon = (metric: ComparisonMetric) => {
-    const value = metric.value;
-    const average = metric.average;
+  const getPerformanceColor = (metric: ComparisonMetric): string => {
+    const { percentile, higherIsBetter } = metric;
+    // För lägre-är-bättre mått (pris, avgift, skuld): hög percentil = dåligt
+    // För högre-är-bättre mått (fysisk, kassaflöde): hög percentil = bra
+    const effectivePercentile = higherIsBetter ? percentile : 100 - percentile;
+    
+    if (effectivePercentile >= 70) return 'text-green-600';
+    if (effectivePercentile >= 40) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getPerformanceIcon = (metric: ComparisonMetric) => {
+    const { value, average, higherIsBetter } = metric;
     const diff = Math.abs(value - average);
-    const threshold = average * 0.05; // 5% threshold
+    const threshold = average * 0.05;
     
     if (diff < threshold) {
       return <Minus className="h-4 w-4 text-muted-foreground" />;
     }
     
-    const isBetter = metric.higherIsBetter ? value > average : value < average;
-    return isBetter 
-      ? <TrendingUp className="h-4 w-4 text-green-500" />
-      : <TrendingDown className="h-4 w-4 text-red-500" />;
+    const isBetter = higherIsBetter ? value > average : value < average;
+    const colorClass = isBetter ? 'text-green-600' : 'text-red-600';
+    const IconComponent = isBetter ? TrendingUp : TrendingDown;
+    
+    return <IconComponent className={`h-4 w-4 ${colorClass}`} />;
+  };
+
+  const getCircleColor = (metric: ComparisonMetric): string => {
+    const { percentile, higherIsBetter } = metric;
+    const effectivePercentile = higherIsBetter ? percentile : 100 - percentile;
+    
+    if (effectivePercentile >= 70) return '#10b981'; // green
+    if (effectivePercentile >= 40) return '#f59e0b'; // yellow
+    return '#ef4444'; // red
   };
 
   const getComparisonBaseLabel = (base: ComparisonBase): string => {
@@ -399,45 +422,129 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid gap-4">
+        <div className="space-y-3">
           {comparisonMetrics.map((metric, index) => {
-            const chartData = [{
-              name: metric.name,
-              value: metric.percentile,
-              fill: metric.percentile >= 50 ? '#10b981' : '#ef4444'
-            }];
-
+            const isExpanded = expandedMetric === metric.name;
+            const performanceColor = getPerformanceColor(metric);
+            const circleColor = getCircleColor(metric);
+            
             return (
-              <div key={index} className="p-4 bg-secondary/30 rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    {metric.icon}
-                    <span className="text-sm font-medium">{metric.name}</span>
+              <div 
+                key={index} 
+                className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer"
+                onClick={() => setExpandedMetric(isExpanded ? null : metric.name)}
+              >
+                {/* Main Content */}
+                <div className="p-5">
+                  <div className="flex items-center justify-between">
+                    {/* Left Side - Main Content */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-lg ${performanceColor.replace('text-', 'bg-').replace('-600', '-100')}`}>
+                          {metric.icon}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground text-sm">{metric.name}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            {getPerformanceIcon(metric)}
+                            <span className={`text-xs font-medium ${performanceColor}`}>
+                              {getComparisonText(metric)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Primary Value - Prominent */}
+                      <div className="mb-2">
+                        <div className="text-2xl font-bold text-foreground">
+                          {formatValue(metric.value, metric.unit)}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Snitt: {formatValue(metric.average, metric.unit)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Side - Visual Indicator */}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="relative w-16 h-16">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RadialBarChart 
+                            cx="50%" 
+                            cy="50%" 
+                            innerRadius="70%" 
+                            outerRadius="90%" 
+                            data={[{ value: metric.higherIsBetter ? metric.percentile : 100 - metric.percentile }]}
+                            startAngle={90}
+                            endAngle={-270}
+                          >
+                            <RadialBar 
+                              dataKey="value" 
+                              fill={circleColor}
+                              cornerRadius={10}
+                            />
+                          </RadialBarChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className={`text-xs font-bold ${performanceColor}`}>
+                            {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Expand/Collapse Icon */}
+                      <div className="text-muted-foreground">
+                        {isExpanded ? 
+                          <ChevronUp className="h-4 w-4" /> : 
+                          <ChevronDown className="h-4 w-4" />
+                        }
+                      </div>
+                    </div>
                   </div>
-                  {getTrendIcon(metric)}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-lg font-bold text-foreground">
-                      {formatValue(metric.value, metric.unit)}
+                {/* Expanded Content */}
+                {isExpanded && (
+                  <div className="border-t border-border bg-secondary/20 p-5 animate-accordion-down">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Bästa värde:</span>
+                          <span className="ml-2 font-medium text-green-600">
+                            {formatValue(metric.best, metric.unit)}
+                          </span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Sämsta värde:</span>
+                          <span className="ml-2 font-medium text-red-600">
+                            {formatValue(metric.worst, metric.unit)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Jämförelsegrupp:</span>
+                          <span className="ml-2 font-medium">{metric.total} lägenheter</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Ranking:</span>
+                          <span className={`ml-2 font-medium ${performanceColor}`}>
+                            {metric.betterCount + 1} av {metric.total + 1}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Snitt: {formatValue(metric.average, metric.unit)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {getComparisonText(metric)}
+                    
+                    {/* Description */}
+                    <div className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded">
+                      {metric.name === 'Pris per kvm' && 'Priset per kvadratmeter jämfört med liknande lägenheter. Lägre värde är bättre.'}
+                      {metric.name === 'Avgift per kvm' && 'Månadskostnaden per kvadratmeter. Lägre avgift ger lägre löpande kostnader.'}
+                      {metric.name === 'Skuld per kvm' && 'Föreningens skuldsättning per kvadratmeter. Lägre skuld innebär mindre risk.'}
+                      {metric.name === 'Kassaflöde per kvm' && 'Nettoflödet per kvadratmeter. Högre värde innebär bättre ekonomi.'}
+                      {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper. Högre betyg är bättre.'}
                     </div>
                   </div>
-                  
-                  <div className="h-16">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" data={chartData}>
-                        <RadialBar dataKey="value" fill={chartData[0].fill} />
-                      </RadialBarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
+                )}
               </div>
             );
           })}
