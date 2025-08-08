@@ -27,6 +27,7 @@ export const useCreateEvaluationModal = () => {
     
     // Skapa ny utvärdering med adress
     await createNewEvaluation(address);
+    
     setShowCreateModal(false);
     
     // Navigate to hub

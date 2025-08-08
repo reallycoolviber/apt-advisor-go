@@ -326,7 +326,10 @@ export const useEvaluationStore = create<EvaluationStore>()(
             if (error) throw error;
 
             set({
-              currentEvaluation: { ...defaultFormData },
+              currentEvaluation: { 
+                ...defaultFormData,
+                address: address || '' // Sätt adressen i form data också
+              },
               currentEvaluationId: newEvaluation.id,
               isDraft: true,
               hasUnsavedChanges: false,
