@@ -534,11 +534,11 @@ const EvaluationHub = () => {
                   };
                  
                  return (
-                   <Card 
-                     key={section.title} 
-                     className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-hover hover:border-hover shadow-sm cursor-pointer"
-                     onClick={() => navigate(section.path)}
-                   >
+                    <Card 
+                      key={section.title} 
+                      className="group overflow-hidden bg-card border transition-all duration-300 hover:shadow-md hover:bg-hover hover:border-hover shadow-sm cursor-pointer h-20"
+                      onClick={() => navigate(section.path)}
+                    >
                      <div className="w-full p-3 flex items-center gap-4 text-left transition-all duration-300">
                        {/* Icon - Left */}
                         <div className="p-2 rounded-lg flex-shrink-0 bg-primary/10 group-hover:bg-hover-foreground/20">
