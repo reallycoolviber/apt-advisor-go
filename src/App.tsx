@@ -92,6 +92,13 @@ const App = () => (
                       </EvaluationProvider>
                     </ProtectedRoute>
                   } />
+                  <Route path="/evaluate/:id" element={
+                    <ProtectedRoute>
+                      <EvaluationProvider>
+                        <EvaluationHub />
+                      </EvaluationProvider>
+                    </ProtectedRoute>
+                  } />
                   <Route path="/evaluate/checklist/*" element={
                     <ProtectedRoute>
                       <ErrorBoundary>
