@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvaluation } from '@/contexts/EvaluationContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star, Edit } from 'lucide-react';
+import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star, Edit, ClipboardCheck } from 'lucide-react';
 import AutoComparisonWidget from '@/components/AutoComparisonWidget';
 import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
 import { supabase } from '@/integrations/supabase/client';
@@ -72,27 +72,56 @@ const EvaluationHub = () => {
     }
   }, [searchParams, user, currentEvaluationId]); // Removed loadEvaluation from deps
 
+  // Helper function to calculate progress for a section
+  const calculateSectionProgress = (section: 'general' | 'financial' | 'physical' | 'checklist') => {
+    if (section === 'general') {
+      const fields = [data.address, data.general?.size, data.general?.rooms, data.general?.price, data.general?.finalPrice, data.general?.monthlyFee];
+      const filledFields = fields.filter(field => field && field !== '').length;
+      return { filled: filledFields, total: fields.length };
+    } else if (section === 'financial') {
+      const fields = [data.financial?.debtPerSqm, data.financial?.cashflowPerSqm, data.financial?.majorMaintenanceDone, data.financial?.ownsLand, data.financial?.underhållsplan];
+      const filledFields = fields.filter(field => field !== null && field !== undefined && field !== '').length;
+      return { filled: filledFields, total: fields.length };
+    } else if (section === 'physical') {
+      const ratings = [data.physical?.planlösning, data.physical?.kitchen, data.physical?.bathroom, data.physical?.bedrooms, data.physical?.surfaces, data.physical?.förvaring, data.physical?.ljusinsläpp, data.physical?.balcony];
+      const filledRatings = ratings.filter(rating => rating && rating > 0).length;
+      return { filled: filledRatings, total: ratings.length };
+    }
+    return { filled: 0, total: 1 }; // For checklist, we'll just show as incomplete for now
+  };
+
   const evaluationSections = [
     {
       title: 'Lägenhetsdata',
       description: 'Grundläggande information om lägenheten',
       icon: Building,
       path: '/evaluate/general',
-      completed: getCompletionStatus('general')
+      completed: getCompletionStatus('general'),
+      progress: calculateSectionProgress('general')
     },
     {
       title: 'Föreningsanalys',
       description: 'Ekonomisk information och föreningsdata',
       icon: BarChart3,
       path: '/evaluate/financial',
-      completed: getCompletionStatus('financial')
+      completed: getCompletionStatus('financial'),
+      progress: calculateSectionProgress('financial')
     },
     {
-      title: 'Din bedömning av lägenheten',
-      description: 'Bedömning av lägenhets kvalitet och egenskaper',
+      title: 'Lägenhetsbedömning',
+      description: 'Kvalitativ bedömning av lägenheten',
       icon: FileText,
       path: '/evaluate/physical',
-      completed: getCompletionStatus('physical')
+      completed: getCompletionStatus('physical'),
+      progress: calculateSectionProgress('physical')
+    },
+    {
+      title: 'Checklista under visning',
+      description: 'Viktiga punkter att kontrollera under visning',
+      icon: ClipboardCheck,
+      path: '/evaluate/checklist',
+      completed: 'not-started',
+      progress: calculateSectionProgress('checklist')
     }
   ];
 
@@ -486,19 +515,23 @@ const EvaluationHub = () => {
                {evaluationSections.map((section, index) => {
                  const IconComponent = section.icon;
                  
-                 const renderStatusCheckbox = (status: string) => {
-                   if (status === 'completed') {
-                     return <Checkbox checked={true} className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" />;
-                   } else if (status === 'in-progress') {
-                     return (
-                       <div className="relative w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center bg-background">
-                         <Minus className="h-2 w-2 text-primary" />
-                       </div>
-                     );
-                   } else {
-                     return <Checkbox checked={false} />;
-                   }
-                 };
+                  const renderProgressIndicator = (progress: { filled: number, total: number }) => {
+                    const percentage = progress.total > 0 ? Math.round((progress.filled / progress.total) * 100) : 0;
+                    
+                    return (
+                      <div className="flex flex-col items-end gap-1 min-w-[60px]">
+                        <div className="text-xs text-muted-foreground">
+                          {progress.filled}/{progress.total}
+                        </div>
+                        <div className="w-12 h-2 bg-secondary rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-primary transition-all duration-300 rounded-full"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  };
                  
                  return (
                    <Card 
@@ -522,50 +555,15 @@ const EvaluationHub = () => {
                          </p>
                        </div>
                        
-                       {/* Status - Right */}
-                       <div className="flex-shrink-0">
-                         {renderStatusCheckbox(section.completed)}
-                       </div>
+                        {/* Progress - Right */}
+                        <div className="flex-shrink-0">
+                          {renderProgressIndicator(section.progress)}
+                        </div>
                      </div>
                    </Card>
                  );
                })}
                
-               {/* Progress section under input cards */}
-               <Card className="bg-card border shadow-md mt-6">
-                 <div className="p-4">
-                   <h3 className="font-semibold text-foreground mb-4 text-center">
-                     Framsteg
-                   </h3>
-                   
-                   <div className="space-y-3">
-                     {evaluationSections.map((section) => {
-                       const IconComponent = section.icon;
-                       const completed = section.completed === 'completed';
-                       const inProgress = section.completed === 'in-progress';
-                       
-                       return (
-                         <div key={section.title} className="flex items-center gap-3 p-2 rounded-lg bg-secondary/30">
-                           <div className={`p-1 rounded ${completed ? 'bg-green-100' : inProgress ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                             <IconComponent className={`h-4 w-4 ${completed ? 'text-green-600' : inProgress ? 'text-yellow-600' : 'text-gray-500'}`} />
-                           </div>
-                           <div className="flex-1">
-                             <p className="text-sm font-medium text-foreground">{section.title}</p>
-                             <p className="text-xs text-muted-foreground">
-                               {completed ? 'Slutförd' : inProgress ? 'Påbörjad' : 'Ej påbörjad'}
-                             </p>
-                           </div>
-                           <div className="flex-shrink-0">
-                             {completed && <div className="w-2 h-2 bg-green-500 rounded-full" />}
-                             {inProgress && <div className="w-2 h-2 bg-yellow-500 rounded-full" />}
-                             {!completed && !inProgress && <div className="w-2 h-2 bg-gray-300 rounded-full" />}
-                           </div>
-                         </div>
-                       );
-                     })}
-                   </div>
-                 </div>
-               </Card>
              </div>
            )}
 
@@ -685,15 +683,15 @@ const EvaluationHub = () => {
                   </div>
                 </Card>
 
-                {/* Din bedömning av lägenheten */}
-                <Card className="bg-card border shadow-md">
-                  <div className="p-4">
-                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <FileText className="h-5 w-5 text-primary" />
-                        </div>
-                        Din bedömning av lägenheten
-                      </h3>
+                 {/* Lägenhetsbedömning */}
+                 <Card className="bg-card border shadow-md">
+                   <div className="p-4">
+                       <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                         <div className="p-2 rounded-lg bg-primary/10">
+                           <FileText className="h-5 w-5 text-primary" />
+                         </div>
+                         Lägenhetsbedömning
+                       </h3>
                     {hasBedömning() ? (
                       <div className="space-y-2">
                         {data.physical?.planlösning && (

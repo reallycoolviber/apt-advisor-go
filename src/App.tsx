@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
 import EvaluationHub from "./pages/EvaluationHub";
 import EvaluationSection from "./pages/EvaluationSection";
+import ChecklistSection from "./components/ChecklistSection";
 import Evaluations from "./pages/Evaluations";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import Compare from "./pages/Compare";
@@ -87,6 +88,11 @@ const App = () => (
                       <EvaluationProvider>
                         <EvaluationHub />
                       </EvaluationProvider>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/evaluate/checklist" element={
+                    <ProtectedRoute>
+                      <ChecklistSection />
                     </ProtectedRoute>
                   } />
                   <Route path="/evaluate/:section" element={

@@ -69,6 +69,49 @@ const EvaluationSection = () => {
   const { toast } = useToast();
   const { section } = useParams<{ section: string }>();
 
+  // Initialize data from context when component mounts or contextData changes
+  useEffect(() => {
+    if (contextData) {
+      setApartmentData(prev => ({
+        ...prev,
+        // General data
+        address: contextData.address || '',
+        size: contextData.general?.size?.toString() || '',
+        price: contextData.general?.price?.toString() || '',
+        finalPrice: contextData.general?.finalPrice?.toString() || '',
+        rooms: contextData.general?.rooms?.toString() || '',
+        monthlyFee: contextData.general?.monthlyFee?.toString() || '',
+        
+        // Physical data
+        planlösning: contextData.physical?.planlösning || 0,
+        kitchen: contextData.physical?.kitchen || 0,
+        bathroom: contextData.physical?.bathroom || 0,
+        bedrooms: contextData.physical?.bedrooms || 0,
+        surfaces: contextData.physical?.surfaces || 0,
+        förvaring: contextData.physical?.förvaring || 0,
+        ljusinsläpp: contextData.physical?.ljusinsläpp || 0,
+        balcony: contextData.physical?.balcony || 0,
+        
+        // Comments
+        planlösning_comment: contextData.physical?.planlösning_comment || '',
+        kitchen_comment: contextData.physical?.kitchen_comment || '',
+        bathroom_comment: contextData.physical?.bathroom_comment || '',
+        bedrooms_comment: contextData.physical?.bedrooms_comment || '',
+        surfaces_comment: contextData.physical?.surfaces_comment || '',
+        förvaring_comment: contextData.physical?.förvaring_comment || '',
+        ljusinsläpp_comment: contextData.physical?.ljusinsläpp_comment || '',
+        balcony_comment: contextData.physical?.balcony_comment || '',
+        
+        // Financial data
+        debtPerSqm: contextData.financial?.debtPerSqm?.toString() || '',
+        cashflowPerSqm: contextData.financial?.cashflowPerSqm?.toString() || '',
+        majorMaintenanceDone: contextData.financial?.majorMaintenanceDone,
+        ownsLand: contextData.financial?.ownsLand,
+        underhållsplan: contextData.financial?.underhållsplan || '',
+      }));
+    }
+  }, [contextData]);
+
   const sectionConfig = {
     general: {
       title: 'Lägenhetsdata',
