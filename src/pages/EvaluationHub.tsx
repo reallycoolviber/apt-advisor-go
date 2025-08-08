@@ -32,7 +32,8 @@ const EvaluationHub = () => {
     currentEvaluationLoading,
     updateField, 
     loadEvaluation,
-    saveCurrentEvaluation
+    saveCurrentEvaluation,
+    createNewEvaluation
   } = useEvaluationStore();
 
   // Only UI state, no evaluation data copies
@@ -90,7 +91,7 @@ const EvaluationHub = () => {
     }
   }, [user, currentEvaluationId]);
 
-  // Load existing evaluation if edit mode or direct URL with ID
+  // Load existing evaluation if edit mode or direct URL with ID, or create new if none exists
   useEffect(() => {
     const editId = searchParams.get('edit') || urlEvaluationId;
     if (editId && user && editId !== currentEvaluationId) {
@@ -104,8 +105,20 @@ const EvaluationHub = () => {
       };
 
       fetchEvaluation();
+    } else if (user && !currentEvaluationId && !editId) {
+      // No evaluation loaded and no edit ID - create a new one
+      const createEvaluation = async () => {
+        try {
+          await createNewEvaluation();
+        } catch (err) {
+          console.error('Error creating new evaluation:', err);
+          setError('Kunde inte skapa ny utvärdering. Försök igen senare.');
+        }
+      };
+
+      createEvaluation();
     }
-  }, [searchParams, urlEvaluationId, user?.id, currentEvaluationId, loadEvaluation]);
+  }, [searchParams, urlEvaluationId, user?.id, currentEvaluationId, loadEvaluation, createNewEvaluation]);
 
   // Helper function to calculate progress for a section
   const calculateSectionProgress = (section: 'general' | 'financial' | 'physical' | 'checklist') => {

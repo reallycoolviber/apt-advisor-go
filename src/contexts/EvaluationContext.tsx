@@ -5,7 +5,7 @@ import { generateSourceId } from '@/services/evaluationService';
 
 interface EvaluationContextType {
   data: EvaluationFormData;
-  setData: (data: EvaluationFormData) => void;
+  setData: (data: EvaluationFormData) => Promise<void>;
   updateField: (section: keyof EvaluationFormData, field: string, value: any) => void;
   evaluationId: string | null;
   setEvaluationId: (id: string | null) => void;
@@ -96,10 +96,10 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   console.log('EvaluationProvider: Current data:', data);
 
-  const setData = (newData: EvaluationFormData) => {
+  const setData = async (newData: EvaluationFormData) => {
     // For compatibility, replace entire form data
     clearCurrentEvaluation();
-    createNewEvaluation();
+    await createNewEvaluation();
     // Update each section
     Object.entries(newData.general).forEach(([key, value]) => {
       storeUpdateField('general', key, value);
@@ -143,7 +143,7 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   ): Promise<string> => {
     // This is a complex operation that should be handled by the store
     // For now, create new evaluation and return a mock ID
-    createNewEvaluation();
+    await createNewEvaluation();
     if (initialData) {
       Object.entries(initialData).forEach(([section, sectionData]) => {
         if (section === 'address') {

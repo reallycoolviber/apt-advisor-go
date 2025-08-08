@@ -45,7 +45,7 @@ interface EvaluationStore {
   
   // Actions for current evaluation
   loadEvaluation: (evaluationId: string) => Promise<void>;
-  createNewEvaluation: () => void;
+  createNewEvaluation: () => Promise<void>;
   updateField: (section: keyof EvaluationFormData, field: string, value: any) => void;
   saveCurrentEvaluation: () => Promise<void>;
   clearCurrentEvaluation: () => void;
@@ -304,16 +304,46 @@ export const useEvaluationStore = create<EvaluationStore>()(
           }
         },
 
-        createNewEvaluation: () => {
-          set({
-            currentEvaluation: { ...defaultFormData },
-            currentEvaluationId: null,
-            isDraft: true,
-            hasUnsavedChanges: false,
-            currentEvaluationError: null,
-            // Clear checklist when creating new evaluation
-            checklistItems: {}
-          });
+        createNewEvaluation: async () => {
+          try {
+            // Get current user from auth context
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('User not authenticated');
+
+            // Create a new evaluation with minimal data to get an ID
+            const { data: newEvaluation, error } = await supabase
+              .from('apartment_evaluations')
+              .insert({
+                user_id: user.id,
+                address: '',
+                is_draft: true
+              })
+              .select()
+              .single();
+
+            if (error) throw error;
+
+            set({
+              currentEvaluation: { ...defaultFormData },
+              currentEvaluationId: newEvaluation.id,
+              isDraft: true,
+              hasUnsavedChanges: false,
+              currentEvaluationError: null,
+              // Clear checklist when creating new evaluation
+              checklistItems: {}
+            });
+          } catch (error) {
+            console.error('Error creating new evaluation:', error);
+            // Fallback to local state only if database creation fails
+            set({
+              currentEvaluation: { ...defaultFormData },
+              currentEvaluationId: `temp-${Date.now()}`, // Temporary ID for offline use
+              isDraft: true,
+              hasUnsavedChanges: false,
+              currentEvaluationError: null,
+              checklistItems: {}
+            });
+          }
         },
 
         updateField: (section: keyof EvaluationFormData, field: string, value: any) => {
