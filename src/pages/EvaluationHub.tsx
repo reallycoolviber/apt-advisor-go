@@ -109,6 +109,23 @@ const EvaluationHub = () => {
   const physicalAverage = calculatePhysicalAverage();
   const hasAnyData = data.address || data.general?.size || data.general?.price || data.physical || data.financial;
 
+  // Functions to check if data exists for each category
+  const hasLägenhetsdata = () => {
+    return data.address || data.general?.size || data.general?.rooms || data.general?.price || data.general?.finalPrice || data.general?.monthlyFee;
+  };
+
+  const hasFöreningsinformation = () => {
+    return data.financial?.debtPerSqm || data.financial?.feePerSqm || data.financial?.cashflowPerSqm || 
+           data.financial?.majorMaintenanceDone !== undefined || data.financial?.ownsLand !== undefined || 
+           data.financial?.underhållsplan;
+  };
+
+  const hasBedömning = () => {
+    return data.physical?.planlösning || data.physical?.kitchen || data.physical?.bathroom || 
+           data.physical?.bedrooms || data.physical?.surfaces || data.physical?.förvaring || 
+           data.physical?.ljusinsläpp || data.physical?.balcony || data.physical?.comments;
+  };
+
   // Auto-save effect - saves whenever there's data and user is present
   useEffect(() => {
     const autoSave = async () => {
@@ -547,82 +564,208 @@ const EvaluationHub = () => {
              </div>
            )}
 
-           {activeTab === 'evaluation' && hasAnyData && (
-             <Card className="bg-card border shadow-md mb-8">
-               <div className="p-4">
-                 <h3 className="font-semibold text-foreground mb-4 text-center">
-                   Sammanfattning
-                 </h3>
-                 
-                 {/* Overview Cards */}
-                 <div className="space-y-3 mb-4">
-                   {data.address && (
-                     <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
-                       <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-                       <div className="flex-1 min-w-0">
-                         <p className="text-sm font-medium text-foreground">{data.address}</p>
-                         <p className="text-xs text-muted-foreground">
-                           {data.general?.size && `${data.general.size} kvm`} 
-                           {data.general?.rooms && ` • ${data.general.rooms} rum`}
-                         </p>
-                       </div>
-                     </div>
-                   )}
-                   
-                   {(data.general?.price || data.general?.monthlyFee) && (
-                     <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
-                       <Euro className="h-4 w-4 text-primary flex-shrink-0" />
-                       <div className="flex-1 min-w-0">
-                         <p className="text-sm font-medium text-foreground">
-                           {data.general?.price ? `${parseInt(data.general.price).toLocaleString()} SEK` : 'Inget pris angivet'}
-                         </p>
-                         <p className="text-xs text-muted-foreground">
-                           {data.general?.monthlyFee && `${parseInt(data.general.monthlyFee).toLocaleString()} SEK/mån`}
-                         </p>
-                       </div>
-                     </div>
-                   )}
-                   
-                   {physicalAverage > 0 && (
-                     <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
-                       <Star className="h-4 w-4 text-primary flex-shrink-0" />
-                       <div className="flex-1 min-w-0">
-                         <p className="text-sm font-medium text-foreground">
-                           Fysisk bedömning: {physicalAverage.toFixed(1)}/5
-                         </p>
-                         <div className="flex gap-1 mt-1">
-                           {[1, 2, 3, 4, 5].map((star) => (
-                             <span
-                               key={star}
-                               className={`text-xs ${star <= physicalAverage ? 'text-yellow-400' : 'text-muted-foreground'}`}
-                             >
-                               ★
-                             </span>
-                           ))}
-                         </div>
-                       </div>
-                     </div>
-                   )}
-                 </div>
-                 
-                 {/* Comments */}
-                 <div className="space-y-2">
-                   <Label htmlFor="comments" className="text-sm font-medium text-foreground">
-                     Slutkommentarer
-                   </Label>
-                   <Textarea
-                     id="comments"
-                      value={data.physical?.comments || ''}
-                      onChange={(e) => {
-                        updatePhysicalData({ comments: e.target.value });
-                      }}
-                     placeholder="Lägg till dina reflektioner och slutsatser om lägenheten..."
-                     className="min-h-[80px] resize-none text-sm"
-                   />
-                 </div>
-               </div>
-             </Card>
-           )}
+           {activeTab === 'evaluation' && (
+              <div className="space-y-4 mb-8">
+                {/* Lägenhetsdata */}
+                <Card className="bg-card border shadow-md">
+                  <div className="p-4">
+                    <h3 className="font-semibold text-foreground mb-4 text-center">
+                      Lägenhetsdata
+                    </h3>
+                    {hasLägenhetsdata() ? (
+                      <div className="space-y-2">
+                        {data.address && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Adress:</span>
+                            <span className="text-sm font-medium text-foreground">{data.address}</span>
+                          </div>
+                        )}
+                        {data.general?.size && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Boarea:</span>
+                            <span className="text-sm font-medium text-foreground">{data.general.size} kvm</span>
+                          </div>
+                        )}
+                        {data.general?.rooms && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Antal rum:</span>
+                            <span className="text-sm font-medium text-foreground">{data.general.rooms}</span>
+                          </div>
+                        )}
+                        {data.general?.price && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Pris:</span>
+                            <span className="text-sm font-medium text-foreground">{parseInt(data.general.price).toLocaleString()} SEK</span>
+                          </div>
+                        )}
+                        {data.general?.finalPrice && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Slutpris:</span>
+                            <span className="text-sm font-medium text-foreground">{parseInt(data.general.finalPrice).toLocaleString()} SEK</span>
+                          </div>
+                        )}
+                        {data.general?.monthlyFee && (
+                          <div className="flex justify-between py-2">
+                            <span className="text-sm text-muted-foreground">Avgift:</span>
+                            <span className="text-sm font-medium text-foreground">{parseInt(data.general.monthlyFee).toLocaleString()} SEK/mån</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">Ingen information tillagd</p>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Föreningsinformation */}
+                <Card className="bg-card border shadow-md">
+                  <div className="p-4">
+                    <h3 className="font-semibold text-foreground mb-4 text-center">
+                      Föreningsinformation
+                    </h3>
+                    {hasFöreningsinformation() ? (
+                      <div className="space-y-2">
+                        {data.financial?.debtPerSqm && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Skuldsättning:</span>
+                            <span className="text-sm font-medium text-foreground">{parseInt(data.financial.debtPerSqm).toLocaleString()} SEK/kvm</span>
+                          </div>
+                        )}
+                        {data.financial?.feePerSqm && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Avgift per kvm:</span>
+                            <span className="text-sm font-medium text-foreground">{parseInt(data.financial.feePerSqm).toLocaleString()} SEK/kvm</span>
+                          </div>
+                        )}
+                        {data.financial?.cashflowPerSqm && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Kassaflöde per kvm:</span>
+                            <span className="text-sm font-medium text-foreground">{parseInt(data.financial.cashflowPerSqm).toLocaleString()} SEK/kvm</span>
+                          </div>
+                        )}
+                        {data.financial?.majorMaintenanceDone !== undefined && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Stora renoveringar genomförda:</span>
+                            <span className="text-sm font-medium text-foreground">{data.financial.majorMaintenanceDone ? 'Ja' : 'Nej'}</span>
+                          </div>
+                        )}
+                        {data.financial?.ownsLand !== undefined && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Äger mark:</span>
+                            <span className="text-sm font-medium text-foreground">{data.financial.ownsLand ? 'Ja' : 'Nej (tomträtt)'}</span>
+                          </div>
+                        )}
+                        {data.financial?.underhållsplan && (
+                          <div className="py-2">
+                            <span className="text-sm text-muted-foreground block mb-1">Underhållsplan:</span>
+                            <span className="text-sm font-medium text-foreground">{data.financial.underhållsplan}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">Ingen information tillagd</p>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Din bedömning av lägenheten */}
+                <Card className="bg-card border shadow-md">
+                  <div className="p-4">
+                    <h3 className="font-semibold text-foreground mb-4 text-center">
+                      Din bedömning av lägenheten
+                    </h3>
+                    {hasBedömning() ? (
+                      <div className="space-y-2">
+                        {data.physical?.planlösning && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Planlösning:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.planlösning}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.kitchen && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Kök:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.kitchen}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.bathroom && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Badrum:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.bathroom}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.bedrooms && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Sovrum:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.bedrooms}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.surfaces && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Ytor:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.surfaces}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.förvaring && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Förvaring:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.förvaring}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.ljusinsläpp && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Ljusinsläpp:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.ljusinsläpp}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.balcony && (
+                          <div className="flex justify-between py-2 border-b border-border/30">
+                            <span className="text-sm text-muted-foreground">Balkong/Uteplats:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.balcony}/5 ⭐</span>
+                          </div>
+                        )}
+                        {physicalAverage > 0 && (
+                          <div className="flex justify-between py-2 border-b border-border/30 bg-secondary/30 px-2 rounded">
+                            <span className="text-sm font-medium text-foreground">Genomsnittlig bedömning:</span>
+                            <span className="text-sm font-bold text-foreground">{physicalAverage.toFixed(1)}/5 ⭐</span>
+                          </div>
+                        )}
+                        {data.physical?.comments && (
+                          <div className="py-2">
+                            <span className="text-sm text-muted-foreground block mb-1">Mina anteckningar:</span>
+                            <span className="text-sm font-medium text-foreground">{data.physical.comments}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">Ingen information tillagd</p>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Comments input */}
+                {hasBedömning() && (
+                  <Card className="bg-card border shadow-md">
+                    <div className="p-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="comments" className="text-sm font-medium text-foreground">
+                          Redigera slutkommentarer
+                        </Label>
+                        <Textarea
+                          id="comments"
+                          value={data.physical?.comments || ''}
+                          onChange={(e) => {
+                            updatePhysicalData({ comments: e.target.value });
+                          }}
+                          placeholder="Lägg till dina reflektioner och slutsatser om lägenheten..."
+                          className="min-h-[80px] resize-none text-sm"
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </div>
+            )}
 
            {activeTab === 'comparison' && currentEvaluationId && (
               <div className="mb-8">
