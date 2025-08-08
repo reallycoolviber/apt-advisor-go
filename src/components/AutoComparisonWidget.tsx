@@ -183,6 +183,9 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   const comparisonMetrics = useMemo(() => {
     if (!currentEvaluation || comparisonEvaluations.length === 0) return [] as ComparisonMetric[];
 
+    console.log('AutoComparison: Building metrics for', currentEvaluation.address);
+    console.log('AutoComparison: Comparison evaluations count:', comparisonEvaluations.length);
+    
     const metrics: ComparisonMetric[] = [];
 
     // 1) Pris per kvm (lägre är bättre)
@@ -209,10 +212,13 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
 
     // 2) Avgift per kvm (lägre är bättre)
+    console.log('AutoComparison: Checking avgift per kvm for', currentEvaluation.address);
     const currentFee = getFeePerSqm(currentEvaluation);
     const feeComparisonArray = comparisonEvaluations
       .map(getFeePerSqm)
       .filter((v): v is number => v !== null);
+    
+    console.log('AutoComparison: currentFee:', currentFee, 'feeComparisonArray:', feeComparisonArray);
     
     if (currentFee !== null && feeComparisonArray.length > 0) {
       const stats = computeStats(feeComparisonArray, currentFee, false);
@@ -253,10 +259,13 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
 
     // 3) Skuld per kvm (lägre är bättre)
+    console.log('AutoComparison: Checking skuld per kvm for', currentEvaluation.address);
     const currentDebt = currentEvaluation.debt_per_sqm;
     const debtComparisonArray = comparisonEvaluations
       .map(e => e.debt_per_sqm as number | null)
       .filter((v): v is number => v !== null && v !== undefined);
+    
+    console.log('AutoComparison: currentDebt:', currentDebt, 'debtComparisonArray:', debtComparisonArray);
     
     if (currentDebt !== null && currentDebt !== undefined && debtComparisonArray.length > 0) {
       const stats = computeStats(debtComparisonArray, currentDebt as number, false);
@@ -344,6 +353,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
       }
     }
 
+    console.log('AutoComparison: Final metrics count:', metrics.length);
     return metrics;
   }, [currentEvaluation, comparisonEvaluations]);
 
