@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download, Trash2 } from 'lucide-react';
+import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +19,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 import { exportToExcel, exportToCSV } from '@/utils/exportUtils';
 import { 
@@ -49,6 +56,8 @@ interface Evaluation {
   is_draft: boolean | null;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 const Evaluations = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -57,6 +66,8 @@ const Evaluations = () => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'completed' | 'drafts'>('all');
   const [selectedEvaluations, setSelectedEvaluations] = useState<string[]>([]);
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -105,6 +116,26 @@ const Evaluations = () => {
     return true;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredEvaluations.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentEvaluations = filteredEvaluations.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setExpandedCard(null); // Collapse any expanded card when changing pages
+  };
+
+  const handleCardClick = (evaluationId: string) => {
+    setExpandedCard(expandedCard === evaluationId ? null : evaluationId);
+  };
+
   const handleExport = (format: 'excel' | 'csv') => {
     if (format === 'excel') {
       exportToExcel(evaluations as any);
@@ -123,7 +154,7 @@ const Evaluations = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedEvaluations(filteredEvaluations.map(evaluation => evaluation.id));
+      setSelectedEvaluations(currentEvaluations.map(evaluation => evaluation.id));
     } else {
       setSelectedEvaluations([]);
     }
@@ -186,20 +217,22 @@ const Evaluations = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background relative">
+      <div className="min-h-screen bg-app-background relative">
         {/* Background cityscape */}
         <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
              style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
         </div>
-        <div className="bg-primary text-primary-foreground p-4 shadow-lg relative z-10">
-          <div className="flex items-center gap-3">
+        
+        {/* Header */}
+        <div className="bg-primary text-primary-foreground p-6 shadow-lg relative z-10">
+          <div className="container mx-auto flex items-center gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
               className="text-primary-foreground hover:bg-primary/90 p-2"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
@@ -209,10 +242,11 @@ const Evaluations = () => {
             >
               <Home className="h-6 w-6" />
             </Button>
-            <h1 className="text-xl font-bold">Mina utvärderingar</h1>
+            <h1 className="text-3xl font-bold">Mina utvärderingar</h1>
           </div>
         </div>
-        <div className="p-4 text-center relative z-10">
+        
+        <div className="container mx-auto p-6 text-center relative z-10">
           <div className="text-foreground">Laddar dina utvärderingar...</div>
         </div>
       </div>
@@ -220,308 +254,391 @@ const Evaluations = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-app-background relative">
       {/* Background cityscape */}
       <div className="absolute inset-0 opacity-15 bg-no-repeat bg-center bg-cover"
            style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
       </div>
       
+      {/* Enhanced Header */}
+      <div className="bg-primary text-primary-foreground shadow-lg relative z-10">
+        <div className="container mx-auto p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-primary-foreground hover:bg-primary/90 p-2"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-primary-foreground hover:bg-primary/90 p-2"
+            >
+              <Home className="h-6 w-6" />
+            </Button>
+            <h1 className="text-4xl font-bold">Mina utvärderingar</h1>
+            {evaluations.length > 0 && (
+              <span className="bg-primary-foreground/20 text-primary-foreground px-4 py-2 rounded-full text-lg font-medium">
+                {evaluations.length}
+              </span>
+            )}
+          </div>
+          
+          {/* Controls Row */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              {/* Selection controls */}
+              {currentEvaluations.length > 0 && (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="select-all"
+                      checked={selectedEvaluations.length === currentEvaluations.length && currentEvaluations.length > 0}
+                      onCheckedChange={handleSelectAll}
+                      className="border-primary-foreground/50 data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+                    />
+                    <label htmlFor="select-all" className="text-sm text-primary-foreground/80 cursor-pointer">
+                      Markera alla
+                    </label>
+                  </div>
+                  
+                  {selectedEvaluations.length > 0 && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="gap-2">
+                          <Trash2 className="h-4 w-4" />
+                          Ta bort valda ({selectedEvaluations.length})
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Är du säker på att du vill ta bort {selectedEvaluations.length} utvärdering{selectedEvaluations.length > 1 ? 'ar' : ''}? 
+                            Denna åtgärd kan inte ångras.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDeleteSelected}
+                            className="bg-destructive hover:bg-destructive/90"
+                          >
+                            Ta bort
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
+              )}
+              
+              {/* Modern Filter Pills */}
+              <div className="flex bg-primary-foreground/10 p-1 rounded-full">
+                <Button
+                  variant={filter === 'all' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilter('all')}
+                  className={`rounded-full px-6 ${
+                    filter === 'all' 
+                      ? 'bg-primary-foreground text-primary shadow-sm' 
+                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                  }`}
+                >
+                  Alla
+                </Button>
+                <Button
+                  variant={filter === 'completed' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilter('completed')}
+                  className={`rounded-full px-6 ${
+                    filter === 'completed' 
+                      ? 'bg-primary-foreground text-primary shadow-sm' 
+                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                  }`}
+                >
+                  Slutförda
+                </Button>
+                <Button
+                  variant={filter === 'drafts' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilter('drafts')}
+                  className={`rounded-full px-6 ${
+                    filter === 'drafts' 
+                      ? 'bg-primary-foreground text-primary shadow-sm' 
+                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                  }`}
+                >
+                  Utkast
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {evaluations.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="px-4 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20">
+                      <Download className="h-4 w-4 mr-2" />
+                      Exportera
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleExport('excel')}>
+                      Ladda ner Excel (.xlsx)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('csv')}>
+                      Ladda ner CSV (.csv)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              <Button
+                onClick={() => navigate('/evaluate')}
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 px-6 font-medium"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Ny utvärdering
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
-      <div className="pt-20 pb-8 px-4 relative z-10">
-        <div className="max-w-lg mx-auto">
+      <div className="container mx-auto p-6 relative z-10">
         {error && (
-          <Card className="bg-destructive/10 border-destructive/20 p-4 mb-4">
+          <Card className="bg-destructive/10 border-destructive/20 p-4 mb-6">
             <p className="text-destructive">{error}</p>
           </Card>
         )}
 
         {evaluations.length === 0 ? (
-          <Card className="bg-card shadow-lg border-0 p-6 text-center">
-            <h2 className="text-xl font-semibold text-foreground mb-4">
-              Inga utvärderingar än
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Du har inte skapat några lägenhetsuvärderingar än. Kom igång genom att skapa din första utvärdering!
-            </p>
-            <Button
-              onClick={() => navigate('/evaluate')}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Skapa första utvärderingen
-            </Button>
-          </Card>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Card className="bg-app-background-secondary shadow-lg border-0 p-12 text-center max-w-md mx-auto">
+              <div className="w-20 h-20 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center">
+                <FileText className="w-10 h-10 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-4">
+                Du har inga utvärderingar än
+              </h2>
+              <p className="text-muted-foreground mb-8 text-lg">
+                Klicka på '+ Ny utvärdering' för att komma igång!
+              </p>
+              <Button
+                onClick={() => navigate('/evaluate')}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Skapa första utvärderingen
+              </Button>
+            </Card>
+          </div>
         ) : (
           <>
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/')}
-                    className="text-foreground hover:bg-muted p-2"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                  </Button>
-                  <h2 className="text-3xl font-bold text-foreground">
-                    Mina Utvärderingar
-                  </h2>
-                  <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                    {evaluations.length}
-                  </span>
-                </div>
-                
-                {/* Selection controls */}
-                {filteredEvaluations.length > 0 && (
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="select-all"
-                        checked={selectedEvaluations.length === filteredEvaluations.length && filteredEvaluations.length > 0}
-                        onCheckedChange={handleSelectAll}
-                      />
-                      <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-                        Markera alla
-                      </label>
-                    </div>
-                    
-                    {selectedEvaluations.length > 0 && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="gap-2">
-                            <Trash2 className="h-4 w-4" />
-                            Ta bort valda ({selectedEvaluations.length})
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Är du säker på att du vill ta bort {selectedEvaluations.length} utvärdering{selectedEvaluations.length > 1 ? 'ar' : ''}? 
-                              Denna åtgärd kan inte ångras.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={handleDeleteSelected}
-                              className="bg-destructive hover:bg-destructive/90"
-                            >
-                              Ta bort
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
-                  </div>
-                )}
-                
-                {/* Filter buttons */}
-                <div className="flex gap-3">
-                  <Button
-                    variant={filter === 'all' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter('all')}
-                    className="px-4"
-                  >
-                    Alla
-                  </Button>
-                  <Button
-                    variant={filter === 'completed' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter('completed')}
-                    className="px-4"
-                  >
-                    Slutförda
-                  </Button>
-                  <Button
-                    variant={filter === 'drafts' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter('drafts')}
-                    className="px-4"
-                  >
-                    Utkast
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                {evaluations.length > 0 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="px-4">
-                        <Download className="h-4 w-4 mr-2" />
-                        Exportera
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => handleExport('excel')}>
-                        Ladda ner Excel (.xlsx)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleExport('csv')}>
-                        Ladda ner CSV (.csv)
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-                <Button
-                  onClick={() => navigate('/evaluate')}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ny utvärdering
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              {filteredEvaluations.map((evaluation) => {
+            {/* Grid Layout with responsive columns */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+              {currentEvaluations.map((evaluation) => {
                 const physicalAvg = calculatePhysicalAverage(evaluation);
+                const isExpanded = expandedCard === evaluation.id;
+                
                 return (
-                  <Card key={evaluation.id} className="bg-white shadow-md border-0 rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden">
-                    <div className="p-5">
-                      {/* Header with checkbox, date and status */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
+                  <Card 
+                    key={evaluation.id} 
+                    className="bg-app-background-secondary shadow-md border-0 rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
+                    onClick={() => handleCardClick(evaluation.id)}
+                  >
+                    {/* Compact header - always visible */}
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
                           <Checkbox
                             checked={selectedEvaluations.includes(evaluation.id)}
                             onCheckedChange={(checked) => handleSelectEvaluation(evaluation.id, checked as boolean)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex-shrink-0"
                           />
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
+                            <Calendar className="h-3 w-3" />
                             {new Date(evaluation.created_at).toLocaleDateString('sv-SE')}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {evaluation.is_draft && (
-                            <span className="bg-accent/20 text-accent-foreground px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 font-medium">
+                            <span className="bg-accent/20 text-accent-foreground px-2 py-1 rounded-full text-xs flex items-center gap-1 font-medium">
                               <FileText className="h-3 w-3" />
                               Utkast
                             </span>
                           )}
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10 p-2"
-                                title="Ta bort utvärdering"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Är du säker på att du vill ta bort denna utvärdering? Denna åtgärd kan inte ångras.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeleteSingle(evaluation.id)}
-                                  className="bg-destructive hover:bg-destructive/90"
-                                >
-                                  Ta bort
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <div className="text-muted-foreground">
+                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </div>
                         </div>
                       </div>
 
-                    {/* Address */}
-                    <div className="flex items-start gap-2 mb-4">
-                      <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h3 className="font-semibold text-foreground text-lg">
+                      {/* Address - always visible */}
+                      <div className="flex items-start gap-2">
+                        <MapPin className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                        <h3 className="font-semibold text-foreground text-lg leading-tight">
                           {evaluation.address || 'Ingen adress'}
                         </h3>
-                        <p className="text-muted-foreground text-sm">
-                          {evaluation.size && formatDisplayValue(evaluation.size, 'area')}
-                          {evaluation.rooms && ` • ${formatDisplayValue(evaluation.rooms, 'rooms')}`}
-                        </p>
                       </div>
                     </div>
 
-                    {/* Price info */}
-                    {(evaluation.price || evaluation.monthly_fee) && (
-                      <div className="flex items-center gap-2 mb-4 p-3 bg-primary/10 rounded-lg">
-                        <Euro className="h-5 w-5 text-primary" />
-                        <div>
-                             {evaluation.price && (
-                               <p className="font-semibold text-primary">
-                                 {formatDisplayValue(evaluation.price, 'price')}
-                               </p>
-                             )}
-                            {evaluation.monthly_fee && (
-                              <p className="text-sm text-primary/80">
-                                {formatDisplayValue(evaluation.monthly_fee, 'fee')}
-                              </p>
-                            )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Physical rating */}
-                    <div className="flex items-center gap-2 mb-4 p-3 bg-accent/10 rounded-lg">
-                      <Star className="h-5 w-5 text-accent" />
-                      <div className="flex-1">
-                        <p className="font-semibold text-accent-foreground">
-                          Fysisk bedömning: {physicalAvg.toFixed(1)}
-                        </p>
-                        <div className="flex gap-1 mt-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <span
-                                key={star}
-                                className={`text-sm ${star <= physicalAvg ? 'text-accent' : 'text-muted-foreground'}`}
-                              >
-                                ★
+                    {/* Expanded content - shown only when expanded */}
+                    {isExpanded && (
+                      <div className="px-4 pb-4 animate-accordion-down">
+                        <div className="border-t border-border pt-4">
+                          {/* Price and details */}
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="flex items-center gap-2">
+                              <Euro className="h-4 w-4 text-primary" />
+                              <span className="text-sm text-muted-foreground">Pris:</span>
+                              <span className="font-medium text-foreground">
+                                {evaluation.price ? formatDisplayValue(evaluation.price, 'currency') : 'Ej angivet'}
                               </span>
-                            ))}
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Avgift:</span>
+                              <span className="font-medium text-foreground ml-1">
+                                {evaluation.monthly_fee ? formatDisplayValue(evaluation.monthly_fee, 'currency') : 'Ej angivet'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Size and rooms */}
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Storlek:</span>
+                              <span className="font-medium text-foreground ml-1">
+                                {evaluation.size ? formatDisplayValue(evaluation.size, 'area') : 'Ej angivet'}
+                              </span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Rum:</span>
+                              <span className="font-medium text-foreground ml-1">
+                                {evaluation.rooms || 'Ej angivet'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Physical rating */}
+                          {physicalAvg > 0 && (
+                            <div className="flex items-center gap-2 mb-4">
+                              <Star className="h-4 w-4 text-primary" />
+                              <span className="text-sm text-muted-foreground">Fysisk bedömning:</span>
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`h-3 w-3 ${
+                                      star <= physicalAvg
+                                        ? 'fill-primary text-primary'
+                                        : 'text-muted'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm font-medium text-foreground">
+                                ({physicalAvg.toFixed(1)})
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Action buttons */}
+                          <div className="flex items-center justify-between pt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/evaluate/${evaluation.id}`);
+                              }}
+                              className="gap-2"
+                            >
+                              <Edit className="h-3 w-3" />
+                              Visa detaljer
+                            </Button>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10 p-2"
+                                  title="Ta bort utvärdering"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Är du säker på att du vill ta bort denna utvärdering? Denna åtgärd kan inte ångras.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteSingle(evaluation.id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    Ta bort
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Comments preview */}
-                    {evaluation.comments && (
-                      <div className="mb-4">
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {evaluation.comments}
-                        </p>
-                      </div>
                     )}
-
-                      {/* Action buttons */}
-                      <div className="flex gap-3 mt-5">
-                        <Button
-                          variant="outline"
-                          className="flex-1 py-2.5"
-                          onClick={() => navigate(`/evaluation/${evaluation.id}`)}
-                        >
-                          Visa detaljer
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/evaluate?edit=${evaluation.id}`)}
-                          className="px-3 py-2.5"
-                          title="Redigera"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
                   </Card>
                 );
               })}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                        className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                        className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </>
         )}
-        </div>
       </div>
     </div>
   );
