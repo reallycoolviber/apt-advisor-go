@@ -140,10 +140,7 @@ const EvaluationSection = () => {
 
       const { error } = await supabase
         .from('apartment_evaluations')
-        .upsert(saveData, { 
-          onConflict: 'user_id,address',
-          ignoreDuplicates: false 
-        });
+        .insert(saveData);
 
       if (error) {
         console.error('Error saving evaluation:', error);

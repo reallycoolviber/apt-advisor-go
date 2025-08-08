@@ -34,13 +34,18 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
 
   // Calculate fee per square meter
   const calculateFeePerSqm = () => {
+    console.log('Calculating feePerSqm:', { monthlyFee: data.monthlyFee, size: data.size });
     if (data.monthlyFee && data.size) {
       const fee = parseInt(data.monthlyFee.replace(/\s/g, ''));
       const size = parseInt(data.size);
+      console.log('Parsed values:', { fee, size });
       if (fee && size) {
-        return Math.round(fee / size);
+        const result = Math.round(fee / size);
+        console.log('Calculated feePerSqm:', result);
+        return result;
       }
     }
+    console.log('Cannot calculate feePerSqm - missing data');
     return null;
   };
 
