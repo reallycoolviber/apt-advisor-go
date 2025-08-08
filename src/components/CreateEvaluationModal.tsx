@@ -15,7 +15,7 @@ import { MapPin } from 'lucide-react';
 interface CreateEvaluationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onContinue: (address: string) => void;
+  onContinue: (address: string) => Promise<void>;
 }
 
 export const CreateEvaluationModal = ({ open, onOpenChange, onContinue }: CreateEvaluationModalProps) => {

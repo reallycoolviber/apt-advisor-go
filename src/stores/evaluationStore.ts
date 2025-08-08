@@ -340,8 +340,12 @@ export const useEvaluationStore = create<EvaluationStore>()(
           } catch (error) {
             console.error('Error creating new evaluation:', error);
             // Fallback to local state only if database creation fails
+            // VIKTIGT: Behåll adressen även i fallback-scenariot
             set({
-              currentEvaluation: { ...defaultFormData },
+              currentEvaluation: { 
+                ...defaultFormData,
+                address: address || '' // Sätt adressen även i fallback
+              },
               currentEvaluationId: `temp-${Date.now()}`, // Temporary ID for offline use
               isDraft: true,
               hasUnsavedChanges: false,
