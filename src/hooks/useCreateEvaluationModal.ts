@@ -22,7 +22,7 @@ export const useCreateEvaluationModal = () => {
   const handleCreateEvaluation = (address: string) => {
     updateAddress(address);
     setShowCreateModal(false);
-    navigate('/evaluate');
+    navigate('/hub');
   };
 
   return {

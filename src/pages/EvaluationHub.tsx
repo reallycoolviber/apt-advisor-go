@@ -8,7 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, ClipboardCheck } from 'lucide-react';
 import AutoComparisonWidget from '@/components/AutoComparisonWidget';
-import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ProgressBar } from '@/components/ui/progress-bar';
 import EvaluationAddressEditor from '@/components/form/EvaluationAddressEditor';
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
@@ -374,34 +375,42 @@ const EvaluationHub = () => {
            <EvaluationAddressEditor />
 
            {/* Navigation Toggle */}
-           <EvaluationNavigationToggle 
-             activeTab={activeTab}
-             onTabChange={setActiveTab}
-           />
+           <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="w-full mb-6">
+             <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto rounded-lg">
+               <TabsTrigger 
+                 value="input"
+                 className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md py-2 px-4 text-sm font-medium transition-all"
+               >
+                 Input
+               </TabsTrigger>
+               <TabsTrigger 
+                 value="evaluation"
+                 className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md py-2 px-4 text-sm font-medium transition-all"
+               >
+                 Utvärdering
+               </TabsTrigger>
+               <TabsTrigger 
+                 value="comparison"
+                 className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md py-2 px-4 text-sm font-medium transition-all"
+               >
+                 Jämförelse
+               </TabsTrigger>
+             </TabsList>
            
            {/* Content based on active tab */}
-           {activeTab === 'input' && (
-             <div className="space-y-3 mb-8">
+            <TabsContent value="input" className="mt-0">
+              <div className="space-y-3 mb-8">
                {evaluationSections.map((section, index) => {
                  const IconComponent = section.icon;
                  
-                  const renderProgressIndicator = (progress: { filled: number, total: number }) => {
-                    const percentage = progress.total > 0 ? Math.round((progress.filled / progress.total) * 100) : 0;
-                    
-                    return (
-                      <div className="flex flex-col items-end gap-1 min-w-[60px]">
-                        <div className="text-xs text-muted-foreground">
-                          {progress.filled}/{progress.total}
-                        </div>
-                        <div className="w-12 h-2 bg-secondary rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary transition-all duration-300 rounded-full"
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  };
+                   const renderProgressIndicator = (progress: { filled: number, total: number }) => {
+                     return (
+                       <ProgressBar 
+                         filled={progress.filled} 
+                         total={progress.total}
+                       />
+                     );
+                   };
                  
                  return (
                     <Card 
@@ -432,12 +441,11 @@ const EvaluationHub = () => {
                      </div>
                    </Card>
                  );
-               })}
-               
-             </div>
-           )}
+                })}
+              </div>
+            </TabsContent>
 
-           {activeTab === 'evaluation' && (
+           <TabsContent value="evaluation" className="mt-0">
               <div className="space-y-4 mb-8">
                 {/* Lägenhetsdata */}
                  <Card className="bg-card border shadow-sm">
@@ -528,18 +536,24 @@ const EvaluationHub = () => {
                             <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.financial.cashflowPerSqm, 'fee_per_sqm')}</span>
                           </div>
                         )}
-                        {data.financial?.majorMaintenanceDone !== undefined && (
-                          <div className="flex justify-between py-2 border-b border-border/30">
-                            <span className="text-sm text-muted-foreground">Stora renoveringar genomförda:</span>
-                            <span className="text-sm font-medium text-foreground">{data.financial.majorMaintenanceDone ? 'Ja' : 'Nej'}</span>
-                          </div>
-                        )}
-                        {data.financial?.ownsLand !== undefined && (
-                          <div className="flex justify-between py-2 border-b border-border/30">
-                            <span className="text-sm text-muted-foreground">Äger mark:</span>
-                            <span className="text-sm font-medium text-foreground">{data.financial.ownsLand ? 'Ja' : 'Nej (tomträtt)'}</span>
-                          </div>
-                        )}
+                         <div className="flex justify-between py-2 border-b border-border/30">
+                           <span className="text-sm text-muted-foreground">Stora renoveringar genomförda:</span>
+                           <span className="text-sm font-medium text-foreground">
+                             {data.financial?.majorMaintenanceDone === null || data.financial?.majorMaintenanceDone === undefined 
+                               ? <span className="text-muted-foreground">Ej angivet</span>
+                               : data.financial.majorMaintenanceDone ? 'Ja' : 'Nej'
+                             }
+                           </span>
+                         </div>
+                         <div className="flex justify-between py-2 border-b border-border/30">
+                           <span className="text-sm text-muted-foreground">Äger mark:</span>
+                           <span className="text-sm font-medium text-foreground">
+                             {data.financial?.ownsLand === null || data.financial?.ownsLand === undefined 
+                               ? <span className="text-muted-foreground">Ej angivet</span>
+                               : data.financial.ownsLand ? 'Ja' : 'Nej (tomträtt)'
+                             }
+                           </span>
+                         </div>
                         {data.financial?.underhållsplan && (
                           <div className="py-2">
                             <span className="text-sm text-muted-foreground block mb-1">Underhållsplan:</span>
@@ -650,19 +664,53 @@ const EvaluationHub = () => {
                         />
                       </div>
                     </div>
-                  </Card>
-                )}
-              </div>
-            )}
+                   </Card>
+                 )}
 
-           {activeTab === 'comparison' && currentEvaluationId && (
-              <div className="mb-8">
-                <AutoComparisonWidget evaluationId={currentEvaluationId} />
-              </div>
-            )}
+                 {/* Checklista kort */}
+                 <Card className="bg-card border shadow-sm">
+                   <div className="p-4">
+                     <h3 className="text-small font-semibold text-foreground mb-4 flex items-center gap-3">
+                       <div className="p-2 rounded-lg bg-primary/10">
+                         <ClipboardCheck className="h-5 w-5 text-primary" />
+                       </div>
+                       Checklista
+                     </h3>
+                     <div className="flex justify-between py-2">
+                       <span className="text-sm text-muted-foreground">Status:</span>
+                       <span className="text-sm font-medium text-foreground">
+                         {checklistProgress.filled} av {checklistProgress.total} punkter avklarade
+                       </span>
+                     </div>
+                     <div className="mt-3">
+                       <ProgressBar 
+                         filled={checklistProgress.filled} 
+                         total={checklistProgress.total}
+                         className="w-full"
+                       />
+                     </div>
+                   </div>
+                 </Card>
+               </div>
+            </TabsContent>
+
+            <TabsContent value="comparison" className="mt-0">
+              {currentEvaluationId && (
+                <div className="mb-8">
+                   <h3 className="text-lg font-semibold text-foreground mb-4">Jämförelse</h3>
+                   <Button 
+                     onClick={() => navigate('/comparison')} 
+                     className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
+                   >
+                     Gå till jämförelse
+                   </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
            
-           {/* Action buttons */}
-          <div className="flex gap-4">
+          {/* Action buttons */}
+          <div className="flex gap-4 mt-6">
             <Button
               onClick={handleSave}
               disabled={saveLoading}

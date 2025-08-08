@@ -24,8 +24,18 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
 
   const handleCashflowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatNumber(e.target.value);
-    updateData({ cashflowPerSqm: formatted });
+    const value = e.target.value;
+    // Allow negative values for cashflow
+    if (value === '' || value === '-') {
+      updateData({ cashflowPerSqm: value });
+      return;
+    }
+    
+    // Handle negative numbers
+    const isNegative = value.startsWith('-');
+    const numberPart = value.replace(/[^\d]/g, '');
+    const formatted = numberPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    updateData({ cashflowPerSqm: isNegative ? '-' + formatted : formatted });
   };
 
   return (
@@ -71,7 +81,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
                 label=""
                 value={data.cashflowPerSqm || ''}
                 onChange={handleCashflowChange}
-                placeholder="12"
+                placeholder="-125 eller 125"
                 size="lg"
               />
             </div>
