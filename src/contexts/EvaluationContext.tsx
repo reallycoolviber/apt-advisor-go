@@ -23,7 +23,6 @@ export interface EvaluationFormData {
   };
   financial: {
     debtPerSqm: string;
-    feePerSqm: string;
     cashflowPerSqm: string;
     majorMaintenanceDone: boolean;
     ownsLand: boolean;
@@ -95,7 +94,6 @@ const defaultData: EvaluationFormData = {
   },
   financial: {
     debtPerSqm: '',
-    feePerSqm: '',
     cashflowPerSqm: '',
     majorMaintenanceDone: false,
     ownsLand: false,
@@ -144,7 +142,6 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       monthly_fee: formData.general.monthlyFee ? parseFloat(formData.general.monthlyFee) : undefined,
       final_price: formData.general.finalPrice ? parseFloat(formData.general.finalPrice) : undefined,
       debt_per_sqm: formData.financial.debtPerSqm ? parseFloat(formData.financial.debtPerSqm) : undefined,
-      fee_per_sqm: formData.financial.feePerSqm ? parseFloat(formData.financial.feePerSqm) : undefined,
       cashflow_per_sqm: formData.financial.cashflowPerSqm ? parseFloat(formData.financial.cashflowPerSqm) : undefined,
       major_maintenance_done: formData.financial.majorMaintenanceDone,
       owns_land: formData.financial.ownsLand,
@@ -254,7 +251,6 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         },
         financial: {
           debtPerSqm: normalizeDebtPerSqm(evaluationData.debt_per_sqm)?.toString() || '',
-          feePerSqm: normalizeNumber(evaluationData.fee_per_sqm)?.toString() || '',
           cashflowPerSqm: normalizeNumber(evaluationData.cashflow_per_sqm)?.toString() || '',
           majorMaintenanceDone: evaluationData.major_maintenance_done || false,
           ownsLand: evaluationData.owns_land || false,
@@ -425,7 +421,7 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const requiredFields = {
       general: ['size', 'rooms', 'price', 'monthlyFee'],
-      financial: ['debtPerSqm', 'feePerSqm', 'cashflowPerSqm', 'majorMaintenanceDone', 'ownsLand'],
+      financial: ['debtPerSqm', 'cashflowPerSqm', 'majorMaintenanceDone', 'ownsLand'],
       physical: ['planlösning', 'kitchen', 'bathroom', 'bedrooms', 'surfaces', 'förvaring', 'ljusinsläpp', 'balcony']
     };
 

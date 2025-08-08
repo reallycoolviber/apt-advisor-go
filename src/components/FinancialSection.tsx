@@ -22,10 +22,6 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
     updateData({ debtPerSqm: formatted });
   };
 
-  const handleFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatNumber(e.target.value);
-    updateData({ feePerSqm: formatted });
-  };
 
   const handleCashflowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatNumber(e.target.value);
@@ -62,27 +58,6 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           </div>
         </StandardizedFieldGroup>
 
-        <StandardizedFieldGroup
-          title="Avgift per kvm (SEK)"
-          description="Månadsavgift dividerat med lägenhetens yta"
-          icon={DollarSign}
-        >
-          <div className="flex items-start gap-3">
-            <div className="flex-1">
-              <StandardizedInput
-                id="feePerSqm"
-                label=""
-                value={data.feePerSqm || ''}
-                onChange={handleFeeChange}
-                placeholder="56"
-                size="lg"
-              />
-            </div>
-            <InfoButton
-              content="Den månatliga avgiften per kvadratmeter har en direkt inverkan på hushållets disponibla inkomst. En extremt låg avgift kan vara missvisande; den kan indikera att föreningen underfinansierar nödvändigt underhåll, vilket i sin tur kan leda till framtida kostnader. Det eftersträvas en sund balans: en avgift som är tillräcklig för att täcka löpande kostnader och långsiktigt underhållsbehov, utan att vara oproportionerligt hög. Optimering av denna post är central för en stabil vardagsekonomi."
-            />
-          </div>
-        </StandardizedFieldGroup>
 
         <StandardizedFieldGroup
           title="Kassaflöde per kvm (SEK)"

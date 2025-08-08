@@ -123,7 +123,7 @@ const EvaluationHub = () => {
   };
 
   const hasFöreningsinformation = () => {
-    return data.financial?.debtPerSqm || data.financial?.feePerSqm || data.financial?.cashflowPerSqm || 
+    return data.financial?.debtPerSqm || data.financial?.cashflowPerSqm || 
            data.financial?.majorMaintenanceDone !== undefined || data.financial?.ownsLand !== undefined || 
            data.financial?.underhållsplan;
   };
@@ -152,7 +152,6 @@ const EvaluationHub = () => {
               final_price: toBase(data.general?.finalPrice),
               monthly_fee: toBase(data.general?.monthlyFee),
               debt_per_sqm: toBase(data.financial?.debtPerSqm),
-              fee_per_sqm: toBase(data.financial?.feePerSqm),
               cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
               major_maintenance_done: data.financial?.majorMaintenanceDone,
               owns_land: data.financial?.ownsLand,
@@ -191,7 +190,6 @@ const EvaluationHub = () => {
               final_price: toBase(data.general?.finalPrice),
               monthly_fee: toBase(data.general?.monthlyFee),
               debt_per_sqm: toBase(data.financial?.debtPerSqm),
-              fee_per_sqm: toBase(data.financial?.feePerSqm),
               cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
               major_maintenance_done: data.financial?.majorMaintenanceDone,
               owns_land: data.financial?.ownsLand,
@@ -259,7 +257,6 @@ const EvaluationHub = () => {
             monthly_fee: toBase(data.general?.monthlyFee),
             // Financial data
             debt_per_sqm: toBase(data.financial?.debtPerSqm),
-            fee_per_sqm: toBase(data.financial?.feePerSqm),
             cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
             major_maintenance_done: data.financial?.majorMaintenanceDone,
             owns_land: data.financial?.ownsLand,
@@ -305,7 +302,7 @@ const EvaluationHub = () => {
             monthly_fee: toBase(data.general?.monthlyFee),
             // Financial data
             debt_per_sqm: toBase(data.financial?.debtPerSqm),
-            fee_per_sqm: toBase(data.financial?.feePerSqm),
+            
             cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
             major_maintenance_done: data.financial?.majorMaintenanceDone,
             owns_land: data.financial?.ownsLand,
@@ -639,12 +636,12 @@ const EvaluationHub = () => {
                             <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.financial.debtPerSqm, 'debt_per_sqm')}</span>
                           </div>
                         )}
-                        {data.financial?.feePerSqm && (
-                          <div className="flex justify-between py-2 border-b border-border/30">
-                            <span className="text-sm text-muted-foreground">Avgift per kvm:</span>
-                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.financial.feePerSqm, 'fee_per_sqm')}</span>
-                          </div>
-                        )}
+                         {data.general?.monthlyFee && data.general?.size && (
+                           <div className="flex justify-between py-2 border-b border-border/30">
+                             <span className="text-sm text-muted-foreground">Avgift per kvm:</span>
+                             <span className="text-sm font-medium text-foreground">{formatDisplayValue(Math.round(parseInt(data.general.monthlyFee.replace(/\s/g, '')) / parseInt(data.general.size)), 'fee_per_sqm')}</span>
+                           </div>
+                         )}
                         {data.financial?.cashflowPerSqm && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Kassaflöde per kvm:</span>
