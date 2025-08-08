@@ -612,9 +612,14 @@ export const useEvaluationStore = create<EvaluationStore>()(
 
         getChecklistProgress: () => {
           const state = get();
+          if (!state.currentEvaluationId) return { filled: 0, total: 16 };
+          
+          // Calculate progress from local state which should match the database
           const items = Object.values(state.checklistItems);
           const totalItems = 16; // 8 + 8 items from pre-defined structure
-          const checkedItems = items.filter(item => item.is_checked).length;
+          const checkedItems = items.filter(item => 
+            item.evaluation_id === state.currentEvaluationId && item.is_checked
+          ).length;
           
           return {
             filled: checkedItems,

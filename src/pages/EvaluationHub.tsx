@@ -58,15 +58,18 @@ const EvaluationHub = () => {
     if (!user || !currentEvaluationId) return { filled: 0, total: 16 };
     
     try {
-      const { data: items, error } = await supabase
-        .from('checklist_items')
-        .select('is_checked')
+      // Get checklist data from the evaluation's checklist JSONB field
+      const { data: evaluation, error } = await supabase
+        .from('apartment_evaluations')
+        .select('checklist')
+        .eq('id', currentEvaluationId)
         .eq('user_id', user.id)
-        .eq('evaluation_id', currentEvaluationId); // Filter by specific evaluation
+        .single();
 
       if (error) throw error;
 
-      const filled = items?.filter(item => item.is_checked).length || 0;
+      const checklist = Array.isArray(evaluation?.checklist) ? evaluation.checklist : [];
+      const filled = checklist.filter((item: any) => item.checked === true).length;
       const total = 16; // 8 + 8 items from predefined checklist structure
       const progress = { filled, total };
       setChecklistProgress(progress);
