@@ -175,27 +175,60 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     };
   }, [sourceId]);
 
+  // Helper function to check if form has any meaningful data
+  const hasAnyFormData = (formData: EvaluationFormData): boolean => {
+    // Check general data
+    if (formData.general.size || formData.general.rooms || formData.general.price || 
+        formData.general.finalPrice || formData.general.monthlyFee) {
+      return true;
+    }
+    
+    // Check financial data
+    if (formData.financial.debtPerSqm || formData.financial.cashflowPerSqm || 
+        formData.financial.underhållsplan || 
+        formData.financial.majorMaintenanceDone !== false || 
+        formData.financial.ownsLand !== false) {
+      return true;
+    }
+    
+    // Check physical data
+    if (formData.physical.planlösning > 0 || formData.physical.kitchen > 0 || 
+        formData.physical.bathroom > 0 || formData.physical.bedrooms > 0 ||
+        formData.physical.surfaces > 0 || formData.physical.förvaring > 0 ||
+        formData.physical.ljusinsläpp > 0 || formData.physical.balcony > 0 ||
+        formData.physical.comments) {
+      return true;
+    }
+    
+    return false;
+  };
+
   // Auto-save setup
   const { triggerSave, forceSave, status: autoSaveStatus } = useAutoSave(
     data,
     async (formData: EvaluationFormData) => {
-      // If no evaluation ID, create one first
-      if (!evaluationId && formData.address) {
+      // If no evaluation ID and we have data to save, create a new evaluation first
+      if (!evaluationId && (formData.address || hasAnyFormData(formData))) {
         console.log('Creating new evaluation for auto-save');
-        const sourceId = generateSourceId(undefined, formData.address);
-        const newEvaluationId = await getOrCreateBySource(sourceId, formData);
-        console.log('Created evaluation with ID:', newEvaluationId);
-        return;
+        try {
+          const sourceId = generateSourceId(undefined, formData.address || 'manual-entry');
+          const newEvaluationId = await getOrCreateBySource(sourceId, formData);
+          console.log('Created evaluation with ID:', newEvaluationId);
+          return; // Exit here since getOrCreateBySource will trigger another save
+        } catch (error) {
+          console.error('Failed to create evaluation for auto-save:', error);
+          return;
+        }
       }
       
       if (!evaluationId) {
-        console.log('No evaluation ID and no address, skipping auto-save');
+        console.log('No evaluation ID and no data to save, skipping auto-save');
         return;
       }
       
       const evaluationData = formDataToEvaluationData(formData);
       await saveEvaluation(evaluationId, evaluationData);
-      console.log('Auto-saved evaluation');
+      console.log('Auto-saved evaluation', evaluationId);
     },
     {
       delay: 1500, // 1.5 sekunder debounce

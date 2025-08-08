@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvaluation } from '@/contexts/EvaluationContext';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { ArrowLeft, Home, FileText, Building, BarChart3, Save, GitCompare, Minus, MapPin, Euro, Star, Edit, ClipboardCheck } from 'lucide-react';
 import AutoComparisonWidget from '@/components/AutoComparisonWidget';
 import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
@@ -25,6 +25,7 @@ const EvaluationHub = () => {
   const { data, updateField, evaluationId, setEvaluationId, loadEvaluation, getCompletionStatus } = useEvaluation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { id: urlEvaluationId } = useParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentEvaluationId, setCurrentEvaluationId] = useState<string | null>(null);
@@ -74,9 +75,9 @@ const EvaluationHub = () => {
     }
   }, [user]);
 
-  // Load existing evaluation if edit mode
+  // Load existing evaluation if edit mode or direct URL with ID
   useEffect(() => {
-    const editId = searchParams.get('edit');
+    const editId = searchParams.get('edit') || urlEvaluationId;
     if (editId && user && !evaluationId) {
       setLoading(true);
       
@@ -94,7 +95,7 @@ const EvaluationHub = () => {
 
       fetchEvaluation();
     }
-  }, [searchParams, user, evaluationId, loadEvaluation]);
+  }, [searchParams, urlEvaluationId, user, evaluationId, loadEvaluation]);
 
   // Helper function to calculate progress for a section
   const calculateSectionProgress = (section: 'general' | 'financial' | 'physical' | 'checklist') => {
