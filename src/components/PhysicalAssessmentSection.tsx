@@ -5,8 +5,8 @@ import { RatingInput } from '@/components/RatingInput';
 import { Home, ChefHat, Bath, Bed, Palette, Archive, Sun, TreePine, Star } from 'lucide-react';
 
 interface PhysicalAssessmentSectionProps {
-  data: any;
-  updateData: (data: any) => void;
+  data: any; // This receives read-only data from SSOT
+  updateData: (data: any) => void; // This dispatches updates to SSOT
 }
 
 export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessmentSectionProps) => {

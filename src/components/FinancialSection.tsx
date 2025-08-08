@@ -7,8 +7,8 @@ import { InfoButton } from '@/components/ui/info-button';
 import { TrendingUp, DollarSign, PiggyBank, Building2, CheckCircle, XCircle, Settings, Activity } from 'lucide-react';
 
 interface FinancialSectionProps {
-  data: any;
-  updateData: (data: any) => void;
+  data: any; // This receives read-only data from SSOT
+  updateData: (data: any) => void; // This dispatches updates to SSOT
 }
 
 export const FinancialSection = ({ data, updateData }: FinancialSectionProps) => {

@@ -9,8 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AutoInputSectionProps {
-  data: any;
-  updateData: (data: any) => void;
+  data: any; // This receives read-only data from SSOT
+  updateData: (data: any) => void; // This dispatches updates to SSOT
 }
 
 export const AutoInputSection = ({ data, updateData }: AutoInputSectionProps) => {

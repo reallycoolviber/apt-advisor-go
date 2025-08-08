@@ -6,8 +6,8 @@ import { MapPin, Home, CreditCard, Users, Calculator, DollarSign } from 'lucide-
 import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 
 interface GeneralInfoSectionProps {
-  data: any;
-  updateData: (data: any) => void;
+  data: any; // This receives read-only data from SSOT
+  updateData: (data: any) => void; // This dispatches updates to SSOT
 }
 
 export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps) => {
