@@ -105,25 +105,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
       // Add other required fields with defaults
       rooms: currentEvaluation.general?.rooms || null,
       owns_land: currentEvaluation.financial?.ownsLand || null,
-      created_at: new Date().toISOString(),
-      user_id: user?.id || '',
-      apartment_url: null,
-      annual_report_url: null,
-      planlösning_comment: currentEvaluation.physical?.planlösning_comment || null,
-      kitchen_comment: currentEvaluation.physical?.kitchen_comment || null,
-      bathroom_comment: currentEvaluation.physical?.bathroom_comment || null,
-      bedrooms_comment: currentEvaluation.physical?.bedrooms_comment || null,
-      surfaces_comment: currentEvaluation.physical?.surfaces_comment || null,
-      förvaring_comment: currentEvaluation.physical?.förvaring_comment || null,
-      ljusinsläpp_comment: currentEvaluation.physical?.ljusinsläpp_comment || null,
-      balcony_comment: currentEvaluation.physical?.balcony_comment || null,
-      is_draft: true,
-      final_price: parseFloat(currentEvaluation.general?.finalPrice || '0') || null,
-      major_maintenance_done: currentEvaluation.financial?.majorMaintenanceDone || false,
-      source_id: null,
-      underhållsplan: currentEvaluation.financial?.underhållsplan || null,
-      comments: currentEvaluation.physical?.comments || null,
-      checklist: []
+      created_at: new Date().toISOString()
     };
     
     return enhanceEvaluationWithComputed(evaluation);
