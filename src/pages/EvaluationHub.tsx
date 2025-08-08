@@ -124,7 +124,7 @@ const EvaluationHub = () => {
       title: 'Lägenhetsdata',
       description: 'Grundläggande information om lägenheten',
       icon: Building,
-      path: '/evaluate/general',
+      path: '/evaluate/general/Lägenhetsdata',
       completed: getCompletionStatus('general'),
       progress: calculateSectionProgress('general')
     },
@@ -132,7 +132,7 @@ const EvaluationHub = () => {
       title: 'Föreningsanalys',
       description: 'Ekonomisk information och föreningsdata',
       icon: BarChart3,
-      path: '/evaluate/financial',
+      path: '/evaluate/financial/Föreningsanalys',
       completed: getCompletionStatus('financial'),
       progress: calculateSectionProgress('financial')
     },
@@ -140,7 +140,7 @@ const EvaluationHub = () => {
       title: 'Lägenhetsbedömning',
       description: 'Kvalitativ bedömning av lägenheten',
       icon: FileText,
-      path: '/evaluate/physical',
+      path: '/evaluate/physical/Lägenhetsbedömning',
       completed: getCompletionStatus('physical'),
       progress: calculateSectionProgress('physical')
     },
@@ -148,7 +148,7 @@ const EvaluationHub = () => {
       title: 'Checklista under visning',
       description: 'Viktiga punkter att kontrollera under visning',
       icon: ClipboardCheck,
-      path: '/evaluate/checklist',
+      path: '/evaluate/checklist/Checklista under visning',
       completed: 'not-started',
       progress: calculateSectionProgress('checklist')
     }

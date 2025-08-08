@@ -90,12 +90,12 @@ const App = () => (
                       </EvaluationProvider>
                     </ProtectedRoute>
                   } />
-                  <Route path="/evaluate/checklist" element={
+                  <Route path="/evaluate/checklist/:title?" element={
                     <ProtectedRoute>
                       <ChecklistSection />
                     </ProtectedRoute>
                   } />
-                  <Route path="/evaluate/:section" element={
+                  <Route path="/evaluate/:section/:title?" element={
                     <ProtectedRoute>
                       <EvaluationProvider>
                         <EvaluationSection />

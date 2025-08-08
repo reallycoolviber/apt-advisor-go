@@ -4,6 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StandardizedTextarea } from '@/components/StandardizedTextarea';
+import { PageHeader } from '@/components/PageHeader';
 import { ArrowLeft, Home, ClipboardCheck, MessageSquare, Building2, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -191,35 +192,10 @@ const ChecklistSection = () => {
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
         <div className="max-w-md mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(-1)}
-                className="p-2 hover:bg-hover"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/')}
-                className="p-2 hover:bg-hover"
-              >
-                <Home className="h-5 w-5" />
-              </Button>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <FileText className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-bold text-foreground">
-                Professionell Visningsmall
-              </h1>
-            </div>
-            
-            <div className="w-20"></div> {/* Spacer for balance */}
-          </div>
+          <PageHeader 
+            defaultTitle="Professionell Visningsmall" 
+            icon={FileText} 
+          />
 
           {/* Progress indicator */}
           <Card className="mb-6 bg-primary/10 border-primary/20">

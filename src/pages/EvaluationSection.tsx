@@ -3,9 +3,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { PageHeader } from '@/components/PageHeader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Home, Link, Loader2 } from 'lucide-react';
+import { ArrowLeft, Home, Link, Loader2, Building, BarChart3, FileText } from 'lucide-react';
 import { GeneralInfoSection } from '@/components/GeneralInfoSection';
 import { FinancialSection } from '@/components/FinancialSection';
 import { PhysicalAssessmentSection } from '@/components/PhysicalAssessmentSection';
@@ -115,14 +116,17 @@ const EvaluationSection = () => {
   const sectionConfig = {
     general: {
       title: 'Lägenhetsdata',
+      icon: Building,
       component: GeneralInfoSection
     },
     financial: {
       title: 'Föreningsanalys',
+      icon: BarChart3,
       component: FinancialSection
     },
     physical: {
       title: 'Din bedömning av lägenheten',
+      icon: FileText,
       component: PhysicalAssessmentSection
     }
   };
@@ -319,26 +323,11 @@ const EvaluationSection = () => {
       {/* Content */}
       <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
         <div className="max-w-lg mx-auto">
-          {/* Top navigation */}
-          <div className="flex items-center gap-2 mb-8">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleReturn}
-              className="p-2 hover:bg-hover"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="p-2 hover:bg-hover"
-            >
-              <Home className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold text-foreground ml-2">{currentConfig.title}</h1>
-          </div>
+          {/* Header */}
+          <PageHeader 
+            defaultTitle={currentConfig.title} 
+            icon={currentConfig.icon} 
+          />
 
           {/* Booli URL input - only show for general section */}
           {section === 'general' && (
