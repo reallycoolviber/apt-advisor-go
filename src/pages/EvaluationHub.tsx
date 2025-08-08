@@ -59,7 +59,7 @@ const EvaluationHub = () => {
           if (error) throw error;
           
           if (evaluation) {
-            loadEvaluation(evaluation);
+            loadEvaluation(evaluation.id);
           }
         } catch (err) {
           console.error('Error loading evaluation for editing:', err);
