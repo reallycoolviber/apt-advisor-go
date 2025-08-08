@@ -106,19 +106,33 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to load existing evaluation data
   const loadEvaluation = (evaluationData: any) => {
+    const normalizeNumber = (v: any): number | null => {
+      if (v === null || v === undefined || v === '') return null;
+      if (typeof v === 'number') return v;
+      const parsed = parseFloat(v.toString().replace(/\s/g, '').replace(',', '.'));
+      return isNaN(parsed) ? null : parsed;
+    };
+
+    const normalizePrice = (p: any): number | null => {
+      const n = normalizeNumber(p);
+      if (n === null) return null;
+      // If stored accidentally as "millions" (e.g., 6 instead of 6,000,000), upscale
+      return n > 0 && n < 100000 ? n * 1_000_000 : n;
+    };
+
     setData({
       address: evaluationData.address || '',
       general: {
-        size: evaluationData.size?.toString() || '',
+        size: normalizeNumber(evaluationData.size)?.toString() || '',
         rooms: evaluationData.rooms || '',
-        price: evaluationData.price?.toString() || '',
-        finalPrice: evaluationData.final_price?.toString() || '',
-        monthlyFee: evaluationData.monthly_fee?.toString() || ''
+        price: normalizePrice(evaluationData.price)?.toString() || '',
+        finalPrice: normalizePrice(evaluationData.final_price)?.toString() || '',
+        monthlyFee: normalizeNumber(evaluationData.monthly_fee)?.toString() || ''
       },
       financial: {
-        debtPerSqm: evaluationData.debt_per_sqm?.toString() || '',
-        feePerSqm: evaluationData.fee_per_sqm?.toString() || '',
-        cashflowPerSqm: evaluationData.cashflow_per_sqm?.toString() || '',
+        debtPerSqm: normalizeNumber(evaluationData.debt_per_sqm)?.toString() || '',
+        feePerSqm: normalizeNumber(evaluationData.fee_per_sqm)?.toString() || '',
+        cashflowPerSqm: normalizeNumber(evaluationData.cashflow_per_sqm)?.toString() || '',
         majorMaintenanceDone: evaluationData.major_maintenance_done || false,
         ownsLand: evaluationData.owns_land || false,
         underhållsplan: evaluationData.underhållsplan || ''
