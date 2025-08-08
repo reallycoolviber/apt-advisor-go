@@ -224,25 +224,28 @@ const Evaluations = () => {
         </div>
         
         {/* Header */}
-        <div className="bg-primary text-primary-foreground p-6 shadow-lg relative z-10">
-          <div className="container mx-auto flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-primary-foreground hover:bg-primary/90 p-2"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-primary-foreground hover:bg-primary/90 p-2"
-            >
-              <Home className="h-6 w-6" />
-            </Button>
-            <h1 className="text-3xl font-bold">Mina utvärderingar</h1>
+        <div className="container mx-auto p-6">
+          <div className="bg-app-background-secondary rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-hover"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="p-2 hover:bg-hover"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+              <h1 className="text-3xl font-bold text-foreground">Mina utvärderingar</h1>
+            </div>
+            <div className="text-foreground">Laddar dina utvärderingar...</div>
           </div>
         </div>
         
@@ -260,157 +263,150 @@ const Evaluations = () => {
            style={{ backgroundImage: "url('/src/assets/cityscape-neutral.png')" }}>
       </div>
       
-      {/* Enhanced Header */}
-      <div className="bg-primary text-primary-foreground shadow-lg relative z-10">
-        <div className="container mx-auto p-6">
+      {/* Main Content */}
+      <div className="container mx-auto p-6 relative z-10">
+        {/* White Header Section */}
+        <div className="bg-app-background-secondary rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/')}
-              className="text-primary-foreground hover:bg-primary/90 p-2"
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-hover"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="text-primary-foreground hover:bg-primary/90 p-2"
+              className="p-2 hover:bg-hover"
             >
-              <Home className="h-6 w-6" />
+              <Home className="h-5 w-5" />
             </Button>
-            <h1 className="text-4xl font-bold">Mina utvärderingar</h1>
+            <h1 className="text-3xl font-bold text-foreground">Mina utvärderingar</h1>
             {evaluations.length > 0 && (
-              <span className="bg-primary-foreground/20 text-primary-foreground px-4 py-2 rounded-full text-lg font-medium">
+              <span className="bg-muted text-muted-foreground px-4 py-2 rounded-full text-lg font-medium">
                 {evaluations.length}
               </span>
             )}
           </div>
-          
-          {/* Controls Row */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              {/* Selection controls */}
-              {currentEvaluations.length > 0 && (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="select-all"
-                      checked={selectedEvaluations.length === currentEvaluations.length && currentEvaluations.length > 0}
-                      onCheckedChange={handleSelectAll}
-                      className="border-primary-foreground/50 data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
-                    />
-                    <label htmlFor="select-all" className="text-sm text-primary-foreground/80 cursor-pointer">
-                      Markera alla
-                    </label>
-                  </div>
-                  
-                  {selectedEvaluations.length > 0 && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" className="gap-2">
-                          <Trash2 className="h-4 w-4" />
-                          Ta bort valda ({selectedEvaluations.length})
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Är du säker på att du vill ta bort {selectedEvaluations.length} utvärdering{selectedEvaluations.length > 1 ? 'ar' : ''}? 
-                            Denna åtgärd kan inte ångras.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={handleDeleteSelected}
-                            className="bg-destructive hover:bg-destructive/90"
-                          >
-                            Ta bort
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-                </div>
-              )}
-              
-              {/* Modern Filter Pills */}
-              <div className="flex bg-primary-foreground/10 p-1 rounded-full">
-                <Button
-                  variant={filter === 'all' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('all')}
-                  className={`rounded-full px-6 ${
-                    filter === 'all' 
-                      ? 'bg-primary-foreground text-primary shadow-sm' 
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
-                  }`}
-                >
-                  Alla
-                </Button>
-                <Button
-                  variant={filter === 'completed' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('completed')}
-                  className={`rounded-full px-6 ${
-                    filter === 'completed' 
-                      ? 'bg-primary-foreground text-primary shadow-sm' 
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
-                  }`}
-                >
-                  Slutförda
-                </Button>
-                <Button
-                  variant={filter === 'drafts' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('drafts')}
-                  className={`rounded-full px-6 ${
-                    filter === 'drafts' 
-                      ? 'bg-primary-foreground text-primary shadow-sm' 
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
-                  }`}
-                >
-                  Utkast
-                </Button>
-              </div>
-            </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+            <Button
+              onClick={() => navigate('/evaluate')}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 font-medium"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Ny utvärdering
+            </Button>
             
-            <div className="flex items-center gap-3">
-              {evaluations.length > 0 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="px-4 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20">
-                      <Download className="h-4 w-4 mr-2" />
-                      Exportera
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleExport('excel')}>
-                      Ladda ner Excel (.xlsx)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('csv')}>
-                      Ladda ner CSV (.csv)
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-              <Button
-                onClick={() => navigate('/evaluate')}
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 px-6 font-medium"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ny utvärdering
-              </Button>
-            </div>
+            {evaluations.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="px-4">
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportera
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleExport('excel')}>
+                    Ladda ner Excel (.xlsx)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('csv')}>
+                    Ladda ner CSV (.csv)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            {/* Selection controls */}
+            {currentEvaluations.length > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="select-all"
+                    checked={selectedEvaluations.length === currentEvaluations.length && currentEvaluations.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                  <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
+                    Markera alla
+                  </label>
+                </div>
+                
+                {selectedEvaluations.length > 0 && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" className="gap-2">
+                        <Trash2 className="h-4 w-4" />
+                        Ta bort valda ({selectedEvaluations.length})
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Bekräfta borttagning</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Är du säker på att du vill ta bort {selectedEvaluations.length} utvärdering{selectedEvaluations.length > 1 ? 'ar' : ''}? 
+                          Denna åtgärd kan inte ångras.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteSelected}
+                          className="bg-destructive hover:bg-destructive/90"
+                        >
+                          Ta bort
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Equal-sized Filter Pills */}
+          <div className="flex bg-muted p-1 rounded-full max-w-fit">
+            <Button
+              variant={filter === 'all' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setFilter('all')}
+              className={`rounded-full w-24 ${
+                filter === 'all' 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+              }`}
+            >
+              Alla
+            </Button>
+            <Button
+              variant={filter === 'completed' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setFilter('completed')}
+              className={`rounded-full w-24 ${
+                filter === 'completed' 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+              }`}
+            >
+              Slutförda
+            </Button>
+            <Button
+              variant={filter === 'drafts' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setFilter('drafts')}
+              className={`rounded-full w-24 ${
+                filter === 'drafts' 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+              }`}
+            >
+              Utkast
+            </Button>
           </div>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto p-6 relative z-10">
         {error && (
           <Card className="bg-destructive/10 border-destructive/20 p-4 mb-6">
             <p className="text-destructive">{error}</p>
@@ -440,8 +436,8 @@ const Evaluations = () => {
           </div>
         ) : (
           <>
-            {/* Grid Layout with responsive columns */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            {/* Single Column Layout */}
+            <div className="space-y-4 mb-8">
               {currentEvaluations.map((evaluation) => {
                 const physicalAvg = calculatePhysicalAverage(evaluation);
                 const isExpanded = expandedCard === evaluation.id;
@@ -556,7 +552,7 @@ const Evaluations = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/evaluate/${evaluation.id}`);
+                                navigate(`/evaluation-hub/${evaluation.id}`);
                               }}
                               className="gap-2"
                             >
@@ -638,10 +634,10 @@ const Evaluations = () => {
               </div>
             )}
           </>
-        )}
-      </div>
-    </div>
-  );
-};
+         )}
+       </div>
+     </div>
+   );
+ };
 
-export default Evaluations;
+ export default Evaluations;
