@@ -645,28 +645,6 @@ const EvaluationHub = () => {
                   </div>
                 </Card>
 
-                {/* Comments input */}
-                {hasBedömning() && (
-                   <Card className="bg-card border shadow-sm">
-                    <div className="p-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="comments" className="text-sm font-medium text-foreground">
-                          Redigera slutkommentarer
-                        </Label>
-                        <Textarea
-                          id="comments"
-                          value={data.physical?.comments || ''}
-                          onChange={(e) => {
-                            updateField('physical', 'comments', e.target.value);
-                          }}
-                          placeholder="Lägg till dina reflektioner och slutsatser om lägenheten..."
-                          className="min-h-[80px] resize-none text-sm"
-                        />
-                      </div>
-                    </div>
-                   </Card>
-                 )}
-
                  {/* Checklista kort */}
                  <Card className="bg-card border shadow-sm">
                    <div className="p-4">
@@ -691,6 +669,28 @@ const EvaluationHub = () => {
                      </div>
                    </div>
                  </Card>
+
+                 {/* Comments input */}
+                 {hasBedömning() && (
+                    <Card className="bg-card border shadow-sm">
+                     <div className="p-4">
+                       <div className="space-y-2">
+                         <Label htmlFor="comments" className="text-sm font-medium text-foreground">
+                           Redigera slutkommentarer
+                         </Label>
+                         <Textarea
+                           id="comments"
+                           value={data.physical?.comments || ''}
+                           onChange={(e) => {
+                             updateField('physical', 'comments', e.target.value);
+                           }}
+                           placeholder="Lägg till dina reflektioner och slutsatser om lägenheten..."
+                           className="min-h-[80px] resize-none text-sm"
+                         />
+                       </div>
+                     </div>
+                    </Card>
+                  )}
                </div>
             </TabsContent>
 
