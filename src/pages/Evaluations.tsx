@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { EvaluationCardSkeleton } from '@/components/ui/loading-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
 import { useLoadingButton } from '@/hooks/useLoadingButton';
+import { CreateEvaluationModal } from '@/components/CreateEvaluationModal';
+import { useCreateEvaluationModal } from '@/hooks/useCreateEvaluationModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,6 +55,14 @@ const Evaluations = () => {
     deleteEvaluation,
     clearCurrentEvaluation 
   } = useEvaluationStore();
+  
+  // Use centralized create evaluation modal logic
+  const { 
+    showCreateModal, 
+    openCreateModal, 
+    closeCreateModal, 
+    handleCreateEvaluation 
+  } = useCreateEvaluationModal();
   
   const [filter, setFilter] = useState<'all' | 'completed' | 'drafts'>('all');
   const [selectedEvaluations, setSelectedEvaluations] = useState<string[]>([]);
@@ -297,7 +307,7 @@ const Evaluations = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
             <Button
-              onClick={() => navigate('/evaluate')}
+              onClick={openCreateModal}
               className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 font-medium"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -423,7 +433,7 @@ const Evaluations = () => {
                 Klicka på '+ Ny utvärdering' för att komma igång!
               </p>
               <Button
-                onClick={() => navigate('/evaluate')}
+                onClick={openCreateModal}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg"
               >
                 <Plus className="h-5 w-5 mr-2" />
@@ -631,10 +641,17 @@ const Evaluations = () => {
               </div>
             )}
           </>
-         )}
-       </div>
-     </div>
-   );
- };
+          )}
+        </div>
+        
+        {/* CreateEvaluationModal */}
+        <CreateEvaluationModal
+          open={showCreateModal}
+          onOpenChange={closeCreateModal}
+          onContinue={handleCreateEvaluation}
+        />
+      </div>
+    );
+  };
 
- export default Evaluations;
+  export default Evaluations;

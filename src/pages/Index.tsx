@@ -1,21 +1,25 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useEvaluation } from '@/contexts/EvaluationContext';
 import { Plus, List, BarChart3, TrendingUp, Shield, Zap, ArrowRight } from 'lucide-react';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 import { CreateEvaluationModal } from '@/components/CreateEvaluationModal';
+import { useCreateEvaluationModal } from '@/hooks/useCreateEvaluationModal';
 
 
 
 const Index = () => {
   const { user } = useAuth();
-  const { updateAddress } = useEvaluation();
   const navigate = useNavigate();
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { 
+    showCreateModal, 
+    openCreateModal, 
+    closeCreateModal, 
+    handleCreateEvaluation 
+  } = useCreateEvaluationModal();
   
   console.log('Index component rendering');
 
@@ -37,18 +41,12 @@ const Index = () => {
     }
   ];
 
-  const handleCreateEvaluation = (address: string) => {
-    updateAddress(address);
-    setShowCreateModal(false);
-    navigate('/evaluate');
-  };
-
   const menuItems = [
     {
       title: 'Skapa ny utvärdering',
       description: 'Lägg till och utvärdera en ny lägenhet med automatisk datainhämtning',
       icon: Plus,
-      action: () => setShowCreateModal(true),
+      action: openCreateModal,
       primary: true
     },
     {
@@ -155,7 +153,7 @@ const Index = () => {
       
       <CreateEvaluationModal
         open={showCreateModal}
-        onOpenChange={setShowCreateModal}
+        onOpenChange={closeCreateModal}
         onContinue={handleCreateEvaluation}
       />
     </div>
