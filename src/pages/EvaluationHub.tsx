@@ -715,8 +715,8 @@ const EvaluationHub = () => {
 
            {activeTab === 'comparison' && currentEvaluationId && (
              <div className="mb-8">
-                <AutoComparisonWidget evaluationId={currentEvaluationId} />
-              </div>
+                <AutoComparisonWidget />
+             </div>
            )}
           
            

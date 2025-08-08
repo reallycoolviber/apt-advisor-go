@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEvaluationStore } from '@/stores/evaluationStore';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   TrendingUp, 
@@ -46,7 +47,7 @@ interface ComparisonMetric {
 }
 
 interface AutoComparisonWidgetProps {
-  evaluationId: string;
+  // No props needed - uses store as single source of truth
 }
 
 interface ChartField {
@@ -56,12 +57,13 @@ interface ChartField {
   unit?: string;
 }
 
-const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationId }) => {
-  console.log('AutoComparisonWidget: Received evaluationId:', evaluationId);
-  
+const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
   const { user } = useAuth();
+  const { currentEvaluation, currentEvaluationId } = useEvaluationStore();
+  
+  console.log('AutoComparisonWidget: Using store evaluation:', currentEvaluation?.address, 'ID:', currentEvaluationId);
+  
   const [loading, setLoading] = useState(true);
-  const [currentEvaluation, setCurrentEvaluation] = useState<Evaluation | null>(null);
   const [comparisonEvaluations, setComparisonEvaluations] = useState<Evaluation[]>([]);
   const [comparisonBase, setComparisonBase] = useState<ComparisonBase>('last-month');
   const [expandedMetric, setExpandedMetric] = useState<string | null>(null);
@@ -69,67 +71,96 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const chartRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // Fetch current evaluation
+  // Convert currentEvaluation to Evaluation type with computed fields
+  const enhanceEvaluationWithComputed = (evaluation: any): Evaluation => {
+    const enhanced = { ...evaluation };
+    if (enhanced.size && enhanced.price) {
+      enhanced.price_per_sqm = enhanced.price / enhanced.size;
+    }
+    return enhanced;
+  };
+
+  // Get enhanced current evaluation from store data
+  const enhancedCurrentEvaluation = useMemo(() => {
+    if (!currentEvaluation || !currentEvaluationId) return null;
+    
+    // Convert EvaluationFormData to Evaluation type
+    const evaluation: Evaluation = {
+      id: currentEvaluationId,
+      address: currentEvaluation.address || '',
+      size: parseFloat(currentEvaluation.general?.size || '0') || null,
+      price: parseFloat(currentEvaluation.general?.price || '0') || null,
+      monthly_fee: parseFloat(currentEvaluation.general?.monthlyFee || '0') || null,
+      planlösning: currentEvaluation.physical?.planlösning || null,
+      kitchen: currentEvaluation.physical?.kitchen || null,
+      bathroom: currentEvaluation.physical?.bathroom || null,
+      bedrooms: currentEvaluation.physical?.bedrooms || null,
+      surfaces: currentEvaluation.physical?.surfaces || null,
+      förvaring: currentEvaluation.physical?.förvaring || null,
+      ljusinsläpp: currentEvaluation.physical?.ljusinsläpp || null,
+      balcony: currentEvaluation.physical?.balcony || null,
+      debt_per_sqm: parseFloat(currentEvaluation.financial?.debtPerSqm || '0') || null,
+      fee_per_sqm: null, // Will be computed below
+      cashflow_per_sqm: parseFloat(currentEvaluation.financial?.cashflowPerSqm || '0') || null,
+      // Add other required fields with defaults
+      rooms: currentEvaluation.general?.rooms || null,
+      owns_land: currentEvaluation.financial?.ownsLand || null,
+      created_at: new Date().toISOString(),
+      user_id: user?.id || '',
+      apartment_url: null,
+      annual_report_url: null,
+      planlösning_comment: currentEvaluation.physical?.planlösning_comment || null,
+      kitchen_comment: currentEvaluation.physical?.kitchen_comment || null,
+      bathroom_comment: currentEvaluation.physical?.bathroom_comment || null,
+      bedrooms_comment: currentEvaluation.physical?.bedrooms_comment || null,
+      surfaces_comment: currentEvaluation.physical?.surfaces_comment || null,
+      förvaring_comment: currentEvaluation.physical?.förvaring_comment || null,
+      ljusinsläpp_comment: currentEvaluation.physical?.ljusinsläpp_comment || null,
+      balcony_comment: currentEvaluation.physical?.balcony_comment || null,
+      is_draft: true,
+      final_price: parseFloat(currentEvaluation.general?.finalPrice || '0') || null,
+      major_maintenance_done: currentEvaluation.financial?.majorMaintenanceDone || false,
+      source_id: null,
+      underhållsplan: currentEvaluation.financial?.underhållsplan || null,
+      comments: currentEvaluation.physical?.comments || null,
+      checklist: []
+    };
+    
+    return enhanceEvaluationWithComputed(evaluation);
+  }, [currentEvaluation, currentEvaluationId, user?.id]);
+
+  // Fetch comparison evaluations - no need to fetch current evaluation as it comes from store
   useEffect(() => {
-    const fetchCurrentEvaluation = async () => {
-      console.log('AutoComparisonWidget: fetchCurrentEvaluation called with:', { user: !!user, evaluationId });
-      if (!user || !evaluationId) {
-        console.log('AutoComparisonWidget: Missing user or evaluationId, skipping fetch');
+    const fetchComparisonEvaluations = async () => {
+      console.log('AutoComparisonWidget: fetchComparisonEvaluations called with:', { 
+        user: !!user, 
+        currentEvaluation: !!currentEvaluation,
+        currentEvaluationId 
+      });
+      
+      if (!user || !currentEvaluation || !currentEvaluationId) {
+        console.log('AutoComparisonWidget: Missing required data, skipping fetch');
         setLoading(false);
         return;
       }
-
-      try {
-        const { data: evaluation, error } = await supabase
-          .from('apartment_evaluations')
-          .select('*')
-          .eq('id', evaluationId)
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          console.error('AutoComparisonWidget: Error fetching current evaluation:', error);
-          throw error;
-        }
-        
-        if (evaluation) {
-          console.log('AutoComparisonWidget: Successfully fetched evaluation:', evaluation.address);
-          const enhanced = enhanceEvaluationWithComputed(evaluation);
-          setCurrentEvaluation(enhanced);
-        } else {
-          console.log('AutoComparisonWidget: No evaluation found for ID:', evaluationId);
-        }
-      } catch (error) {
-        console.error('AutoComparisonWidget: Error in fetchCurrentEvaluation:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchCurrentEvaluation();
-  }, [user, evaluationId]);
-
-  // Fetch comparison evaluations
-  useEffect(() => {
-    const fetchComparisonEvaluations = async () => {
-      if (!user || !currentEvaluation) return;
 
       try {
         let query = supabase
           .from('apartment_evaluations')
           .select('*')
           .eq('user_id', user.id)
-          .neq('id', evaluationId)
+          .neq('id', currentEvaluationId)
           .eq('is_draft', false);
 
         if (comparisonBase === 'last-month') {
           const oneMonthAgo = new Date();
           oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
           query = query.gte('created_at', oneMonthAgo.toISOString());
-        } else if (comparisonBase === 'similar-price' && currentEvaluation.price) {
-          const priceRange = currentEvaluation.price * 0.2; // ±20%
+        } else if (comparisonBase === 'similar-price' && enhancedCurrentEvaluation?.price) {
+          const priceRange = enhancedCurrentEvaluation.price * 0.2; // ±20%
           query = query
-            .gte('price', currentEvaluation.price - priceRange)
-            .lte('price', currentEvaluation.price + priceRange);
+            .gte('price', enhancedCurrentEvaluation.price - priceRange)
+            .lte('price', enhancedCurrentEvaluation.price + priceRange);
         }
 
         const { data: evaluations, error } = await query.limit(10);
@@ -146,15 +177,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     };
 
     fetchComparisonEvaluations();
-  }, [user, currentEvaluation, comparisonBase, evaluationId]);
-
-  const enhanceEvaluationWithComputed = (evaluation: any): Evaluation => {
-    const enhanced = { ...evaluation };
-    if (enhanced.size && enhanced.price) {
-      enhanced.price_per_sqm = enhanced.price / enhanced.size;
-    }
-    return enhanced;
-  };
+  }, [user, currentEvaluation, currentEvaluationId, comparisonBase, enhancedCurrentEvaluation]);
 
   const calculatePhysicalAverage = (evaluation: Evaluation): number => {
     const ratings = [
@@ -198,23 +221,23 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   };
 
   const comparisonMetrics = useMemo(() => {
-    if (!currentEvaluation || comparisonEvaluations.length === 0) return [] as ComparisonMetric[];
+    if (!enhancedCurrentEvaluation || comparisonEvaluations.length === 0) return [] as ComparisonMetric[];
 
-    console.log('AutoComparison: Building metrics for', currentEvaluation.address);
+    console.log('AutoComparison: Building metrics for', enhancedCurrentEvaluation.address);
     console.log('AutoComparison: Comparison evaluations count:', comparisonEvaluations.length);
     
     const metrics: ComparisonMetric[] = [];
 
     // 1) Pris per kvm (lägre är bättre)
-    if (currentEvaluation.price_per_sqm) {
+    if (enhancedCurrentEvaluation.price_per_sqm) {
       const arr = comparisonEvaluations
         .map(e => e.price_per_sqm as number | null)
         .filter((v): v is number => v !== null && v !== undefined);
-      const stats = computeStats(arr, currentEvaluation.price_per_sqm, false);
+      const stats = computeStats(arr, enhancedCurrentEvaluation.price_per_sqm, false);
       if (stats) {
         metrics.push({
           name: 'Pris per kvm',
-          value: currentEvaluation.price_per_sqm,
+          value: enhancedCurrentEvaluation.price_per_sqm,
           average: stats.average,
           best: stats.best,
           worst: stats.worst,
@@ -229,8 +252,9 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
 
     // 2) Avgift per kvm (lägre är bättre)
-    console.log('AutoComparison: Checking avgift per kvm for', currentEvaluation.address);
-    const currentFee = getFeePerSqm(currentEvaluation);
+    console.log('AutoComparison: Checking avgift per kvm for', enhancedCurrentEvaluation.address);
+    
+    const currentFee = getFeePerSqm(enhancedCurrentEvaluation);
     const feeComparisonArray = comparisonEvaluations
       .map(getFeePerSqm)
       .filter((v): v is number => v !== null);
@@ -272,8 +296,9 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
 
     // 3) Skuld per kvm (lägre är bättre)
-    console.log('AutoComparison: Checking skuld per kvm for', currentEvaluation.address);
-    const currentDebt = currentEvaluation.debt_per_sqm;
+    console.log('AutoComparison: Checking skuld per kvm for', enhancedCurrentEvaluation.address);
+
+    const currentDebt = enhancedCurrentEvaluation.debt_per_sqm;
     const debtComparisonArray = comparisonEvaluations
       .map(e => e.debt_per_sqm as number | null)
       .filter((v): v is number => v !== null && v !== undefined);
@@ -315,8 +340,8 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
 
     // 4) Kassaflöde per kvm (högre är bättre)
-    console.log('AutoComparison: Checking kassaflöde per kvm for', currentEvaluation.address);
-    const currentCashflow = currentEvaluation.cashflow_per_sqm;
+    console.log('AutoComparison: Checking kassaflöde per kvm for', enhancedCurrentEvaluation.address);
+    const currentCashflow = enhancedCurrentEvaluation.cashflow_per_sqm;
     const cashflowComparisonArray = comparisonEvaluations
       .map(e => e.cashflow_per_sqm as number | null)
       .filter((v): v is number => v !== null && v !== undefined);
@@ -358,7 +383,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
 
     // 5) Fysisk bedömning (högre är bättre)
-    const currentPhysical = calculatePhysicalAverage(currentEvaluation);
+    const currentPhysical = calculatePhysicalAverage(enhancedCurrentEvaluation);
     if (currentPhysical > 0) {
       const arr = comparisonEvaluations
         .map(calculatePhysicalAverage)
@@ -383,7 +408,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
 
     console.log('AutoComparison: Final metrics count:', metrics.length);
     return metrics;
-  }, [currentEvaluation, comparisonEvaluations]);
+  }, [enhancedCurrentEvaluation, comparisonEvaluations]);
 
   const getComparisonText = (metric: ComparisonMetric): string => {
     if (metric.total === 0) {
@@ -496,7 +521,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     );
   }
 
-  if (!currentEvaluation) {
+  if (!enhancedCurrentEvaluation) {
     return (
       <Card className="bg-card border shadow-md">
         <div className="p-6 text-center">
@@ -529,7 +554,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
             {getComparisonBaseLabel(comparisonBase)} ({comparisonEvaluations.length})
           </Badge>
         </div>
-        
+
         {/* Comparison Base Selection */}
         <div className="flex gap-2 mb-6">
           <Button
@@ -545,12 +570,12 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
             size="sm"
             onClick={() => setComparisonBase('similar-price')}
             className="text-xs"
-            disabled={!currentEvaluation.price}
+            disabled={!enhancedCurrentEvaluation?.price}
           >
             Liknande pris
           </Button>
         </div>
-        
+
         {/* Metrics Grid */}
         <div className="space-y-4">
           {comparisonMetrics.map((metric, index) => {
@@ -729,137 +754,137 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                       </div>
                     )}
 
-                    {/* Comparison Table */}
-                    {chartField && (() => {
-                      const allEvaluations = [currentEvaluation, ...comparisonEvaluations];
-                      const tableData = allEvaluations.map((evaluation, index) => {
-                        let value: number;
-                        
-                        if (chartField.key === 'physical_average') {
-                          value = calculatePhysicalAverage(evaluation);
-                        } else if (chartField.key === 'fee_per_sqm') {
-                          value = getFeePerSqm(evaluation) || 0;
-                        } else {
-                          value = evaluation[chartField.key as keyof Evaluation] as number || 0;
-                        }
+                      {/* Comparison Table */}
+                      {chartField && (() => {
+                        const allEvaluations = [enhancedCurrentEvaluation, ...comparisonEvaluations];
+                        const tableData = allEvaluations.map((evaluation, index) => {
+                          let value: number;
+                          
+                          if (chartField.key === 'physical_average') {
+                            value = calculatePhysicalAverage(evaluation);
+                          } else if (chartField.key === 'fee_per_sqm') {
+                            value = getFeePerSqm(evaluation) || 0;
+                          } else {
+                            value = evaluation[chartField.key as keyof Evaluation] as number || 0;
+                          }
 
-                        // Calculate percentage difference vs current evaluation
-                        const currentValue = index === 0 ? value : metric.value;
-                        let percentageDiff: string = '';
-                        
-                        if (index === 0) {
-                          percentageDiff = '0%';
-                        } else if (currentValue === 0) {
-                          percentageDiff = '–';
-                        } else {
-                          const diff = ((value - currentValue) / currentValue) * 100;
-                          const sign = diff >= 0 ? '+' : '';
-                          percentageDiff = `${sign}${diff.toFixed(1)}%`;
-                        }
-                        
-                        return {
-                          id: evaluation.id,
-                          address: evaluation.address || `Lägenhet ${index + 1}`,
-                          value: value,
-                          percentageDiff: percentageDiff,
-                          isCurrent: index === 0
+                          // Calculate percentage difference vs current evaluation
+                          const currentValue = index === 0 ? value : metric.value;
+                          let percentageDiff: string = '';
+                          
+                          if (index === 0) {
+                            percentageDiff = '0%';
+                          } else if (currentValue === 0) {
+                            percentageDiff = '–';
+                          } else {
+                            const diff = ((value - currentValue) / currentValue) * 100;
+                            const sign = diff >= 0 ? '+' : '';
+                            percentageDiff = `${sign}${diff.toFixed(1)}%`;
+                          }
+                          
+                          return {
+                            id: evaluation.id,
+                            address: evaluation.address || `Lägenhet ${index + 1}`,
+                            value: value,
+                            percentageDiff: percentageDiff,
+                            isCurrent: index === 0
+                          };
+                        }).filter(item => item.value > 0);
+
+                        // Sort the data
+                        const sortedData = [...tableData].sort((a, b) => {
+                          if (sortBy === 'value') {
+                            // For better values first, sort desc if higher is better, asc if lower is better
+                            const defaultOrder = metric.higherIsBetter ? 'desc' : 'asc';
+                            const actualOrder = sortOrder || defaultOrder;
+                            return actualOrder === 'desc' ? b.value - a.value : a.value - b.value;
+                          } else {
+                            // Sort by percentage difference
+                            const aNum = parseFloat(a.percentageDiff.replace(/[+%–]/g, '')) || 0;
+                            const bNum = parseFloat(b.percentageDiff.replace(/[+%–]/g, '')) || 0;
+                            return sortOrder === 'desc' ? bNum - aNum : aNum - bNum;
+                          }
+                        });
+
+                        const formatTableValue = (value: number) => {
+                          if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()}`;
+                          if (chartField.type === 'stars') return `${value.toFixed(1)}`;
+                          return value.toFixed(1);
                         };
-                      }).filter(item => item.value > 0);
 
-                      // Sort the data
-                      const sortedData = [...tableData].sort((a, b) => {
-                        if (sortBy === 'value') {
-                          // For better values first, sort desc if higher is better, asc if lower is better
-                          const defaultOrder = metric.higherIsBetter ? 'desc' : 'asc';
-                          const actualOrder = sortOrder || defaultOrder;
-                          return actualOrder === 'desc' ? b.value - a.value : a.value - b.value;
-                        } else {
-                          // Sort by percentage difference
-                          const aNum = parseFloat(a.percentageDiff.replace(/[+%–]/g, '')) || 0;
-                          const bNum = parseFloat(b.percentageDiff.replace(/[+%–]/g, '')) || 0;
-                          return sortOrder === 'desc' ? bNum - aNum : aNum - bNum;
-                        }
-                      });
+                        const handleSort = (column: 'value' | 'difference') => {
+                          if (sortBy === column) {
+                            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                          } else {
+                            setSortBy(column);
+                            setSortOrder(column === 'value' ? (metric.higherIsBetter ? 'desc' : 'asc') : 'desc');
+                          }
+                        };
 
-                      const formatTableValue = (value: number) => {
-                        if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()}`;
-                        if (chartField.type === 'stars') return `${value.toFixed(1)}`;
-                        return value.toFixed(1);
-                      };
+                        const getSortIcon = (column: 'value' | 'difference') => {
+                          if (sortBy !== column) return <ArrowUpDown className="h-3 w-3" />;
+                          return sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
+                        };
 
-                      const handleSort = (column: 'value' | 'difference') => {
-                        if (sortBy === column) {
-                          setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-                        } else {
-                          setSortBy(column);
-                          setSortOrder(column === 'value' ? (metric.higherIsBetter ? 'desc' : 'asc') : 'desc');
-                        }
-                      };
-
-                      const getSortIcon = (column: 'value' | 'difference') => {
-                        if (sortBy !== column) return <ArrowUpDown className="h-3 w-3" />;
-                        return sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
-                      };
-
-                      return (
-                        <div className="w-full">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="text-left">Adress</TableHead>
-                                <TableHead 
-                                  className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
-                                  onClick={() => handleSort('value')}
-                                >
-                                  <div className="flex items-center justify-end gap-1">
-                                    {metric.name}
-                                    {getSortIcon('value')}
-                                  </div>
-                                </TableHead>
-                                <TableHead 
-                                  className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
-                                  onClick={() => handleSort('difference')}
-                                >
-                                  <div className="flex items-center justify-end gap-1">
-                                    Skillnad (%)
-                                    {getSortIcon('difference')}
-                                  </div>
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {sortedData.map((row) => (
-                                <TableRow 
-                                  key={row.id}
-                                  className={row.isCurrent ? 'bg-primary/5 border-primary/20' : ''}
-                                >
-                                  <TableCell className="font-medium">
-                                    <div className="flex items-center gap-2">
-                                      {row.isCurrent && <Badge variant="secondary" className="text-xs">Aktuell</Badge>}
-                                      <span className={row.isCurrent ? 'font-semibold' : ''}>{row.address}</span>
+                        return (
+                          <div className="w-full">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-left">Adress</TableHead>
+                                  <TableHead 
+                                    className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
+                                    onClick={() => handleSort('value')}
+                                  >
+                                    <div className="flex items-center justify-end gap-1">
+                                      {metric.name}
+                                      {getSortIcon('value')}
                                     </div>
-                                  </TableCell>
-                                  <TableCell className="text-right font-mono">
-                                    {formatTableValue(row.value)} {chartField.unit}
-                                  </TableCell>
-                                  <TableCell className="text-right font-mono">
-                                    <span className={
-                                      row.percentageDiff === '0%' ? 'text-muted-foreground' :
-                                      row.percentageDiff === '–' ? 'text-muted-foreground' :
-                                      row.percentageDiff.startsWith('+') ? 
-                                        (metric.higherIsBetter ? 'text-semantic-good' : 'text-semantic-bad') :
-                                        (metric.higherIsBetter ? 'text-semantic-bad' : 'text-semantic-good')
-                                    }>
-                                      {row.percentageDiff}
-                                    </span>
-                                  </TableCell>
+                                  </TableHead>
+                                  <TableHead 
+                                    className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
+                                    onClick={() => handleSort('difference')}
+                                  >
+                                    <div className="flex items-center justify-end gap-1">
+                                      Skillnad (%)
+                                      {getSortIcon('difference')}
+                                    </div>
+                                  </TableHead>
                                 </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </div>
-                      );
-                    })()}
+                              </TableHeader>
+                              <TableBody>
+                                {sortedData.map((row) => (
+                                  <TableRow 
+                                    key={row.id}
+                                    className={row.isCurrent ? 'bg-primary/5 border-primary/20' : ''}
+                                  >
+                                    <TableCell className="font-medium">
+                                      <div className="flex items-center gap-2">
+                                        {row.isCurrent && <Badge variant="secondary" className="text-xs">Aktuell</Badge>}
+                                        <span className={row.isCurrent ? 'font-semibold' : ''}>{row.address}</span>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="text-right font-mono">
+                                      {formatTableValue(row.value)} {chartField.unit}
+                                    </TableCell>
+                                    <TableCell className="text-right font-mono">
+                                      <span className={
+                                        row.percentageDiff === '0%' ? 'text-muted-foreground' :
+                                        row.percentageDiff === '–' ? 'text-muted-foreground' :
+                                        row.percentageDiff.startsWith('+') ? 
+                                          (metric.higherIsBetter ? 'text-semantic-good' : 'text-semantic-bad') :
+                                          (metric.higherIsBetter ? 'text-semantic-bad' : 'text-semantic-good')
+                                      }>
+                                        {row.percentageDiff}
+                                      </span>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        );
+                      })()}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
