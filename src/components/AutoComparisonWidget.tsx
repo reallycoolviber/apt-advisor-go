@@ -529,208 +529,208 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                                 />
                               </RadialBarChart>
                             </ResponsiveContainer>
-                             <div className="absolute inset-0 flex items-center justify-center">
-                               <span className={`text-xs font-bold ${performanceColor}`}>
-                                 {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
-                               </span>
-                             </div>
-                           </div>
-                           
-                           {/* Expand/Collapse Icon */}
-                           <div className="text-muted-foreground">
-                             {isExpanded ? 
-                               <ChevronUp className="h-4 w-4" /> : 
-                               <ChevronDown className="h-4 w-4" />
-                             }
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                 </CollapsibleTrigger>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className={`text-xs font-bold ${performanceColor}`}>
+                                {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Expand/Collapse Icon */}
+                          <div className="text-muted-foreground">
+                            {isExpanded ? 
+                              <ChevronUp className="h-4 w-4" /> : 
+                              <ChevronDown className="h-4 w-4" />
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleTrigger>
 
-                 <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                   <div 
-                     ref={(el) => chartRefs.current[metric.name] = el}
-                     className="border-t border-border bg-secondary/20 p-5"
-                   >
-                     <div className="grid grid-cols-2 gap-4 mb-4">
-                       <div className="space-y-2">
-                         <div className="text-sm">
-                           <span className="text-muted-foreground">Bästa värde:</span>
-                           <span className="ml-2 font-medium text-semantic-good">
-                             {formatValue(metric.best, metric.unit)}
-                           </span>
-                         </div>
-                         <div className="text-sm">
-                           <span className="text-muted-foreground">Sämsta värde:</span>
-                           <span className="ml-2 font-medium text-semantic-bad">
-                             {formatValue(metric.worst, metric.unit)}
-                           </span>
-                         </div>
-                       </div>
-                       <div className="space-y-2">
-                         <div className="text-sm">
-                           <span className="text-muted-foreground">Jämförelsegrupp:</span>
-                           <span className="ml-2 font-medium">{metric.total} lägenheter</span>
-                         </div>
-                         <div className="text-sm">
-                           <span className="text-muted-foreground">Ranking:</span>
-                           <span className={`ml-2 font-medium ${performanceColor}`}>
-                             {metric.betterCount + 1} av {metric.total + 1}
-                           </span>
-                         </div>
-                       </div>
-                     </div>
-                     
-                     {/* Description */}
-                     <div className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded mb-4">
-                       {metric.name === 'Pris per kvm' && 'Priset per kvadratmeter jämfört med liknande lägenheter. Lägre värde är bättre.'}
-                       {metric.name === 'Avgift per kvm' && 'Månadskostnaden per kvadratmeter. Lägre avgift ger lägre löpande kostnader.'}
-                       {metric.name === 'Skuld per kvm' && 'Föreningens skuldsättning per kvadratmeter. Lägre skuld innebär mindre risk.'}
-                       {metric.name === 'Kassaflöde per kvm' && 'Nettoflödet per kvadratmeter. Högre värde innebär bättre ekonomi.'}
-                       {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper. Högre betyg är bättre.'}
-                     </div>
+                <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                  <div 
+                    ref={(el) => chartRefs.current[metric.name] = el}
+                    className="border-t border-border bg-secondary/20 p-5"
+                  >
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Bästa värde:</span>
+                          <span className="ml-2 font-medium text-semantic-good">
+                            {formatValue(metric.best, metric.unit)}
+                          </span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Sämsta värde:</span>
+                          <span className="ml-2 font-medium text-semantic-bad">
+                            {formatValue(metric.worst, metric.unit)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Jämförelsegrupp:</span>
+                          <span className="ml-2 font-medium">{metric.total} lägenheter</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Ranking:</span>
+                          <span className={`ml-2 font-medium ${performanceColor}`}>
+                            {metric.betterCount + 1} av {metric.total + 1}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Description */}
+                    <div className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded mb-4">
+                      {metric.name === 'Pris per kvm' && 'Priset per kvadratmeter jämfört med liknande lägenheter. Lägre värde är bättre.'}
+                      {metric.name === 'Avgift per kvm' && 'Månadskostnaden per kvadratmeter. Lägre avgift ger lägre löpande kostnader.'}
+                      {metric.name === 'Skuld per kvm' && 'Föreningens skuldsättning per kvadratmeter. Lägre skuld innebär mindre risk.'}
+                      {metric.name === 'Kassaflöde per kvm' && 'Nettoflödet per kvadratmeter. Högre värde innebär bättre ekonomi.'}
+                      {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper. Högre betyg är bättre.'}
+                    </div>
 
-                       {/* Comparison Table */}
-                       {chartField && (() => {
-                         const allEvaluations = [currentEvaluation, ...comparisonEvaluations];
-                         const tableData = allEvaluations.map((evaluation, index) => {
-                           let value: number;
-                           
-                           if (chartField.key === 'physical_average') {
-                             value = calculatePhysicalAverage(evaluation);
-                           } else if (chartField.key === 'fee_per_sqm') {
-                             value = getFeePerSqm(evaluation) || 0;
-                           } else {
-                             value = evaluation[chartField.key as keyof Evaluation] as number || 0;
-                           }
+                    {/* Comparison Table */}
+                    {chartField && (() => {
+                      const allEvaluations = [currentEvaluation, ...comparisonEvaluations];
+                      const tableData = allEvaluations.map((evaluation, index) => {
+                        let value: number;
+                        
+                        if (chartField.key === 'physical_average') {
+                          value = calculatePhysicalAverage(evaluation);
+                        } else if (chartField.key === 'fee_per_sqm') {
+                          value = getFeePerSqm(evaluation) || 0;
+                        } else {
+                          value = evaluation[chartField.key as keyof Evaluation] as number || 0;
+                        }
 
-                           // Calculate percentage difference vs current evaluation
-                           const currentValue = index === 0 ? value : metric.value;
-                           let percentageDiff: string = '';
-                           
-                           if (index === 0) {
-                             percentageDiff = '0%';
-                           } else if (currentValue === 0) {
-                             percentageDiff = '–';
-                           } else {
-                             const diff = ((value - currentValue) / currentValue) * 100;
-                             const sign = diff >= 0 ? '+' : '';
-                             percentageDiff = `${sign}${diff.toFixed(1)}%`;
-                           }
-                           
-                           return {
-                             id: evaluation.id,
-                             address: evaluation.address || `Lägenhet ${index + 1}`,
-                             value: value,
-                             percentageDiff: percentageDiff,
-                             isCurrent: index === 0
-                           };
-                         }).filter(item => item.value > 0);
+                        // Calculate percentage difference vs current evaluation
+                        const currentValue = index === 0 ? value : metric.value;
+                        let percentageDiff: string = '';
+                        
+                        if (index === 0) {
+                          percentageDiff = '0%';
+                        } else if (currentValue === 0) {
+                          percentageDiff = '–';
+                        } else {
+                          const diff = ((value - currentValue) / currentValue) * 100;
+                          const sign = diff >= 0 ? '+' : '';
+                          percentageDiff = `${sign}${diff.toFixed(1)}%`;
+                        }
+                        
+                        return {
+                          id: evaluation.id,
+                          address: evaluation.address || `Lägenhet ${index + 1}`,
+                          value: value,
+                          percentageDiff: percentageDiff,
+                          isCurrent: index === 0
+                        };
+                      }).filter(item => item.value > 0);
 
-                         // Sort the data
-                         const sortedData = [...tableData].sort((a, b) => {
-                           if (sortBy === 'value') {
-                             // For better values first, sort desc if higher is better, asc if lower is better
-                             const defaultOrder = metric.higherIsBetter ? 'desc' : 'asc';
-                             const actualOrder = sortOrder || defaultOrder;
-                             return actualOrder === 'desc' ? b.value - a.value : a.value - b.value;
-                           } else {
-                             // Sort by percentage difference
-                             const aNum = parseFloat(a.percentageDiff.replace(/[+%–]/g, '')) || 0;
-                             const bNum = parseFloat(b.percentageDiff.replace(/[+%–]/g, '')) || 0;
-                             return sortOrder === 'desc' ? bNum - aNum : aNum - bNum;
-                           }
-                         });
+                      // Sort the data
+                      const sortedData = [...tableData].sort((a, b) => {
+                        if (sortBy === 'value') {
+                          // For better values first, sort desc if higher is better, asc if lower is better
+                          const defaultOrder = metric.higherIsBetter ? 'desc' : 'asc';
+                          const actualOrder = sortOrder || defaultOrder;
+                          return actualOrder === 'desc' ? b.value - a.value : a.value - b.value;
+                        } else {
+                          // Sort by percentage difference
+                          const aNum = parseFloat(a.percentageDiff.replace(/[+%–]/g, '')) || 0;
+                          const bNum = parseFloat(b.percentageDiff.replace(/[+%–]/g, '')) || 0;
+                          return sortOrder === 'desc' ? bNum - aNum : aNum - bNum;
+                        }
+                      });
 
-                         const formatTableValue = (value: number) => {
-                           if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()}`;
-                           if (chartField.type === 'stars') return `${value.toFixed(1)}`;
-                           return value.toFixed(1);
-                         };
+                      const formatTableValue = (value: number) => {
+                        if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()}`;
+                        if (chartField.type === 'stars') return `${value.toFixed(1)}`;
+                        return value.toFixed(1);
+                      };
 
-                         const handleSort = (column: 'value' | 'difference') => {
-                           if (sortBy === column) {
-                             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-                           } else {
-                             setSortBy(column);
-                             setSortOrder(column === 'value' ? (metric.higherIsBetter ? 'desc' : 'asc') : 'desc');
-                           }
-                         };
+                      const handleSort = (column: 'value' | 'difference') => {
+                        if (sortBy === column) {
+                          setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                        } else {
+                          setSortBy(column);
+                          setSortOrder(column === 'value' ? (metric.higherIsBetter ? 'desc' : 'asc') : 'desc');
+                        }
+                      };
 
-                         const getSortIcon = (column: 'value' | 'difference') => {
-                           if (sortBy !== column) return <ArrowUpDown className="h-3 w-3" />;
-                           return sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
-                         };
+                      const getSortIcon = (column: 'value' | 'difference') => {
+                        if (sortBy !== column) return <ArrowUpDown className="h-3 w-3" />;
+                        return sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
+                      };
 
-                         return (
-                           <div className="w-full">
-                             <Table>
-                               <TableHeader>
-                                 <TableRow>
-                                   <TableHead className="text-left">Adress</TableHead>
-                                   <TableHead 
-                                     className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
-                                     onClick={() => handleSort('value')}
-                                   >
-                                     <div className="flex items-center justify-end gap-1">
-                                       {metric.name}
-                                       {getSortIcon('value')}
-                                     </div>
-                                   </TableHead>
-                                   <TableHead 
-                                     className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
-                                     onClick={() => handleSort('difference')}
-                                   >
-                                     <div className="flex items-center justify-end gap-1">
-                                       Skillnad (%)
-                                       {getSortIcon('difference')}
-                                     </div>
-                                   </TableHead>
-                                 </TableRow>
-                               </TableHeader>
-                               <TableBody>
-                                 {sortedData.map((row) => (
-                                   <TableRow 
-                                     key={row.id}
-                                     className={row.isCurrent ? 'bg-primary/5 border-primary/20' : ''}
-                                   >
-                                     <TableCell className="font-medium">
-                                       <div className="flex items-center gap-2">
-                                         {row.isCurrent && <Badge variant="secondary" className="text-xs">Aktuell</Badge>}
-                                         <span className={row.isCurrent ? 'font-semibold' : ''}>{row.address}</span>
-                                       </div>
-                                     </TableCell>
-                                     <TableCell className="text-right font-mono">
-                                       {formatTableValue(row.value)} {chartField.unit}
-                                     </TableCell>
-                                     <TableCell className="text-right font-mono">
-                                       <span className={
-                                         row.percentageDiff === '0%' ? 'text-muted-foreground' :
-                                         row.percentageDiff === '–' ? 'text-muted-foreground' :
-                                         row.percentageDiff.startsWith('+') ? 
-                                           (metric.higherIsBetter ? 'text-semantic-good' : 'text-semantic-bad') :
-                                           (metric.higherIsBetter ? 'text-semantic-bad' : 'text-semantic-good')
-                                       }>
-                                         {row.percentageDiff}
-                                       </span>
-                                     </TableCell>
-                                   </TableRow>
-                                 ))}
-                               </TableBody>
-                             </Table>
-                           </div>
-                         );
-                       })()}
-                   </div>
-                 </CollapsibleContent>
-               </Collapsible>
-             );
-           })}
-         </div>
-       </div>
-     </Card>
+                      return (
+                        <div className="w-full">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="text-left">Adress</TableHead>
+                                <TableHead 
+                                  className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
+                                  onClick={() => handleSort('value')}
+                                >
+                                  <div className="flex items-center justify-end gap-1">
+                                    {metric.name}
+                                    {getSortIcon('value')}
+                                  </div>
+                                </TableHead>
+                                <TableHead 
+                                  className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
+                                  onClick={() => handleSort('difference')}
+                                >
+                                  <div className="flex items-center justify-end gap-1">
+                                    Skillnad (%)
+                                    {getSortIcon('difference')}
+                                  </div>
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {sortedData.map((row) => (
+                                <TableRow 
+                                  key={row.id}
+                                  className={row.isCurrent ? 'bg-primary/5 border-primary/20' : ''}
+                                >
+                                  <TableCell className="font-medium">
+                                    <div className="flex items-center gap-2">
+                                      {row.isCurrent && <Badge variant="secondary" className="text-xs">Aktuell</Badge>}
+                                      <span className={row.isCurrent ? 'font-semibold' : ''}>{row.address}</span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-right font-mono">
+                                    {formatTableValue(row.value)} {chartField.unit}
+                                  </TableCell>
+                                  <TableCell className="text-right font-mono">
+                                    <span className={
+                                      row.percentageDiff === '0%' ? 'text-muted-foreground' :
+                                      row.percentageDiff === '–' ? 'text-muted-foreground' :
+                                      row.percentageDiff.startsWith('+') ? 
+                                        (metric.higherIsBetter ? 'text-semantic-good' : 'text-semantic-bad') :
+                                        (metric.higherIsBetter ? 'text-semantic-bad' : 'text-semantic-good')
+                                    }>
+                                      {row.percentageDiff}
+                                    </span>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          })}
+        </div>
+      </div>
+    </Card>
   );
 };
 
