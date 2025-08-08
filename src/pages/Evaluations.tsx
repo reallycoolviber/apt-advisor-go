@@ -225,7 +225,7 @@ const Evaluations = () => {
         
         {/* Header */}
         <div className="container mx-auto p-6">
-          <div className="bg-app-background-secondary rounded-lg shadow-sm p-6">
+          <div className="p-6">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -265,8 +265,8 @@ const Evaluations = () => {
       
       {/* Main Content */}
       <div className="container mx-auto p-6 relative z-10">
-        {/* White Header Section */}
-        <div className="bg-app-background-secondary rounded-lg shadow-sm p-6 mb-6">
+        {/* Header Section */}
+        <div className="p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="ghost"
