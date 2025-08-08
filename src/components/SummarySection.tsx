@@ -21,6 +21,13 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const toBase = (v: any): number | null => {
+    if (v === null || v === undefined || v === '') return null;
+    if (typeof v === 'number') return v;
+    const num = parseFloat(v.toString().replace(/\s/g, '').replace(',', '.'));
+    return isNaN(num) ? null : num;
+  };
+
   const handleSave = async () => {
     if (!userId) {
       toast({
@@ -39,10 +46,10 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
         apartment_url: data.apartmentUrl || null,
         annual_report_url: data.annualReportUrl || null,
         address: data.address || null,
-        size: data.size ? parseFloat(data.size) : null,
-        price: data.price ? parseFloat(data.price) : null,
+        size: toBase(data.size),
+        price: toBase(data.price),
         rooms: data.rooms || null,
-        monthly_fee: data.monthlyFee ? parseFloat(data.monthlyFee) : null,
+        monthly_fee: toBase(data.monthlyFee),
         planlösning: data.planlösning,
         kitchen: data.kitchen,
         bathroom: data.bathroom,
@@ -51,9 +58,9 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
         förvaring: data.förvaring,
         ljusinsläpp: data.ljusinsläpp,
         balcony: data.balcony,
-        debt_per_sqm: data.debtPerSqm ? parseFloat(data.debtPerSqm) : null,
-        fee_per_sqm: data.feePerSqm ? parseFloat(data.feePerSqm) : null,
-        cashflow_per_sqm: data.cashflowPerSqm ? parseFloat(data.cashflowPerSqm) : null,
+        debt_per_sqm: toBase(data.debtPerSqm),
+        fee_per_sqm: toBase(data.feePerSqm),
+        cashflow_per_sqm: toBase(data.cashflowPerSqm),
         owns_land: data.ownsLand,
         underhållsplan: data.underhållsplan || null,
         comments: data.comments || null,

@@ -24,6 +24,13 @@ const EvaluationComparison: React.FC<EvaluationComparisonProps> = ({
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'address', direction: null });
 
+  const toBase = (v: any): number | null => {
+    if (v === null || v === undefined || v === '') return null;
+    if (typeof v === 'number') return v;
+    const num = parseFloat(v.toString().replace(/\s/g, '').replace(',', '.'));
+    return isNaN(num) ? null : num;
+  };
+
   // Key comparison fields for the mini table
   const comparisonFields: ComparisonField[] = [
     { key: 'size', label: 'Storlek', type: 'number', category: 'basic' },
@@ -48,10 +55,12 @@ const EvaluationComparison: React.FC<EvaluationComparisonProps> = ({
   };
 
   const calculatePricePerSqm = (evaluation: Evaluation | any): number | null => {
-    const price = evaluation.price || evaluation.general?.price;
-    const size = evaluation.size || evaluation.general?.size;
-    if (!price || !size || size === 0) return null;
-    return parseFloat(price) / parseFloat(size);
+    const price = evaluation.price ?? evaluation.general?.price;
+    const size = evaluation.size ?? evaluation.general?.size;
+    const p = toBase(price);
+    const s = toBase(size);
+    if (!p || !s || s === 0) return null;
+    return p / s;
   };
 
   // Convert current evaluation data to evaluation format
@@ -63,10 +72,10 @@ const EvaluationComparison: React.FC<EvaluationComparisonProps> = ({
     return {
       id: currentEvaluationId || 'current',
       address: currentData.address || 'Aktuell utvärdering',
-      size: currentData.general?.size ? parseFloat(currentData.general.size) : null,
-      price: currentData.general?.price ? parseFloat(currentData.general.price) : null,
+      size: toBase(currentData.general?.size),
+      price: toBase(currentData.general?.price),
       rooms: currentData.general?.rooms || null,
-      monthly_fee: currentData.general?.monthlyFee ? parseFloat(currentData.general.monthlyFee) : null,
+      monthly_fee: toBase(currentData.general?.monthlyFee),
       planlösning: currentData.physical?.planlösning || null,
       kitchen: currentData.physical?.kitchen || null,
       bathroom: currentData.physical?.bathroom || null,
@@ -75,9 +84,9 @@ const EvaluationComparison: React.FC<EvaluationComparisonProps> = ({
       förvaring: currentData.physical?.förvaring || null,
       ljusinsläpp: currentData.physical?.ljusinsläpp || null,
       balcony: currentData.physical?.balcony || null,
-      debt_per_sqm: currentData.financial?.debtPerSqm ? parseFloat(currentData.financial.debtPerSqm) : null,
-      fee_per_sqm: currentData.financial?.feePerSqm ? parseFloat(currentData.financial.feePerSqm) : null,
-      cashflow_per_sqm: currentData.financial?.cashflowPerSqm ? parseFloat(currentData.financial.cashflowPerSqm) : null,
+      debt_per_sqm: toBase(currentData.financial?.debtPerSqm),
+      fee_per_sqm: toBase(currentData.financial?.feePerSqm),
+      cashflow_per_sqm: toBase(currentData.financial?.cashflowPerSqm),
       owns_land: currentData.financial?.ownsLand || null,
       created_at: new Date().toISOString()
     };

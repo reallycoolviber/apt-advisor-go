@@ -33,6 +33,13 @@ const EvaluationHub = () => {
   console.log('EvaluationHub: Current data:', data);
   console.log('EvaluationHub: User:', user);
 
+  const toBase = (v: any): number | null => {
+    if (v === null || v === undefined || v === '') return null;
+    if (typeof v === 'number') return v;
+    const num = parseFloat(v.toString().replace(/\s/g, '').replace(',', '.'));
+    return isNaN(num) ? null : num;
+  };
+
   // Load existing evaluation if edit mode
   useEffect(() => {
     const editId = searchParams.get('edit');
@@ -139,14 +146,14 @@ const EvaluationHub = () => {
             .from('apartment_evaluations')
             .update({
               address: data.address,
-              size: data.general?.size ? parseFloat(data.general.size) : null,
+              size: data.general?.size ? toBase(data.general.size) : null,
               rooms: data.general?.rooms || null,
-              price: data.general?.price ? parseFloat(data.general.price) : null,
-              final_price: data.general?.finalPrice ? parseFloat(data.general.finalPrice) : null,
-              monthly_fee: data.general?.monthlyFee ? parseFloat(data.general.monthlyFee) : null,
-              debt_per_sqm: data.financial?.debtPerSqm ? parseFloat(data.financial.debtPerSqm) : null,
-              fee_per_sqm: data.financial?.feePerSqm ? parseFloat(data.financial.feePerSqm) : null,
-              cashflow_per_sqm: data.financial?.cashflowPerSqm ? parseFloat(data.financial.cashflowPerSqm) : null,
+              price: toBase(data.general?.price),
+              final_price: toBase(data.general?.finalPrice),
+              monthly_fee: toBase(data.general?.monthlyFee),
+              debt_per_sqm: toBase(data.financial?.debtPerSqm),
+              fee_per_sqm: toBase(data.financial?.feePerSqm),
+              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
               major_maintenance_done: data.financial?.majorMaintenanceDone,
               owns_land: data.financial?.ownsLand,
               underhållsplan: data.financial?.underhållsplan,
@@ -178,14 +185,14 @@ const EvaluationHub = () => {
             .insert({
               user_id: user.id,
               address: data.address,
-              size: data.general?.size ? parseFloat(data.general.size) : null,
+              size: data.general?.size ? toBase(data.general.size) : null,
               rooms: data.general?.rooms || null,
-              price: data.general?.price ? parseFloat(data.general.price) : null,
-              final_price: data.general?.finalPrice ? parseFloat(data.general.finalPrice) : null,
-              monthly_fee: data.general?.monthlyFee ? parseFloat(data.general.monthlyFee) : null,
-              debt_per_sqm: data.financial?.debtPerSqm ? parseFloat(data.financial.debtPerSqm) : null,
-              fee_per_sqm: data.financial?.feePerSqm ? parseFloat(data.financial.feePerSqm) : null,
-              cashflow_per_sqm: data.financial?.cashflowPerSqm ? parseFloat(data.financial.cashflowPerSqm) : null,
+              price: toBase(data.general?.price),
+              final_price: toBase(data.general?.finalPrice),
+              monthly_fee: toBase(data.general?.monthlyFee),
+              debt_per_sqm: toBase(data.financial?.debtPerSqm),
+              fee_per_sqm: toBase(data.financial?.feePerSqm),
+              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
               major_maintenance_done: data.financial?.majorMaintenanceDone,
               owns_land: data.financial?.ownsLand,
               underhållsplan: data.financial?.underhållsplan,
@@ -245,15 +252,15 @@ const EvaluationHub = () => {
           .update({
             address: data.address,
             // General data
-            size: data.general?.size ? parseFloat(data.general.size) : null,
+            size: data.general?.size ? toBase(data.general.size) : null,
             rooms: data.general?.rooms || null,
-            price: data.general?.price ? parseFloat(data.general.price) : null,
-            final_price: data.general?.finalPrice ? parseFloat(data.general.finalPrice) : null,
-            monthly_fee: data.general?.monthlyFee ? parseFloat(data.general.monthlyFee) : null,
+            price: toBase(data.general?.price),
+            final_price: toBase(data.general?.finalPrice),
+            monthly_fee: toBase(data.general?.monthlyFee),
             // Financial data
-            debt_per_sqm: data.financial?.debtPerSqm ? parseFloat(data.financial.debtPerSqm) : null,
-            fee_per_sqm: data.financial?.feePerSqm ? parseFloat(data.financial.feePerSqm) : null,
-            cashflow_per_sqm: data.financial?.cashflowPerSqm ? parseFloat(data.financial.cashflowPerSqm) : null,
+            debt_per_sqm: toBase(data.financial?.debtPerSqm),
+            fee_per_sqm: toBase(data.financial?.feePerSqm),
+            cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
             major_maintenance_done: data.financial?.majorMaintenanceDone,
             owns_land: data.financial?.ownsLand,
             underhållsplan: data.financial?.underhållsplan,
@@ -291,15 +298,15 @@ const EvaluationHub = () => {
             user_id: user.id,
             address: data.address,
             // General data
-            size: data.general?.size ? parseFloat(data.general.size) : null,
+            size: data.general?.size ? toBase(data.general.size) : null,
             rooms: data.general?.rooms || null,
-            price: data.general?.price ? parseFloat(data.general.price) : null,
-            final_price: data.general?.finalPrice ? parseFloat(data.general.finalPrice) : null,
-            monthly_fee: data.general?.monthlyFee ? parseFloat(data.general.monthlyFee) : null,
+            price: toBase(data.general?.price),
+            final_price: toBase(data.general?.finalPrice),
+            monthly_fee: toBase(data.general?.monthlyFee),
             // Financial data
-            debt_per_sqm: data.financial?.debtPerSqm ? parseFloat(data.financial.debtPerSqm) : null,
-            fee_per_sqm: data.financial?.feePerSqm ? parseFloat(data.financial.feePerSqm) : null,
-            cashflow_per_sqm: data.financial?.cashflowPerSqm ? parseFloat(data.financial.cashflowPerSqm) : null,
+            debt_per_sqm: toBase(data.financial?.debtPerSqm),
+            fee_per_sqm: toBase(data.financial?.feePerSqm),
+            cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
             major_maintenance_done: data.financial?.majorMaintenanceDone,
             owns_land: data.financial?.ownsLand,
             underhållsplan: data.financial?.underhållsplan,
