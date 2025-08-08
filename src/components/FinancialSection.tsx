@@ -30,9 +30,9 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-title">Ekonomisk analys</h2>
-        <p className="text-muted-foreground">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
+      <div className="mb-8">
+        <h2 className="text-prominent font-semibold">Ekonomisk analys</h2>
+        <p className="text-small text-muted-foreground">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
       </div>
 
       <div className="space-y-3">
