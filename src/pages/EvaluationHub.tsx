@@ -575,7 +575,9 @@ const EvaluationHub = () => {
                 <Card className="bg-card border shadow-md">
                   <div className="p-4">
                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                       <Building className="h-5 w-5" />
+                       <div className="p-2 rounded-lg bg-primary/10">
+                         <Building className="h-5 w-5 text-primary" />
+                       </div>
                        Lägenhetsdata
                      </h3>
                     {hasLägenhetsdata() ? (
@@ -639,7 +641,9 @@ const EvaluationHub = () => {
                 <Card className="bg-card border shadow-md">
                   <div className="p-4">
                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                       <BarChart3 className="h-5 w-5" />
+                       <div className="p-2 rounded-lg bg-primary/10">
+                         <BarChart3 className="h-5 w-5 text-primary" />
+                       </div>
                        Föreningsinformation
                      </h3>
                     {hasFöreningsinformation() ? (
@@ -684,10 +688,12 @@ const EvaluationHub = () => {
                 {/* Din bedömning av lägenheten */}
                 <Card className="bg-card border shadow-md">
                   <div className="p-4">
-                     <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                       <FileText className="h-5 w-5" />
-                       Din bedömning av lägenheten
-                     </h3>
+                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <FileText className="h-5 w-5 text-primary" />
+                        </div>
+                        Din bedömning av lägenheten
+                      </h3>
                     {hasBedömning() ? (
                       <div className="space-y-2">
                         {data.physical?.planlösning && (
