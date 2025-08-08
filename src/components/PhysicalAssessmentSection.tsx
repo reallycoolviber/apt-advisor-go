@@ -39,7 +39,7 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2>Fysisk bedömning</h2>
+        <h2 className="text-title">Fysisk bedömning</h2>
         <p className="text-muted-foreground">Betygsätt olika aspekter av lägenhetens fysiska tillstånd (1-5)</p>
       </div>
 

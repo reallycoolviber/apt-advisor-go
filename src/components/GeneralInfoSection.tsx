@@ -54,7 +54,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2>Allmän information</h2>
+        <h2 className="text-title">Allmän information</h2>
         <p className="text-muted-foreground">Grundläggande uppgifter om lägenheten</p>
       </div>
 
