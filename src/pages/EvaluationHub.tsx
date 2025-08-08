@@ -831,7 +831,7 @@ const EvaluationHub = () => {
             </Button>
             
             <Button
-              onClick={handleCompare}
+              onClick={() => navigate('/evaluations')}
               variant="outline"
               className="flex-1 h-12"
             >
