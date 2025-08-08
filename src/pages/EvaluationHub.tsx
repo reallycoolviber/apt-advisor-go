@@ -78,7 +78,7 @@ const EvaluationHub = () => {
   // Load existing evaluation if edit mode or direct URL with ID
   useEffect(() => {
     const editId = searchParams.get('edit') || urlEvaluationId;
-    if (editId && user && !evaluationId) {
+    if (editId && user && editId !== evaluationId) {
       setLoading(true);
       
       const fetchEvaluation = async () => {
