@@ -47,6 +47,7 @@ export type Database = {
           price: number | null
           rooms: string | null
           size: number | null
+          source_id: string | null
           surfaces: number | null
           surfaces_comment: string | null
           underhållsplan: string | null
@@ -85,6 +86,7 @@ export type Database = {
           price?: number | null
           rooms?: string | null
           size?: number | null
+          source_id?: string | null
           surfaces?: number | null
           surfaces_comment?: string | null
           underhållsplan?: string | null
@@ -123,6 +125,7 @@ export type Database = {
           price?: number | null
           rooms?: string | null
           size?: number | null
+          source_id?: string | null
           surfaces?: number | null
           surfaces_comment?: string | null
           underhållsplan?: string | null

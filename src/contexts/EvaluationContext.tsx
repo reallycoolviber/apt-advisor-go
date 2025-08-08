@@ -1,30 +1,75 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useAutoSave, AutoSaveStatus } from '@/hooks/useAutoSave';
+import { 
+  saveEvaluation, 
+  getEvaluationById, 
+  finalizeEvaluation, 
+  generateSourceId, 
+  getOrCreateEvaluation,
+  EvaluationData 
+} from '@/services/evaluationService';
 
-interface EvaluationData {
-  address?: string;
-  general?: {
-    size?: string;
-    rooms?: string;
-    price?: string;
-    finalPrice?: string;
-    monthlyFee?: string;
+export interface EvaluationFormData {
+  address: string;
+  general: {
+    size: string;
+    rooms: string;
+    price: string;
+    finalPrice: string;
+    monthlyFee: string;
   };
-  financial?: {
-    [key: string]: any;
+  financial: {
+    debtPerSqm: string;
+    feePerSqm: string;
+    cashflowPerSqm: string;
+    majorMaintenanceDone: boolean;
+    ownsLand: boolean;
+    underhållsplan: string;
   };
-  physical?: {
-    [key: string]: any;
+  physical: {
+    planlösning: number;
+    kitchen: number;
+    bathroom: number;
+    bedrooms: number;
+    surfaces: number;
+    förvaring: number;
+    ljusinsläpp: number;
+    balcony: number;
+    planlösning_comment: string;
+    kitchen_comment: string;
+    bathroom_comment: string;
+    bedrooms_comment: string;
+    surfaces_comment: string;
+    förvaring_comment: string;
+    ljusinsläpp_comment: string;
+    balcony_comment: string;
+    comments: string;
   };
 }
 
 interface EvaluationContextType {
-  data: EvaluationData;
+  data: EvaluationFormData;
+  setData: (data: EvaluationFormData) => void;
+  updateField: (section: keyof EvaluationFormData, field: string, value: any) => void;
+  evaluationId: string | null;
+  setEvaluationId: (id: string | null) => void;
+  isDraft: boolean;
+  save: () => Promise<void>;
+  finalize: () => Promise<void>;
+  loadEvaluation: (id: string) => Promise<void>;
+  getOrCreateBySource: (sourceId: string, initialData?: Partial<EvaluationFormData>) => Promise<string>;
+  isLoading: boolean;
+  autoSaveStatus: AutoSaveStatus;
+  generateId: (apartmentUrl?: string, address?: string) => string;
+  // Legacy methods for backward compatibility
   updateAddress: (address: string) => void;
   updateGeneralData: (data: any) => void;
   updateFinancialData: (data: any) => void;
   updatePhysicalData: (data: any) => void;
   getCompletionStatus: (section: 'general' | 'financial' | 'physical') => 'not-started' | 'in-progress' | 'completed';
-  loadEvaluation: (evaluationData: any) => void;
   clearEvaluation: () => void;
 }
 
@@ -38,36 +83,340 @@ export const useEvaluation = () => {
   return context;
 };
 
-export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
+// Default data structure
+const defaultData: EvaluationFormData = {
+  address: '',
+  general: {
+    size: '',
+    rooms: '',
+    price: '',
+    finalPrice: '',
+    monthlyFee: ''
+  },
+  financial: {
+    debtPerSqm: '',
+    feePerSqm: '',
+    cashflowPerSqm: '',
+    majorMaintenanceDone: false,
+    ownsLand: false,
+    underhållsplan: ''
+  },
+  physical: {
+    planlösning: 0,
+    kitchen: 0,
+    bathroom: 0,
+    bedrooms: 0,
+    surfaces: 0,
+    förvaring: 0,
+    ljusinsläpp: 0,
+    balcony: 0,
+    planlösning_comment: '',
+    kitchen_comment: '',
+    bathroom_comment: '',
+    bedrooms_comment: '',
+    surfaces_comment: '',
+    förvaring_comment: '',
+    ljusinsläpp_comment: '',
+    balcony_comment: '',
+    comments: ''
+  }
+};
+
+export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log('EvaluationProvider rendering');
-  const [data, setData] = useState<EvaluationData>({});
+  
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [data, setInternalData] = useState<EvaluationFormData>(defaultData);
+  const [evaluationId, setEvaluationId] = useState<string | null>(null);
+  const [isDraft, setIsDraft] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [sourceId, setSourceId] = useState<string | null>(null);
 
-  const updateAddress = (address: string) => {
-    setData(prev => ({ ...prev, address }));
+  // Konvertering mellan form data och database format
+  const formDataToEvaluationData = useCallback((formData: EvaluationFormData): Partial<EvaluationData> => {
+    return {
+      address: formData.address,
+      size: formData.general.size ? parseFloat(formData.general.size) : undefined,
+      rooms: formData.general.rooms,
+      price: formData.general.price ? parseFloat(formData.general.price) : undefined,
+      monthly_fee: formData.general.monthlyFee ? parseFloat(formData.general.monthlyFee) : undefined,
+      final_price: formData.general.finalPrice ? parseFloat(formData.general.finalPrice) : undefined,
+      debt_per_sqm: formData.financial.debtPerSqm ? parseFloat(formData.financial.debtPerSqm) : undefined,
+      fee_per_sqm: formData.financial.feePerSqm ? parseFloat(formData.financial.feePerSqm) : undefined,
+      cashflow_per_sqm: formData.financial.cashflowPerSqm ? parseFloat(formData.financial.cashflowPerSqm) : undefined,
+      major_maintenance_done: formData.financial.majorMaintenanceDone,
+      owns_land: formData.financial.ownsLand,
+      underhållsplan: formData.financial.underhållsplan,
+      planlösning: formData.physical.planlösning || undefined,
+      kitchen: formData.physical.kitchen || undefined,
+      bathroom: formData.physical.bathroom || undefined,
+      bedrooms: formData.physical.bedrooms || undefined,
+      surfaces: formData.physical.surfaces || undefined,
+      förvaring: formData.physical.förvaring || undefined,
+      ljusinsläpp: formData.physical.ljusinsläpp || undefined,
+      balcony: formData.physical.balcony || undefined,
+      planlösning_comment: formData.physical.planlösning_comment,
+      kitchen_comment: formData.physical.kitchen_comment,
+      bathroom_comment: formData.physical.bathroom_comment,
+      bedrooms_comment: formData.physical.bedrooms_comment,
+      surfaces_comment: formData.physical.surfaces_comment,
+      förvaring_comment: formData.physical.förvaring_comment,
+      ljusinsläpp_comment: formData.physical.ljusinsläpp_comment,
+      balcony_comment: formData.physical.balcony_comment,
+      comments: formData.physical.comments,
+      source_id: sourceId || undefined
+    };
+  }, [sourceId]);
+
+  // Auto-save setup
+  const { triggerSave, forceSave, status: autoSaveStatus } = useAutoSave(
+    data,
+    async (formData: EvaluationFormData) => {
+      if (!evaluationId) return;
+      
+      const evaluationData = formDataToEvaluationData(formData);
+      await saveEvaluation(evaluationId, evaluationData);
+      console.log('Auto-saved evaluation');
+    },
+    {
+      delay: 1500, // 1.5 sekunder debounce
+      onSaveSuccess: () => {
+        console.log('Auto-save successful');
+      },
+      onSaveError: (error) => {
+        console.error('Auto-save error:', error);
+      }
+    }
+  );
+
+  const normalizeNumber = (value: any): number | null => {
+    if (value === null || value === undefined || value === '') return null;
+    
+    const stringValue = typeof value === 'string' ? value : String(value);
+    
+    // Ta bort mellanslag och ersätt komma med punkt
+    const cleanValue = stringValue.replace(/\s+/g, '').replace(',', '.');
+    const num = parseFloat(cleanValue);
+    
+    if (isNaN(num)) return null;
+    
+    return num;
   };
 
-  const updateGeneralData = (newData: any) => {
-    setData(prev => ({ 
-      ...prev, 
-      general: { ...prev.general, ...newData }
-    }));
+  const normalizePrice = (v: any): number | null => {
+    const n = normalizeNumber(v);
+    if (n === null) return null;
+    // Normalisera priser: if number is very small (probably in millions), multiply by 1M
+    return n > 0 && n < 100000 ? n * 1_000_000 : n;
   };
 
-  const updateFinancialData = (newData: any) => {
-    setData(prev => ({ 
-      ...prev, 
-      financial: { ...prev.financial, ...newData }
-    }));
+  const normalizeDebtPerSqm = (v: any): number | null => {
+    const n = normalizeNumber(v);
+    if (n === null) return null;
+    // Debt per sqm sometimes stored in tkr/kvm; upscale small values
+    return n > 0 && n < 1000 ? n * 1000 : n;
   };
 
-  const updatePhysicalData = (newData: any) => {
-    setData(prev => ({ 
-      ...prev, 
-      physical: { ...prev.physical, ...newData }
-    }));
-  };
+  const setData = useCallback((newData: EvaluationFormData) => {
+    console.log('Setting data:', newData);
+    setInternalData(newData);
+  }, []);
 
-  const getCompletionStatus = (section: 'general' | 'financial' | 'physical'): 'not-started' | 'in-progress' | 'completed' => {
+  const loadEvaluation = useCallback(async (id: string) => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      const evaluationData = await getEvaluationById(id);
+      
+      if (!evaluationData) {
+        toast({
+          title: "Fel",
+          description: "Utvärderingen kunde inte hittas",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSourceId(evaluationData.source_id || null);
+      setIsDraft(evaluationData.is_draft ?? true);
+
+      setData({
+        address: evaluationData.address || '',
+        general: {
+          size: evaluationData.size?.toString() || '',
+          rooms: evaluationData.rooms || '',
+          price: normalizePrice(evaluationData.price)?.toString() || '',
+          finalPrice: evaluationData.final_price?.toString() || '',
+          monthlyFee: normalizeNumber(evaluationData.monthly_fee)?.toString() || ''
+        },
+        financial: {
+          debtPerSqm: normalizeDebtPerSqm(evaluationData.debt_per_sqm)?.toString() || '',
+          feePerSqm: normalizeNumber(evaluationData.fee_per_sqm)?.toString() || '',
+          cashflowPerSqm: normalizeNumber(evaluationData.cashflow_per_sqm)?.toString() || '',
+          majorMaintenanceDone: evaluationData.major_maintenance_done || false,
+          ownsLand: evaluationData.owns_land || false,
+          underhållsplan: evaluationData.underhållsplan || ''
+        },
+        physical: {
+          planlösning: evaluationData.planlösning || 0,
+          kitchen: evaluationData.kitchen || 0,
+          bathroom: evaluationData.bathroom || 0,
+          bedrooms: evaluationData.bedrooms || 0,
+          surfaces: evaluationData.surfaces || 0,
+          förvaring: evaluationData.förvaring || 0,
+          ljusinsläpp: evaluationData.ljusinsläpp || 0,
+          balcony: evaluationData.balcony || 0,
+          planlösning_comment: evaluationData.planlösning_comment || '',
+          kitchen_comment: evaluationData.kitchen_comment || '',
+          bathroom_comment: evaluationData.bathroom_comment || '',
+          bedrooms_comment: evaluationData.bedrooms_comment || '',
+          surfaces_comment: evaluationData.surfaces_comment || '',
+          förvaring_comment: evaluationData.förvaring_comment || '',
+          ljusinsläpp_comment: evaluationData.ljusinsläpp_comment || '',
+          balcony_comment: evaluationData.balcony_comment || '',
+          comments: evaluationData.comments || ''
+        }
+      });
+
+      setEvaluationId(id);
+      setHasInitialized(true);
+    } catch (error) {
+      console.error('Error loading evaluation:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ladda utvärderingen",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, toast, setData]);
+
+  const save = useCallback(async () => {
+    if (!evaluationId) {
+      throw new Error('No evaluation ID available');
+    }
+
+    const evaluationData = formDataToEvaluationData(data);
+    await saveEvaluation(evaluationId, evaluationData);
+    
+    toast({
+      title: "Sparat",
+      description: "Utvärderingen har sparats",
+    });
+  }, [evaluationId, data, formDataToEvaluationData, toast]);
+
+  const finalize = useCallback(async () => {
+    if (!evaluationId) {
+      throw new Error('No evaluation ID available');
+    }
+
+    // Spara senaste ändringar först
+    await save();
+    
+    // Slutför utvärderingen
+    await finalizeEvaluation(evaluationId);
+    setIsDraft(false);
+    
+    toast({
+      title: "Slutfört",
+      description: "Utvärderingen har slutförts",
+    });
+  }, [evaluationId, save, toast]);
+
+  const getOrCreateBySource = useCallback(async (
+    sourceIdParam: string, 
+    initialData?: Partial<EvaluationFormData>
+  ): Promise<string> => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Convert partial form data to full form data with defaults
+    const fullInitialData: EvaluationFormData = {
+      ...defaultData,
+      ...initialData
+    };
+    
+    const convertedInitialData = formDataToEvaluationData(fullInitialData);
+    const result = await getOrCreateEvaluation(sourceIdParam, convertedInitialData);
+    
+    setSourceId(sourceIdParam);
+    
+    if (result.created) {
+      toast({
+        title: "Ny utvärdering",
+        description: "En ny utvärdering har skapats",
+      });
+    } else {
+      toast({
+        title: "Befintlig utvärdering",
+        description: "Laddar befintlig utvärdering för denna lägenhet",
+      });
+    }
+
+    await loadEvaluation(result.data.id!);
+    return result.data.id!;
+  }, [user, formDataToEvaluationData, loadEvaluation, toast]);
+
+  const updateField = useCallback((
+    section: keyof EvaluationFormData, 
+    field: string, 
+    value: any
+  ) => {
+    setInternalData(prev => {
+      if (section === 'address') {
+        // Special case for address field
+        const newData = {
+          ...prev,
+          address: value
+        };
+        setTimeout(() => triggerSave(), 0);
+        return newData;
+      }
+      
+      const newData = {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value
+        }
+      };
+      
+      // Trigger auto-save efter state update
+      setTimeout(() => triggerSave(), 0);
+      
+      return newData;
+    });
+  }, [triggerSave]);
+
+  // Legacy methods for backward compatibility
+  const updateAddress = useCallback((address: string) => {
+    updateField('address' as keyof EvaluationFormData, '', address);
+  }, [updateField]);
+
+  const updateGeneralData = useCallback((newData: any) => {
+    Object.keys(newData).forEach(key => {
+      updateField('general', key, newData[key]);
+    });
+  }, [updateField]);
+
+  const updateFinancialData = useCallback((newData: any) => {
+    Object.keys(newData).forEach(key => {
+      updateField('financial', key, newData[key]);
+    });
+  }, [updateField]);
+
+  const updatePhysicalData = useCallback((newData: any) => {
+    Object.keys(newData).forEach(key => {
+      updateField('physical', key, newData[key]);
+    });
+  }, [updateField]);
+
+  const getCompletionStatus = useCallback((section: 'general' | 'financial' | 'physical'): 'not-started' | 'in-progress' | 'completed' => {
     const sectionData = data[section];
     
     if (!sectionData || Object.keys(sectionData).length === 0) {
@@ -82,15 +431,12 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
 
     const required = requiredFields[section];
     const filledFields = required.filter(field => {
-      const value = sectionData[field];
+      const value = (sectionData as any)[field];
       if (section === 'physical') {
-        // For physical section, check if rating is > 0
         return value && value > 0;
       } else if (section === 'financial' && (field === 'majorMaintenanceDone' || field === 'ownsLand')) {
-        // For boolean fields, check if they are explicitly set
         return value !== undefined && value !== null;
       } else {
-        // For text fields, check if they have content
         return value && value.toString().trim() !== '';
       }
     });
@@ -102,95 +448,53 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
     } else {
       return 'in-progress';
     }
-  };
+  }, [data]);
 
-  // Function to load existing evaluation data
-  const loadEvaluation = (evaluationData: any) => {
-    const normalizeNumber = (v: any): number | null => {
-      if (v === null || v === undefined || v === '') return null;
-      if (typeof v === 'number') return v;
-      const parsed = parseFloat(v.toString().replace(/\s/g, '').replace(',', '.'));
-      return isNaN(parsed) ? null : parsed;
-    };
+  const clearEvaluation = useCallback(() => {
+    setData(defaultData);
+    setEvaluationId(null);
+    setSourceId(null);
+    setIsDraft(true);
+    setHasInitialized(false);
+  }, [setData]);
 
-    const normalizePrice = (p: any): number | null => {
-      const n = normalizeNumber(p);
-      if (n === null) return null;
-      // If stored accidentally as "millions" (e.g., 6 instead of 6,000,000), upscale
-      return n > 0 && n < 100000 ? n * 1_000_000 : n;
-    };
-
-    const normalizeDebtPerSqm = (v: any): number | null => {
-      const n = normalizeNumber(v);
-      if (n === null) return null;
-      // Debt per sqm sometimes stored in tkr/kvm; upscale small values
-      return n > 0 && n < 1000 ? n * 1000 : n;
-    };
-
-    setData({
-      address: evaluationData.address || '',
-      general: {
-        size: normalizeNumber(evaluationData.size)?.toString() || '',
-        rooms: evaluationData.rooms || '',
-        price: normalizePrice(evaluationData.price)?.toString() || '',
-        finalPrice: normalizePrice(evaluationData.final_price)?.toString() || '',
-        monthlyFee: normalizeNumber(evaluationData.monthly_fee)?.toString() || ''
-      },
-      financial: {
-        debtPerSqm: normalizeDebtPerSqm(evaluationData.debt_per_sqm)?.toString() || '',
-        feePerSqm: normalizeNumber(evaluationData.fee_per_sqm)?.toString() || '',
-        cashflowPerSqm: normalizeNumber(evaluationData.cashflow_per_sqm)?.toString() || '',
-        majorMaintenanceDone: evaluationData.major_maintenance_done || false,
-        ownsLand: evaluationData.owns_land || false,
-        underhållsplan: evaluationData.underhållsplan || ''
-      },
-      physical: {
-        planlösning: evaluationData.planlösning || 0,
-        kitchen: evaluationData.kitchen || 0,
-        bathroom: evaluationData.bathroom || 0,
-        bedrooms: evaluationData.bedrooms || 0,
-        surfaces: evaluationData.surfaces || 0,
-        förvaring: evaluationData.förvaring || 0,
-        ljusinsläpp: evaluationData.ljusinsläpp || 0,
-        balcony: evaluationData.balcony || 0,
-        planlösning_comment: evaluationData.planlösning_comment || '',
-        kitchen_comment: evaluationData.kitchen_comment || '',
-        bathroom_comment: evaluationData.bathroom_comment || '',
-        bedrooms_comment: evaluationData.bedrooms_comment || '',
-        surfaces_comment: evaluationData.surfaces_comment || '',
-        förvaring_comment: evaluationData.förvaring_comment || '',
-        ljusinsläpp_comment: evaluationData.ljusinsläpp_comment || '',
-        balcony_comment: evaluationData.balcony_comment || '',
-        comments: evaluationData.comments || ''
+  // Force save on unmount (when navigating away)
+  useEffect(() => {
+    return () => {
+      if (evaluationId) {
+        forceSave();
       }
-    });
+    };
+  }, [evaluationId, forceSave]);
+
+  const value: EvaluationContextType = {
+    data,
+    setData,
+    updateField,
+    evaluationId,
+    setEvaluationId,
+    isDraft,
+    save,
+    finalize,
+    loadEvaluation,
+    getOrCreateBySource,
+    isLoading,
+    autoSaveStatus,
+    generateId: generateSourceId,
+    // Legacy methods
+    updateAddress,
+    updateGeneralData,
+    updateFinancialData,
+    updatePhysicalData,
+    getCompletionStatus,
+    clearEvaluation
   };
 
-  // Function to clear evaluation data
-  const clearEvaluation = () => {
-    setData({
-      address: '',
-      general: { size: '', rooms: '', price: '', finalPrice: '', monthlyFee: '' },
-      financial: { debtPerSqm: '', feePerSqm: '', cashflowPerSqm: '', majorMaintenanceDone: false, ownsLand: false, underhållsplan: '' },
-      physical: { 
-        planlösning: 0, kitchen: 0, bathroom: 0, bedrooms: 0, surfaces: 0, förvaring: 0, ljusinsläpp: 0, balcony: 0,
-        planlösning_comment: '', kitchen_comment: '', bathroom_comment: '', bedrooms_comment: '', 
-        surfaces_comment: '', förvaring_comment: '', ljusinsläpp_comment: '', balcony_comment: '', comments: ''
-      }
-    });
-  };
+  console.log('EvaluationProvider: Current data:', data);
+  console.log('EvaluationProvider: User:', user);
 
   return (
-    <EvaluationContext.Provider value={{
-      data,
-      updateAddress,
-      updateGeneralData,
-      updateFinancialData,
-      updatePhysicalData,
-      getCompletionStatus,
-      loadEvaluation,
-      clearEvaluation
-    }}>
+    <EvaluationContext.Provider value={value}>
       {children}
     </EvaluationContext.Provider>
   );
