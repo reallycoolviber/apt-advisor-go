@@ -552,7 +552,7 @@ const Evaluations = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/evaluation-hub/${evaluation.id}`);
+                                navigate(`/evaluation/${evaluation.id}`);
                               }}
                               className="gap-2"
                             >
