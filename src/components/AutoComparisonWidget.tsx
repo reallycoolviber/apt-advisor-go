@@ -440,7 +440,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                     {/* Left Side - Main Content */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className={`p-2 rounded-lg ${performanceColor.replace('text-', 'bg-').replace('-600', '-100')}`}>
+                        <div className="p-2 rounded-lg bg-green-100">
                           {metric.icon}
                         </div>
                         <div>
