@@ -21,9 +21,12 @@ import {
   ChevronUp,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  CheckCircle,
+  AlertCircle,
+  XCircle
 } from 'lucide-react';
-import { RadialBarChart, RadialBar, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Evaluation } from '@/components/comparison/types';
 
 type ComparisonBase = 'last-month' | 'similar-price';
@@ -369,10 +372,13 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   }, [currentEvaluation, comparisonEvaluations]);
 
   const getComparisonText = (metric: ComparisonMetric): string => {
-    if (metric.total <= 10) {
-      return `bättre än ${metric.betterCount} av ${metric.total}`;
+    if (metric.total === 0) {
+      return 'Ingen jämförelsedata';
     }
-    return `${Math.round(metric.percentile)}:e percentilen`;
+    if (metric.total <= 10) {
+      return `${metric.betterCount + 1} av ${metric.total + 1} lägenheter`;
+    }
+    return `${Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}:e percentilen`;
   };
 
   const formatValue = (value: number, unit: string): string => {
@@ -408,39 +414,48 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   };
 
   const getPerformanceColor = (metric: ComparisonMetric): string => {
-    const { percentile, higherIsBetter } = metric;
-    // För lägre-är-bättre mått (pris, avgift, skuld): hög percentil = dåligt
-    // För högre-är-bättre mått (fysisk, kassaflöde): hög percentil = bra
+    const { percentile, higherIsBetter, total } = metric;
+    
+    // If no comparison data, return neutral
+    if (total === 0) return 'text-muted-foreground';
+    
     const effectivePercentile = higherIsBetter ? percentile : 100 - percentile;
     
-    if (effectivePercentile >= 70) return 'text-semantic-good';
-    if (effectivePercentile >= 40) return 'text-semantic-average';
-    return 'text-semantic-bad';
+    if (effectivePercentile >= 70) return 'text-emerald-600 dark:text-emerald-400';
+    if (effectivePercentile >= 40) return 'text-amber-600 dark:text-amber-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getPerformanceIcon = (metric: ComparisonMetric) => {
-    const { value, average, higherIsBetter } = metric;
-    const diff = Math.abs(value - average);
-    const threshold = average * 0.05;
+    const { percentile, higherIsBetter, total } = metric;
     
-    if (diff < threshold) {
-      return <Minus className="h-4 w-4 text-muted-foreground" />;
+    // If no comparison data, show info icon
+    if (total === 0) {
+      return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
     }
     
-    const isBetter = higherIsBetter ? value > average : value < average;
-    const colorClass = isBetter ? 'text-semantic-good' : 'text-semantic-bad';
-    const IconComponent = isBetter ? TrendingUp : TrendingDown;
-    
-    return <IconComponent className={`h-4 w-4 ${colorClass}`} />;
-  };
-
-  const getCircleColor = (metric: ComparisonMetric): string => {
-    const { percentile, higherIsBetter } = metric;
     const effectivePercentile = higherIsBetter ? percentile : 100 - percentile;
     
-    if (effectivePercentile >= 70) return 'hsl(var(--semantic-good))';
-    if (effectivePercentile >= 40) return 'hsl(var(--semantic-average))';
-    return 'hsl(var(--semantic-bad))';
+    if (effectivePercentile >= 70) {
+      return <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />;
+    }
+    if (effectivePercentile >= 40) {
+      return <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />;
+    }
+    return <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />;
+  };
+
+  const getPerformanceBgColor = (metric: ComparisonMetric): string => {
+    const { percentile, higherIsBetter, total } = metric;
+    
+    // If no comparison data, return neutral
+    if (total === 0) return 'bg-muted/20';
+    
+    const effectivePercentile = higherIsBetter ? percentile : 100 - percentile;
+    
+    if (effectivePercentile >= 70) return 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800';
+    if (effectivePercentile >= 40) return 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800';
+    return 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800';
   };
 
   const getComparisonBaseLabel = (base: ComparisonBase): string => {
@@ -492,15 +507,15 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   }
 
   return (
-    <Card className="bg-card border shadow-md">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-foreground">Jämförelse</h3>
+    <Card className="bg-card border shadow-sm">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-semibold text-lg text-foreground">Jämförelse</h3>
           <Badge variant="secondary" className="text-xs">
             {getComparisonBaseLabel(comparisonBase)} ({comparisonEvaluations.length})
           </Badge>
         </div>
-
+        
         {/* Comparison Base Selection */}
         <div className="flex gap-2 mb-6">
           <Button
@@ -521,13 +536,13 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
             Liknande pris
           </Button>
         </div>
-
+        
         {/* Metrics Grid */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {comparisonMetrics.map((metric, index) => {
             const isExpanded = expandedMetric === metric.name;
             const performanceColor = getPerformanceColor(metric);
-            const circleColor = getCircleColor(metric);
+            const performanceBgColor = getPerformanceBgColor(metric);
             
             const chartField = getChartField(metric.name);
             
@@ -538,21 +553,21 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                 onOpenChange={() => handleMetricToggle(metric.name)}
               >
                 <CollapsibleTrigger asChild>
-                  <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer">
+                  <div className={`rounded-xl border transition-all duration-200 cursor-pointer hover:shadow-md ${performanceBgColor}`}>
                     {/* Main Content */}
-                    <div className="p-5">
+                    <div className="p-6">
                       <div className="flex items-center justify-between">
-                        {/* Left Side - Main Content */}
+                        {/* Left Side - Content */}
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 rounded-lg bg-primary/10">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="p-3 rounded-xl bg-background/60 backdrop-blur-sm">
                               {metric.icon}
                             </div>
-                            <div>
-                              <h3 className="font-semibold text-foreground text-sm">{metric.name}</h3>
-                              <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground text-base mb-1">{metric.name}</h3>
+                              <div className="flex items-center gap-2">
                                 {getPerformanceIcon(metric)}
-                                <span className={`text-xs font-medium ${performanceColor}`}>
+                                <span className={`text-sm font-medium ${performanceColor}`}>
                                   {getComparisonText(metric)}
                                 </span>
                               </div>
@@ -561,42 +576,55 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                           
                           {/* Primary Value - Prominent */}
                           <div className="mb-2">
-                            <div className="text-2xl font-bold text-foreground">
+                            <div className="text-3xl font-bold text-foreground mb-1">
                               {formatValue(metric.value, metric.unit)}
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              Snitt: {formatValue(metric.average, metric.unit)}
-                            </div>
+                            {metric.total > 0 && (
+                              <div className="text-sm text-muted-foreground">
+                                Snitt: {formatValue(metric.average, metric.unit)}
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        {/* Right Side - Visual Indicator */}
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="relative w-16 h-16">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <RadialBarChart 
-                                cx="50%" 
-                                cy="50%" 
-                                innerRadius="70%" 
-                                outerRadius="90%" 
-                                data={[{ value: metric.higherIsBetter ? metric.percentile : 100 - metric.percentile }]}
-                                startAngle={90}
-                                endAngle={-270}
-                              >
-                                <RadialBar 
-                                  dataKey="value" 
-                                  fill={circleColor}
-                                  cornerRadius={10}
-                                />
-                              </RadialBarChart>
-                            </ResponsiveContainer>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className={`text-xs font-bold ${performanceColor}`}>
-                                {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
-                              </span>
-                            </div>
+                        {/* Right Side - Visual Indicator & Expand Button */}
+                        <div className="flex flex-col items-center gap-3 ml-4">
+                          {/* Performance Gauge */}
+                          <div className="relative">
+                            {metric.total > 0 ? (
+                              <div className="relative w-16 h-16">
+                                <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                                  {/* Background circle */}
+                                  <path
+                                    className="text-muted/20"
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    fill="none"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  />
+                                  {/* Progress circle */}
+                                  <path
+                                    className={performanceColor}
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    fill="none"
+                                    strokeDasharray={`${metric.higherIsBetter ? metric.percentile : 100 - metric.percentile}, 100`}
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <span className={`text-xs font-bold ${performanceColor}`}>
+                                    {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center">
+                                <span className="text-xs font-bold text-muted-foreground">N/A</span>
+                              </div>
+                            )}
                           </div>
-                          
+                           
                           {/* Expand/Collapse Icon */}
                           <div className="text-muted-foreground">
                             {isExpanded ? 
@@ -613,45 +641,79 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                 <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                   <div 
                     ref={(el) => chartRefs.current[metric.name] = el}
-                    className="border-t border-border bg-secondary/20 p-5"
+                    className="border-t bg-background/30 p-6"
                   >
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="space-y-2">
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Bästa värde:</span>
-                          <span className="ml-2 font-medium text-semantic-good">
-                            {formatValue(metric.best, metric.unit)}
+                    {/* Enhanced Statistics Grid */}
+                    <div className="grid grid-cols-2 gap-6 mb-6">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Bästa värde:</span>
+                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                            {metric.total > 0 ? formatValue(metric.best, metric.unit) : 'N/A'}
                           </span>
                         </div>
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Sämsta värde:</span>
-                          <span className="ml-2 font-medium text-semantic-bad">
-                            {formatValue(metric.worst, metric.unit)}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Sämsta värde:</span>
+                          <span className="font-semibold text-red-600 dark:text-red-400">
+                            {metric.total > 0 ? formatValue(metric.worst, metric.unit) : 'N/A'}
                           </span>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Jämförelsegrupp:</span>
-                          <span className="ml-2 font-medium">{metric.total} lägenheter</span>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Jämförelsegrupp:</span>
+                          <span className="font-semibold">{metric.total} lägenheter</span>
                         </div>
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Ranking:</span>
-                          <span className={`ml-2 font-medium ${performanceColor}`}>
-                            {metric.betterCount + 1} av {metric.total + 1}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Din position:</span>
+                          <span className={`font-semibold ${performanceColor}`}>
+                            {metric.total > 0 ? `${metric.betterCount + 1} av ${metric.total + 1}` : 'N/A'}
                           </span>
                         </div>
                       </div>
                     </div>
                     
                     {/* Description */}
-                    <div className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded mb-4">
-                      {metric.name === 'Pris per kvm' && 'Priset per kvadratmeter jämfört med liknande lägenheter. Lägre värde är bättre.'}
-                      {metric.name === 'Avgift per kvm' && 'Månadskostnaden per kvadratmeter. Lägre avgift ger lägre löpande kostnader.'}
-                      {metric.name === 'Skuld per kvm' && 'Föreningens skuldsättning per kvadratmeter. Lägre skuld innebär mindre risk.'}
-                      {metric.name === 'Kassaflöde per kvm' && 'Nettoflödet per kvadratmeter. Högre värde innebär bättre ekonomi.'}
-                      {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper. Högre betyg är bättre.'}
+                    <div className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-lg mb-6">
+                      {metric.name === 'Pris per kvm' && 'Priset per kvadratmeter jämfört med liknande lägenheter. Lägre värde indikerar bättre prisläge.'}
+                      {metric.name === 'Avgift per kvm' && 'Månadskostnaden per kvadratmeter. Lägre avgift ger lägre löpande kostnader och bättre ekonomi.'}
+                      {metric.name === 'Skuld per kvm' && 'Föreningens skuldsättning per kvadratmeter. Lägre skuld innebär mindre finansiell risk för framtida avgiftshöjningar.'}
+                      {metric.name === 'Kassaflöde per kvm' && 'Nettoflödet per kvadratmeter efter alla kostnader. Högre värde innebär bättre ekonomisk stabilitet i föreningen.'}
+                      {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper och skick. Högre betyg indikerar bättre standard och färre renoveringsbehov.'}
                     </div>
+
+                    {/* Visual Comparison Chart */}
+                    {metric.total > 0 && (
+                      <div className="mb-6">
+                        <h4 className="font-medium mb-3 text-foreground">Visuell jämförelse</h4>
+                        <div className="h-32">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                              data={[
+                                { name: 'Bästa', value: metric.best, fill: '#10b981' },
+                                { name: 'Snitt', value: metric.average, fill: '#6b7280' },
+                                { name: 'Din', value: metric.value, fill: '#3b82f6' },
+                                { name: 'Sämsta', value: metric.worst, fill: '#ef4444' }
+                              ]}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                              <YAxis tick={{ fontSize: 12 }} />
+                              <Tooltip 
+                                formatter={(value: number) => [formatValue(value, metric.unit), '']}
+                                labelStyle={{ color: 'hsl(var(--foreground))' }}
+                                contentStyle={{ 
+                                  backgroundColor: 'hsl(var(--popover))',
+                                  border: '1px solid hsl(var(--border))',
+                                  borderRadius: '6px'
+                                }}
+                              />
+                              <Bar dataKey="value" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Comparison Table */}
                     {chartField && (() => {
