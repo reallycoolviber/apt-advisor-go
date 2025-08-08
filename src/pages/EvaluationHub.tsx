@@ -28,10 +28,32 @@ const EvaluationHub = () => {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editedAddress, setEditedAddress] = useState('');
   const [hasAutoSaved, setHasAutoSaved] = useState(false);
+  const [checklistProgress, setChecklistProgress] = useState({ filled: 0, total: 16 });
   
   console.log('EvaluationHub: hooks initialized successfully');
   console.log('EvaluationHub: Current data:', data);
   console.log('EvaluationHub: User:', user);
+
+  const fetchChecklistProgress = async () => {
+    if (!user) return { filled: 0, total: 16 };
+    
+    try {
+      const { data: items, error } = await supabase
+        .from('checklist_items')
+        .select('is_checked')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      const filled = items?.filter(item => item.is_checked).length || 0;
+      const progress = { filled, total: 16 };
+      setChecklistProgress(progress);
+      return progress;
+    } catch (error) {
+      console.error('Error fetching checklist progress:', error);
+      return { filled: 0, total: 16 };
+    }
+  };
 
   const toBase = (v: any): number | null => {
     if (v === null || v === undefined || v === '') return null;
@@ -39,6 +61,13 @@ const EvaluationHub = () => {
     const num = parseFloat(v.toString().replace(/\s/g, '').replace(',', '.'));
     return isNaN(num) ? null : num;
   };
+
+  // Load checklist progress
+  useEffect(() => {
+    if (user) {
+      fetchChecklistProgress();
+    }
+  }, [user]);
 
   // Load existing evaluation if edit mode
   useEffect(() => {
@@ -87,7 +116,7 @@ const EvaluationHub = () => {
       const filledRatings = ratings.filter(rating => rating && rating > 0).length;
       return { filled: filledRatings, total: ratings.length };
     }
-    return { filled: 0, total: 12 }; // For checklist, show 0/12 as it has 12 questions
+    return checklistProgress;
   };
 
   const evaluationSections = [

@@ -134,6 +134,45 @@ export type Database = {
         }
         Relationships: []
       }
+      checklist_items: {
+        Row: {
+          comment: string | null
+          created_at: string
+          evaluation_id: string | null
+          id: string
+          is_checked: boolean
+          item_category: string
+          item_index: number
+          item_text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          evaluation_id?: string | null
+          id?: string
+          is_checked?: boolean
+          item_category: string
+          item_index: number
+          item_text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          evaluation_id?: string | null
+          id?: string
+          is_checked?: boolean
+          item_category?: string
+          item_index?: number
+          item_text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           buyer_type: string | null
