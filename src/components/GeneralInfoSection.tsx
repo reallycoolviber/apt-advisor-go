@@ -54,8 +54,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight">Allmän information</h2>
-        <p className="text-muted-foreground text-lg">Grundläggande uppgifter om lägenheten</p>
+        <h2>Allmän information</h2>
+        <p className="text-muted-foreground">Grundläggande uppgifter om lägenheten</p>
       </div>
 
       <div className="space-y-6">
@@ -148,8 +148,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               {data.price && data.size && (
                 <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
                   <Calculator className="h-5 w-5 text-primary mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground mb-1">Pris per kvm</p>
-                  <p className="text-2xl font-bold text-primary">
+                  <p className="text-small text-muted-foreground mb-1">Pris per kvm</p>
+                  <p className="text-prominent font-bold text-primary">
                     {formatDisplayValue(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)), 'fee_per_sqm')}
                   </p>
                 </div>
@@ -158,8 +158,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               {feePerSqm && (
                 <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
                   <DollarSign className="h-5 w-5 text-primary mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground mb-1">Avgift per kvm</p>
-                  <p className="text-2xl font-bold text-primary">
+                  <p className="text-small text-muted-foreground mb-1">Avgift per kvm</p>
+                  <p className="text-prominent font-bold text-primary">
                     {formatDisplayValue(feePerSqm, 'fee_per_sqm')}
                   </p>
                 </div>

@@ -27,11 +27,11 @@ export const StandardizedFieldGroup: React.FC<StandardizedFieldGroupProps> = ({
           <Icon className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground text-base">
+          <h3 className="text-body font-semibold text-foreground">
             {title}
           </h3>
           {description && (
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-body text-muted-foreground mt-1">
               {description}
             </p>
           )}

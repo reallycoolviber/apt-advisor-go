@@ -39,8 +39,8 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight">Fysisk bedömning</h2>
-        <p className="text-muted-foreground text-lg">Betygsätt olika aspekter av lägenhetens fysiska tillstånd (1-5)</p>
+        <h2>Fysisk bedömning</h2>
+        <p className="text-muted-foreground">Betygsätt olika aspekter av lägenhetens fysiska tillstånd (1-5)</p>
       </div>
 
       <div className="space-y-6">
@@ -71,7 +71,7 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
         </div>
         {hasMinimumRatings ? (
           <>
-            <p className="text-4xl font-bold text-primary mb-4">{averageRating.toFixed(1)}</p>
+            <p className="text-display font-bold text-primary mb-4">{averageRating.toFixed(1)}</p>
             <div className="flex justify-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
@@ -89,15 +89,15 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
           </>
         ) : (
           <>
-            <p className="text-2xl font-medium text-muted-foreground mb-4">Ej beräknat</p>
-            <p className="text-sm text-muted-foreground">Betygsätt minst 3 kategorier för att se genomsnittet</p>
+            <p className="text-title font-medium text-muted-foreground mb-4">Ej beräknat</p>
+            <p className="text-small text-muted-foreground">Betygsätt minst 3 kategorier för att se genomsnittet</p>
           </>
         )}
       </StandardizedCard>
 
 
       <StandardizedCard variant="default" size="sm" className="bg-muted/30">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-small text-muted-foreground">
           <strong className="text-foreground">Betygsskala:</strong> 1 = Mycket dåligt, 2 = Dåligt, 3 = Okej, 4 = Bra, 5 = Utmärkt
         </p>
       </StandardizedCard>

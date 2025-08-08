@@ -247,7 +247,7 @@ const ChecklistSection = () => {
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-2">
                 <ClipboardCheck className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">
+                <span className="text-body font-medium">
                   {getCheckedCount()} av {getTotalItems()} punkter klara
                 </span>
               </div>
@@ -290,7 +290,7 @@ const ChecklistSection = () => {
                                 onCheckedChange={(checked) => handleCheckboxChange(itemId, checked as boolean)}
                                 className="flex-shrink-0"
                               />
-                              <span className={`font-medium text-sm ${
+                              <span className={`font-medium text-body ${
                                 isChecked ? 'line-through text-muted-foreground' : 'text-foreground'
                               }`}>
                                 {item.title}
@@ -309,7 +309,7 @@ const ChecklistSection = () => {
 
                           {/* Bottom row: Full question text, indented to align with title */}
                           <div className="ml-7"> {/* ml-7 accounts for checkbox + gap */}
-                            <p className={`text-sm leading-relaxed ${
+                            <p className={`text-body leading-relaxed ${
                               isChecked ? 'line-through text-muted-foreground' : 'text-muted-foreground'
                             }`}>
                               {item.text}
@@ -348,7 +348,7 @@ const ChecklistSection = () => {
                   <ClipboardCheck className="h-5 w-5" />
                   Perfekt! Du har genomfört en komplett professionell besiktning
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-body text-muted-foreground mt-2">
                   Alla viktiga aspekter har kontrollerats för att säkerställa ett välgrundat köpbeslut
                 </p>
               </CardContent>

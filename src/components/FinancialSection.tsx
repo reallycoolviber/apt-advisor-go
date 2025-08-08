@@ -31,8 +31,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight">Ekonomisk analys</h2>
-        <p className="text-muted-foreground text-lg">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
+        <h2>Ekonomisk analys</h2>
+        <p className="text-muted-foreground">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
       </div>
 
       <div className="space-y-6">
@@ -190,8 +190,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
           </div>
           <div className="grid grid-cols-2 gap-6">
             <div className="text-center p-4 rounded-lg bg-background border border-border">
-              <p className="text-sm text-muted-foreground mb-2">Skuldrisk</p>
-              <p className={`text-xl font-bold ${
+              <p className="text-small text-muted-foreground mb-2">Skuldrisk</p>
+              <p className={`text-prominent font-bold ${
                 parseInt(data.debtPerSqm.replace(/\s/g, '')) > 20000 
                   ? 'text-destructive' 
                   : parseInt(data.debtPerSqm.replace(/\s/g, '')) > 10000 
@@ -206,8 +206,8 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
               </p>
             </div>
             <div className="text-center p-4 rounded-lg bg-background border border-border">
-              <p className="text-sm text-muted-foreground mb-2">Avgiftsnivå</p>
-              <p className={`text-xl font-bold ${
+              <p className="text-small text-muted-foreground mb-2">Avgiftsnivå</p>
+              <p className={`text-prominent font-bold ${
                 parseInt(data.feePerSqm.replace(/\s/g, '')) > 70 
                   ? 'text-destructive' 
                   : parseInt(data.feePerSqm.replace(/\s/g, '')) > 50 
