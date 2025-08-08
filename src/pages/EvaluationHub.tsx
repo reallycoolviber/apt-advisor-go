@@ -87,7 +87,7 @@ const EvaluationHub = () => {
       const filledRatings = ratings.filter(rating => rating && rating > 0).length;
       return { filled: filledRatings, total: ratings.length };
     }
-    return { filled: 0, total: 1 }; // For checklist, we'll just show as incomplete for now
+    return { filled: 0, total: 12 }; // For checklist, show 0/12 as it has 12 questions
   };
 
   const evaluationSections = [
