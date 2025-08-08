@@ -13,13 +13,13 @@ import { QualityOfLifeProvider } from "@/components/QualityOfLifeProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
-import EvaluationHub from "./pages/EvaluationHub";
+// import EvaluationHub from "./pages/EvaluationHub";
 import EvaluationSection from "./pages/EvaluationSection";
 import ChecklistSection from "./components/ChecklistSection";
 import Evaluations from "./pages/Evaluations";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import Compare from "./pages/Compare";
-import ComparisonView from "./pages/ComparisonView";
+// import ComparisonView from "./pages/ComparisonView";
 import AutoComparison from "./pages/AutoComparison";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -83,7 +83,7 @@ const AppContent = () => {
                       </EvaluationProvider>
                     </ProtectedRoute>
                   } />
-                  <Route path="/evaluate" element={
+                  {/* <Route path="/evaluate" element={
                     <ProtectedRoute>
                       <EvaluationProvider>
                         <EvaluationHub />
@@ -103,7 +103,7 @@ const AppContent = () => {
                         <EvaluationHub />
                       </EvaluationProvider>
                     </ProtectedRoute>
-                  } />
+                  } /> */}
                   <Route path="/evaluate/checklist/*" element={
                     <ProtectedRoute>
                       <ErrorBoundary>
@@ -139,11 +139,11 @@ const AppContent = () => {
                       <Compare />
                     </ProtectedRoute>
                   } />
-                  <Route path="/comparison" element={
+                  {/* <Route path="/comparison" element={
                     <ProtectedRoute>
                       <ComparisonView />
                     </ProtectedRoute>
-                  } />
+                  } /> */}
                   <Route path="/auto-comparison/:id" element={
                     <ProtectedRoute>
                       <AutoComparison />
@@ -169,18 +169,22 @@ const AppContent = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthProvider>
-        <BrowserRouter basename={import.meta.env.PROD ? "/apt-advisor-go" : ""}>
-          <AppContent />
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  console.log("App component initializing");
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AuthProvider>
+          <BrowserRouter basename={import.meta.env.PROD ? "/apt-advisor-go" : ""}>
+            <AppContent />
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
