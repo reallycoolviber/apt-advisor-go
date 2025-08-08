@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEvaluation } from '@/contexts/EvaluationContext';
+import { useEvaluationStore } from '@/stores/evaluationStore';
 
 /**
  * Centralized hook for managing the CreateEvaluationModal state and logic
@@ -8,7 +8,7 @@ import { useEvaluation } from '@/contexts/EvaluationContext';
  */
 export const useCreateEvaluationModal = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { updateAddress } = useEvaluation();
+  const { createNewEvaluation, updateField } = useEvaluationStore();
   const navigate = useNavigate();
 
   const openCreateModal = () => {
@@ -20,12 +20,16 @@ export const useCreateEvaluationModal = () => {
   };
 
   const handleCreateEvaluation = async (address: string) => {
-    // Update address first, then save to ensure it's persisted
-    updateAddress(address);
+    // Validera adress
+    if (!address || address.trim() === '') {
+      throw new Error('Adress krävs för att skapa utvärdering');
+    }
+    
+    // Skapa ny utvärdering med adress
+    await createNewEvaluation(address);
     setShowCreateModal(false);
     
-    // Navigate to hub - the EvaluationHub will create a new evaluation if none exists
-    // and the address will be set
+    // Navigate to hub
     navigate('/hub');
   };
 

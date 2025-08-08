@@ -99,7 +99,8 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const setData = async (newData: EvaluationFormData) => {
     // For compatibility, replace entire form data
     clearCurrentEvaluation();
-    await createNewEvaluation();
+    // Create with empty address that will be set by the data
+    await createNewEvaluation('');
     // Update each section
     Object.entries(newData.general).forEach(([key, value]) => {
       storeUpdateField('general', key, value);
@@ -141,9 +142,15 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     sourceId: string, 
     initialData?: Partial<EvaluationFormData>
   ): Promise<string> => {
+    // Extract address from initialData - this is required
+    const address = initialData?.address;
+    if (!address || address.trim() === '') {
+      throw new Error('Adress krävs för att skapa utvärdering');
+    }
+    
     // This is a complex operation that should be handled by the store
-    // For now, create new evaluation and return a mock ID
-    await createNewEvaluation();
+    // For now, create new evaluation with the required address
+    await createNewEvaluation(address);
     if (initialData) {
       Object.entries(initialData).forEach(([section, sectionData]) => {
         if (section === 'address') {

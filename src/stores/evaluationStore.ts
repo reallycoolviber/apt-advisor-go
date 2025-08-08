@@ -45,7 +45,7 @@ interface EvaluationStore {
   
   // Actions for current evaluation
   loadEvaluation: (evaluationId: string) => Promise<void>;
-  createNewEvaluation: () => Promise<void>;
+  createNewEvaluation: (address?: string) => Promise<void>;
   updateField: (section: keyof EvaluationFormData, field: string, value: any) => void;
   saveCurrentEvaluation: () => Promise<void>;
   clearCurrentEvaluation: () => void;
@@ -304,20 +304,22 @@ export const useEvaluationStore = create<EvaluationStore>()(
           }
         },
 
-        createNewEvaluation: async () => {
+        createNewEvaluation: async (address?: string) => {
           try {
             // Get current user from auth context
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
 
-            // Create a new evaluation with minimal data to get an ID
+            // Create a new evaluation - require address if provided
+            const evaluationData = {
+              user_id: user.id,
+              address: address || '',
+              is_draft: true
+            };
+
             const { data: newEvaluation, error } = await supabase
               .from('apartment_evaluations')
-              .insert({
-                user_id: user.id,
-                address: '',
-                is_draft: true
-              })
+              .insert(evaluationData)
               .select()
               .single();
 
@@ -388,9 +390,13 @@ export const useEvaluationStore = create<EvaluationStore>()(
             
             // Create new evaluation if needed
             if (!evaluationId) {
-              const sourceId = generateSourceId(undefined, state.currentEvaluation.address || 'manual-entry');
+              const address = state.currentEvaluation.address;
+              if (!address || address.trim() === '') {
+                throw new Error('Adress krävs för att spara utvärdering');
+              }
+              const sourceId = generateSourceId(undefined, address);
               const evaluationData = formDataToEvaluationData(state.currentEvaluation);
-              const result = await getOrCreateEvaluation(sourceId, evaluationData);
+              const result = await getOrCreateEvaluation(sourceId, address, evaluationData);
               evaluationId = result.data.id!;
               
               set({

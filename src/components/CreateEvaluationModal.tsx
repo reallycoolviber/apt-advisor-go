@@ -20,16 +20,27 @@ interface CreateEvaluationModalProps {
 
 export const CreateEvaluationModal = ({ open, onOpenChange, onContinue }: CreateEvaluationModalProps) => {
   const [address, setAddress] = useState('');
+  const [error, setError] = useState('');
 
-  const handleContinue = () => {
-    if (address.trim()) {
-      onContinue(address.trim());
+  const handleContinue = async () => {
+    const trimmedAddress = address.trim();
+    if (!trimmedAddress) {
+      setError('Adress är obligatorisk för att skapa en utvärdering');
+      return;
+    }
+    
+    try {
+      await onContinue(trimmedAddress);
       setAddress(''); // Reset för nästa gång
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Kunde inte skapa utvärdering');
     }
   };
 
   const handleCancel = () => {
     setAddress('');
+    setError('');
     onOpenChange(false);
   };
 
@@ -52,15 +63,21 @@ export const CreateEvaluationModal = ({ open, onOpenChange, onContinue }: Create
                 id="address"
                 placeholder="T.ex. Storgatan 1, Stockholm"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
                 className="pl-10"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && address.trim()) {
                     handleContinue();
                   }
                 }}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  if (error) setError(''); // Clear error when user starts typing
+                }}
               />
             </div>
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
           </div>
         </div>
 

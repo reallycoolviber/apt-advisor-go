@@ -113,7 +113,8 @@ const EvaluationHub = () => {
       // No evaluation loaded and no edit ID - create a new one
       const createEvaluation = async () => {
         try {
-          await createNewEvaluation();
+          // Create with empty address that user will fill in
+          await createNewEvaluation('');
         } catch (err) {
           console.error('Error creating new evaluation:', err);
           setError('Kunde inte skapa ny utvärdering. Försök igen senare.');

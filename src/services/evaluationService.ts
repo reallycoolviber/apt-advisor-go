@@ -70,11 +70,17 @@ export function generateSourceId(apartmentUrl?: string, address?: string): strin
 /**
  * Huvudfunktion för att hämta eller skapa en utvärdering
  * Implementerar de-duplicering baserat på source_id
+ * KRÄVER att en giltig adress alltid anges för nya utvärderingar
  */
 export async function getOrCreateEvaluation(
   sourceId: string,
+  address: string,
   initialData?: Partial<EvaluationData>
 ): Promise<{ data: EvaluationData; created: boolean }> {
+  // REGEL 1: Validera att adressen finns innan något annat händer
+  if (!address || address.trim() === '') {
+    throw new Error(`Adress krävs för att skapa utvärdering med source_id: ${sourceId}`);
+  }
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -101,10 +107,11 @@ export async function getOrCreateEvaluation(
       return { data: existing, created: false };
     }
 
-    // Skapa ny utvärdering
+    // Skapa ny utvärdering med garanterad adress
     const newEvaluation = {
       user_id: user.id,
       source_id: sourceId,
+      address: address, // Garanterad adress från parametern
       is_draft: true,
       ...initialData
     };

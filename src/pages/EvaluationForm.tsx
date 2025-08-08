@@ -49,7 +49,8 @@ const EvaluationForm = () => {
     if (id && id !== 'new') {
       loadEvaluation(id);
     } else if (!currentEvaluation) {
-      createNewEvaluation();
+      // Create new evaluation with empty address (will be filled by user)
+      createNewEvaluation('');
     }
   }, [id]);
 
