@@ -28,11 +28,20 @@ const ChecklistSection = () => {
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
-  // Initialize auto-save hook
+  // Initialize auto-save hook with error handling
   const { debouncedSave, saveImmediately, cleanup } = useChecklistAutoSave({
     userId: user?.id || '',
     delay: 1500
   });
+
+  // Add safety check for user
+  useEffect(() => {
+    if (!user) {
+      console.warn('No user found, redirecting to auth');
+      navigate('/auth');
+      return;
+    }
+  }, [user, navigate]);
 
   const checklistItems = [
     {
@@ -173,6 +182,42 @@ const ChecklistSection = () => {
     const checked = getCheckedCount();
     return total > 0 ? Math.round((checked / total) * 100) : 0;
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+        <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Laddar checklista...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if no user
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+        <div className="relative pt-6 pb-8 px-4" style={{ zIndex: 10 }}>
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <p className="text-muted-foreground mb-4">Du måste vara inloggad för att se checklistan.</p>
+                <Button onClick={() => navigate('/auth')}>Logga in</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">

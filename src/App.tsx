@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { EvaluationProvider } from "@/contexts/EvaluationContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { GlobalHeader } from "@/components/GlobalHeader";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -66,9 +67,10 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter basename={import.meta.env.PROD ? "/apt-advisor-go" : ""}>
-          <SidebarProvider>
-            <div className="min-h-screen w-full bg-background text-foreground">
-              <GlobalHeader />
+          <ErrorBoundary>
+            <SidebarProvider>
+              <div className="min-h-screen w-full bg-background text-foreground">
+                <GlobalHeader />
               <div className="pt-14">
                 <Routes>
                   <Route path="/auth" element={
@@ -90,16 +92,20 @@ const App = () => (
                       </EvaluationProvider>
                     </ProtectedRoute>
                   } />
-                  <Route path="/evaluate/checklist/:title?" element={
+                  <Route path="/evaluate/checklist/*" element={
                     <ProtectedRoute>
-                      <ChecklistSection />
+                      <ErrorBoundary>
+                        <ChecklistSection />
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   } />
-                  <Route path="/evaluate/:section/:title?" element={
+                  <Route path="/evaluate/:section/*" element={
                     <ProtectedRoute>
-                      <EvaluationProvider>
-                        <EvaluationSection />
-                      </EvaluationProvider>
+                      <ErrorBoundary>
+                        <EvaluationProvider>
+                          <EvaluationSection />
+                        </EvaluationProvider>
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   } />
                   <Route path="/evaluate/form/:id?" element={
@@ -134,9 +140,10 @@ const App = () => (
                   } />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                </div>
               </div>
-            </div>
-          </SidebarProvider>
+            </SidebarProvider>
+          </ErrorBoundary>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>

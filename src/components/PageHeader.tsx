@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface PageHeaderProps {
   defaultTitle?: string;
@@ -10,10 +10,26 @@ interface PageHeaderProps {
 
 export const PageHeader = ({ defaultTitle, icon: Icon }: PageHeaderProps) => {
   const navigate = useNavigate();
-  const { title } = useParams();
+  const location = useLocation();
   
-  // Use the title from URL params, or fall back to default title
-  const displayTitle = title ? decodeURIComponent(title) : defaultTitle;
+  // Extract title from pathname more robustly
+  const extractTitleFromPath = () => {
+    try {
+      const pathSegments = location.pathname.split('/').filter(Boolean);
+      const lastSegment = pathSegments[pathSegments.length - 1];
+      
+      if (lastSegment && lastSegment !== 'checklist' && lastSegment !== 'general' && lastSegment !== 'financial' && lastSegment !== 'physical') {
+        return decodeURIComponent(lastSegment);
+      }
+      return null;
+    } catch (error) {
+      console.error('Error extracting title from path:', error);
+      return null;
+    }
+  };
+  
+  // Use the title from URL path, or fall back to default title
+  const displayTitle = extractTitleFromPath() || defaultTitle || 'Utvärdering';
 
   return (
     <div className="flex items-center justify-between gap-4 mb-6">
