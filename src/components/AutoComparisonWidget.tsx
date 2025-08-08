@@ -298,16 +298,20 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
 
     // 4) Kassaflöde per kvm (högre är bättre)
-    if (currentEvaluation.cashflow_per_sqm !== null && currentEvaluation.cashflow_per_sqm !== undefined) {
-      const currentCash = currentEvaluation.cashflow_per_sqm as number;
-      const arr = comparisonEvaluations
-        .map(e => e.cashflow_per_sqm as number | null)
-        .filter((v): v is number => v !== null && v !== undefined);
-      const stats = computeStats(arr, currentCash, true);
+    console.log('AutoComparison: Checking kassaflöde per kvm for', currentEvaluation.address);
+    const currentCashflow = currentEvaluation.cashflow_per_sqm;
+    const cashflowComparisonArray = comparisonEvaluations
+      .map(e => e.cashflow_per_sqm as number | null)
+      .filter((v): v is number => v !== null && v !== undefined);
+    
+    console.log('AutoComparison: currentCashflow:', currentCashflow, 'cashflowComparisonArray:', cashflowComparisonArray);
+    
+    if (currentCashflow !== null && currentCashflow !== undefined && cashflowComparisonArray.length > 0) {
+      const stats = computeStats(cashflowComparisonArray, currentCashflow as number, true);
       if (stats) {
         metrics.push({
           name: 'Kassaflöde per kvm',
-          value: currentCash,
+          value: currentCashflow as number,
           average: stats.average,
           best: stats.best,
           worst: stats.worst,
@@ -319,6 +323,21 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
           higherIsBetter: true,
         });
       }
+    } else {
+      // Show card even without comparison data to indicate missing information
+      metrics.push({
+        name: 'Kassaflöde per kvm',
+        value: currentCashflow || 0,
+        average: 0,
+        best: 0,
+        worst: 0,
+        percentile: 0,
+        unit: 'SEK/kvm',
+        icon: <Wallet className="h-4 w-4" />,
+        betterCount: 0,
+        total: 0,
+        higherIsBetter: true,
+      });
     }
 
     // 5) Fysisk bedömning (högre är bättre)
