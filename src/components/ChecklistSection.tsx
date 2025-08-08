@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useEvaluationStore } from '@/stores/evaluationStore';
+import { useEvaluation } from '@/contexts/EvaluationContext';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 const ChecklistSection = () => {
@@ -17,14 +18,18 @@ const ChecklistSection = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Use central store - Single Source of Truth
+  // Get current evaluation context
+  const { evaluationId } = useEvaluation();
+  
+  // Use central store - Single Source of Truth (Evaluation Specific)
   const { 
     checklistItems: storeChecklistItems, 
     checklistLoading, 
     checklistError,
     loadChecklistItems, 
     updateChecklistItem,
-    getChecklistProgress
+    getChecklistProgress,
+    initializeChecklistForEvaluation
   } = useEvaluationStore();
 
   // Only UI state, no checklist data copies
@@ -38,9 +43,14 @@ const ChecklistSection = () => {
       return;
     }
     
-    // Load checklist items from central store
-    loadChecklistItems(user.id);
-  }, [user, navigate, loadChecklistItems]);
+    // Load checklist items for this specific evaluation
+    if (user && evaluationId) {
+      loadChecklistItems(user.id, evaluationId);
+    } else if (user && !evaluationId) {
+      // If no evaluation ID, we might need to create a new evaluation first
+      console.warn('No evaluation ID found for checklist');
+    }
+  }, [user, evaluationId, navigate, loadChecklistItems]);
 
   const checklistItems = [
     {

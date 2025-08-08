@@ -99,7 +99,9 @@ const AppContent = () => {
                   <Route path="/evaluate/checklist/*" element={
                     <ProtectedRoute>
                       <ErrorBoundary>
-                        <ChecklistSection />
+                        <EvaluationProvider>
+                          <ChecklistSection />
+                        </EvaluationProvider>
                       </ErrorBoundary>
                     </ProtectedRoute>
                   } />

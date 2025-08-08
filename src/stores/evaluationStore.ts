@@ -31,7 +31,7 @@ interface EvaluationStore {
   isDraft: boolean;
   hasUnsavedChanges: boolean;
   
-  // Checklist items (Single Source of Truth)
+  // Checklist items (Single Source of Truth - Evaluation Specific)
   checklistItems: Record<string, ChecklistItem>;
   checklistLoading: boolean;
   checklistError: string | null;
@@ -50,10 +50,11 @@ interface EvaluationStore {
   saveCurrentEvaluation: () => Promise<void>;
   clearCurrentEvaluation: () => void;
   
-  // Actions for checklist (Single Source of Truth)
-  loadChecklistItems: (userId: string) => Promise<void>;
+  // Actions for checklist (Single Source of Truth - Evaluation Specific)
+  loadChecklistItems: (userId: string, evaluationId?: string) => Promise<void>;
   updateChecklistItem: (itemId: string, isChecked: boolean, comment?: string) => Promise<void>;
   getChecklistProgress: () => { filled: number; total: number };
+  initializeChecklistForEvaluation: (evaluationId: string) => Promise<void>;
   
   // Internal helpers
   _setAutoSaveStatus: (status: AutoSaveStatus) => void;
@@ -290,6 +291,10 @@ export const useEvaluationStore = create<EvaluationStore>()(
               hasUnsavedChanges: false,
               currentEvaluationLoading: false
             });
+
+            // Load checklist items for this specific evaluation
+            const store = get();
+            store.loadChecklistItems(evaluationData.user_id, evaluationId);
           } catch (error) {
             console.error('Error loading evaluation:', error);
             set({
@@ -305,7 +310,9 @@ export const useEvaluationStore = create<EvaluationStore>()(
             currentEvaluationId: null,
             isDraft: true,
             hasUnsavedChanges: false,
-            currentEvaluationError: null
+            currentEvaluationError: null,
+            // Clear checklist when creating new evaluation
+            checklistItems: {}
           });
         },
 
@@ -414,15 +421,22 @@ export const useEvaluationStore = create<EvaluationStore>()(
           });
         },
 
-        // Checklist actions (Single Source of Truth)
-        loadChecklistItems: async (userId: string) => {
+        // Checklist actions (Single Source of Truth - Evaluation Specific)
+        loadChecklistItems: async (userId: string, evaluationId?: string) => {
           set({ checklistLoading: true, checklistError: null });
           
           try {
-            const { data: items, error } = await supabase
+            let query = supabase
               .from('checklist_items')
               .select('*')
               .eq('user_id', userId);
+            
+            // If evaluationId is provided, filter by it. If not, get all user items.
+            if (evaluationId) {
+              query = query.eq('evaluation_id', evaluationId);
+            }
+
+            const { data: items, error } = await query;
 
             if (error) throw error;
 
@@ -463,9 +477,14 @@ export const useEvaluationStore = create<EvaluationStore>()(
           ];
           
           try {
-            // Get current user from auth context - this should be passed as parameter in real implementation
+            // Get current user from auth context
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
+
+            // CRITICAL: Must be linked to current evaluation
+            if (!state.currentEvaluationId) {
+              throw new Error('No current evaluation - checklist items must be linked to an evaluation');
+            }
 
             const category = checklistCategories[categoryIndex];
             const itemText = checklistTexts[categoryIndex]?.[itemIndex] || '';
@@ -504,7 +523,7 @@ export const useEvaluationStore = create<EvaluationStore>()(
                 .from('checklist_items')
                 .insert({
                   user_id: user.id,
-                  evaluation_id: state.currentEvaluationId,
+                  evaluation_id: state.currentEvaluationId, // Link to current evaluation
                   item_index: itemIndex,
                   is_checked: isChecked,
                   comment: comment || null,
@@ -540,6 +559,68 @@ export const useEvaluationStore = create<EvaluationStore>()(
             filled: checkedItems,
             total: totalItems
           };
+        },
+
+        initializeChecklistForEvaluation: async (evaluationId: string) => {
+          try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('User not authenticated');
+
+            // Pre-defined checklist structure
+            const checklistCategories = [
+              'Föreningen - Viktiga Frågor till Mäklaren & Styrelsen',
+              'Lägenheten - Din Personliga Inspektion'
+            ];
+            
+            const checklistTexts = [
+              // Category 0: Föreningen
+              ['När gjordes stambyte senast? När är nästa planerat?', 'När byttes fönster/tak/fasad senast?', 'Finns några stora planerade renoveringar eller avgiftshöjningar?', 'Vad ingår i avgiften (värme, vatten, TV, bredband)?', 'Finns det några kända problem med skadedjur, fukt eller buller i fastigheten?', 'Hur är situationen med förråd, tvättstuga, cykelrum och parkering?', 'Vilka regler gäller för husdjur, uthyrning och renovering?', 'Har föreningen några ekonomiska utmaningar eller skulder?'],
+              // Category 1: Lägenheten
+              ['Kontrollera badrummet noggrant: Finns tecken på fukt/mögel? Hur ser golvbrunnen ut? Fråga efter kvalitetsdokument/våtrumsintyg.', 'Kontrollera köket: Testa alla vitvaror. Kolla trycket i vattenkranen.', 'Öppna och stäng fönster och dörrar. Är de i gott skick?', 'Lyssna efter störande ljud från grannar, trapphus eller utifrån.', 'Kontrollera elen: Finns jordade uttag i alla rum? Ser elcentralen modern ut?', 'Undersök golv, väggar och tak efter sprickor, fläckar eller skador.', 'Testa ventilationen i badrum och kök. Fungerar den korrekt?', 'Kontrollera värmesystemet: Radiatorernas skick och temperaturkontroll.']
+            ];
+
+            // Check if checklist already exists for this evaluation
+            const { data: existingItems, error: checkError } = await supabase
+              .from('checklist_items')
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('evaluation_id', evaluationId);
+
+            if (checkError) throw checkError;
+
+            // If checklist already exists, don't create duplicates
+            if (existingItems && existingItems.length > 0) {
+              console.log('Checklist already exists for evaluation:', evaluationId);
+              return;
+            }
+
+            // Create all checklist items for this evaluation
+            const itemsToCreate = [];
+            checklistCategories.forEach((category, categoryIndex) => {
+              checklistTexts[categoryIndex].forEach((text, itemIndex) => {
+                itemsToCreate.push({
+                  user_id: user.id,
+                  evaluation_id: evaluationId,
+                  item_index: itemIndex,
+                  is_checked: false,
+                  comment: null,
+                  item_category: category,
+                  item_text: text
+                });
+              });
+            });
+
+            const { error } = await supabase
+              .from('checklist_items')
+              .insert(itemsToCreate);
+
+            if (error) throw error;
+
+            console.log(`Initialized ${itemsToCreate.length} checklist items for evaluation:`, evaluationId);
+          } catch (error) {
+            console.error('Error initializing checklist for evaluation:', error);
+            throw new Error('Kunde inte initiera checklista för utvärdering');
+          }
         },
 
         // Internal helpers

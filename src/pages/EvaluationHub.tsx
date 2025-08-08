@@ -54,13 +54,14 @@ const EvaluationHub = () => {
   console.log('EvaluationHub: User:', user);
 
   const fetchChecklistProgress = async () => {
-    if (!user) return { filled: 0, total: 16 };
+    if (!user || !currentEvaluationId) return { filled: 0, total: 16 };
     
     try {
       const { data: items, error } = await supabase
         .from('checklist_items')
         .select('is_checked')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('evaluation_id', currentEvaluationId); // Filter by specific evaluation
 
       if (error) throw error;
 
@@ -82,12 +83,12 @@ const EvaluationHub = () => {
     return isNaN(num) ? null : num;
   };
 
-  // Load checklist progress
+  // Load checklist progress for this specific evaluation
   useEffect(() => {
-    if (user) {
+    if (user && currentEvaluationId) {
       fetchChecklistProgress();
     }
-  }, [user]);
+  }, [user, currentEvaluationId]);
 
   // Load existing evaluation if edit mode or direct URL with ID
   useEffect(() => {
