@@ -120,6 +120,13 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
       return n > 0 && n < 100000 ? n * 1_000_000 : n;
     };
 
+    const normalizeDebtPerSqm = (v: any): number | null => {
+      const n = normalizeNumber(v);
+      if (n === null) return null;
+      // Debt per sqm sometimes stored in tkr/kvm; upscale small values
+      return n > 0 && n < 1000 ? n * 1000 : n;
+    };
+
     setData({
       address: evaluationData.address || '',
       general: {
@@ -130,7 +137,7 @@ export const EvaluationProvider = ({ children }: { children: ReactNode }) => {
         monthlyFee: normalizeNumber(evaluationData.monthly_fee)?.toString() || ''
       },
       financial: {
-        debtPerSqm: normalizeNumber(evaluationData.debt_per_sqm)?.toString() || '',
+        debtPerSqm: normalizeDebtPerSqm(evaluationData.debt_per_sqm)?.toString() || '',
         feePerSqm: normalizeNumber(evaluationData.fee_per_sqm)?.toString() || '',
         cashflowPerSqm: normalizeNumber(evaluationData.cashflow_per_sqm)?.toString() || '',
         majorMaintenanceDone: evaluationData.major_maintenance_done || false,
