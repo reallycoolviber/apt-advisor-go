@@ -32,28 +32,28 @@ const ChecklistSection = () => {
       category: 'Föreningen - Viktiga Frågor till Mäklaren & Styrelsen',
       icon: Building2,
       items: [
-        'När gjordes stambyte senast? När är nästa planerat?',
-        'När byttes fönster/tak/fasad senast?',
-        'Finns några stora planerade renoveringar eller avgiftshöjningar?',
-        'Vad ingår i avgiften (värme, vatten, TV, bredband)?',
-        'Finns det några kända problem med skadedjur, fukt eller buller i fastigheten?',
-        'Hur är situationen med förråd, tvättstuga, cykelrum och parkering?',
-        'Vilka regler gäller för husdjur, uthyrning och renovering?',
-        'Har föreningen några ekonomiska utmaningar eller skulder?'
+        { title: 'Stambyte', text: 'När gjordes stambyte senast? När är nästa planerat?' },
+        { title: 'Renoveringar', text: 'När byttes fönster/tak/fasad senast?' },
+        { title: 'Planerade arbeten', text: 'Finns några stora planerade renoveringar eller avgiftshöjningar?' },
+        { title: 'Avgifter', text: 'Vad ingår i avgiften (värme, vatten, TV, bredband)?' },
+        { title: 'Bekanta problem', text: 'Finns det några kända problem med skadedjur, fukt eller buller i fastigheten?' },
+        { title: 'Gemensamma utrymmen', text: 'Hur är situationen med förråd, tvättstuga, cykelrum och parkering?' },
+        { title: 'Regler', text: 'Vilka regler gäller för husdjur, uthyrning och renovering?' },
+        { title: 'Ekonomi', text: 'Har föreningen några ekonomiska utmaningar eller skulder?' }
       ]
     },
     {
       category: 'Lägenheten - Din Personliga Inspektion',
       icon: Eye,
       items: [
-        'Kontrollera badrummet noggrant: Finns tecken på fukt/mögel? Hur ser golvbrunnen ut? Fråga efter kvalitetsdokument/våtrumsintyg.',
-        'Kontrollera köket: Testa alla vitvaror. Kolla trycket i vattenkranen.',
-        'Öppna och stäng fönster och dörrar. Är de i gott skick?',
-        'Lyssna efter störande ljud från grannar, trapphus eller utifrån.',
-        'Kontrollera elen: Finns jordade uttag i alla rum? Ser elcentralen modern ut?',
-        'Undersök golv, väggar och tak efter sprickor, fläckar eller skador.',
-        'Testa ventilationen i badrum och kök. Fungerar den korrekt?',
-        'Kontrollera värmesystemet: Radiatorernas skick och temperaturkontroll.'
+        { title: 'Badrum', text: 'Kontrollera badrummet noggrant: Finns tecken på fukt/mögel? Hur ser golvbrunnen ut? Fråga efter kvalitetsdokument/våtrumsintyg.' },
+        { title: 'Kök', text: 'Kontrollera köket: Testa alla vitvaror. Kolla trycket i vattenkranen.' },
+        { title: 'Fönster & dörrar', text: 'Öppna och stäng fönster och dörrar. Är de i gott skick?' },
+        { title: 'Ljudnivå', text: 'Lyssna efter störande ljud från grannar, trapphus eller utifrån.' },
+        { title: 'Elinstallation', text: 'Kontrollera elen: Finns jordade uttag i alla rum? Ser elcentralen modern ut?' },
+        { title: 'Skador', text: 'Undersök golv, väggar och tak efter sprickor, fläckar eller skador.' },
+        { title: 'Ventilation', text: 'Testa ventilationen i badrum och kök. Fungerar den korrekt?' },
+        { title: 'Värme', text: 'Kontrollera värmesystemet: Radiatorernas skick och temperaturkontroll.' }
       ]
     }
   ];
@@ -103,7 +103,7 @@ const ChecklistSection = () => {
     if (!user) return;
 
     const category = checklistItems[categoryIndex].category;
-    const itemText = checklistItems[categoryIndex].items[itemIndex];
+    const itemText = checklistItems[categoryIndex].items[itemIndex].text;
 
     try {
       const { error } = await supabase
@@ -269,67 +269,73 @@ const ChecklistSection = () => {
                       
                       return (
                         <div key={itemIndex} className="border rounded-lg p-4 bg-background/50">
-                          <div className="flex items-start gap-3">
-                            <Checkbox
-                              id={itemId}
-                              checked={isChecked}
-                              onCheckedChange={(checked) => handleCheckboxChange(itemId, checked as boolean)}
-                              className="mt-0.5 flex-shrink-0"
-                            />
-                            <div className="flex-1 space-y-2">
-                              <label 
-                                htmlFor={itemId}
-                                className={`text-sm cursor-pointer block ${
-                                  isChecked ? 'line-through text-muted-foreground' : 'text-foreground'
-                                }`}
-                              >
-                                {item}
-                              </label>
-                              
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => toggleCommentExpansion(itemId)}
-                                  className="text-xs h-7"
-                                >
-                                  <MessageSquare className="h-3 w-3 mr-1" />
-                                  {hasComment ? 'Redigera kommentar' : 'Lägg till kommentar'}
-                                  {hasComment && <span className="ml-1 h-2 w-2 bg-primary rounded-full"></span>}
-                                </Button>
-                              </div>
-
-                              <Collapsible open={isExpanded} onOpenChange={() => toggleCommentExpansion(itemId)}>
-                                <CollapsibleContent className="space-y-3 mt-3">
-                                  <Textarea
-                                    placeholder="Lägg till din kommentar här..."
-                                    value={comments[itemId] || ''}
-                                    onChange={(e) => setComments(prev => ({ ...prev, [itemId]: e.target.value }))}
-                                    className="min-h-[80px] text-sm"
-                                  />
-                                  <div className="flex gap-2">
-                                    <Button
-                                      size="sm"
-                                      onClick={() => handleCommentSave(itemId)}
-                                      disabled={saving}
-                                      className="h-8"
-                                    >
-                                      <Save className="h-3 w-3 mr-1" />
-                                      {saving ? 'Sparar...' : 'Spara kommentar'}
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => toggleCommentExpansion(itemId)}
-                                      className="h-8"
-                                    >
-                                      Avbryt
-                                    </Button>
-                                  </div>
-                                </CollapsibleContent>
-                              </Collapsible>
+                          {/* Top row: Checkbox + Title + Comment Icon */}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-3">
+                              <Checkbox
+                                id={itemId}
+                                checked={isChecked}
+                                onCheckedChange={(checked) => handleCheckboxChange(itemId, checked as boolean)}
+                                className="flex-shrink-0"
+                              />
+                              <span className={`font-medium text-sm ${
+                                isChecked ? 'line-through text-muted-foreground' : 'text-foreground'
+                              }`}>
+                                {item.title}
+                              </span>
                             </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleCommentExpansion(itemId)}
+                              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground opacity-60 hover:opacity-100"
+                            >
+                              <MessageSquare className="h-4 w-4" />
+                              {hasComment && <span className="absolute -top-1 -right-1 h-2 w-2 bg-primary rounded-full"></span>}
+                            </Button>
                           </div>
+
+                          {/* Bottom row: Full question text, indented to align with title */}
+                          <div className="ml-7"> {/* ml-7 accounts for checkbox + gap */}
+                            <p className={`text-sm leading-relaxed ${
+                              isChecked ? 'line-through text-muted-foreground' : 'text-muted-foreground'
+                            }`}>
+                              {item.text}
+                            </p>
+                          </div>
+
+                          {/* Collapsible comment section */}
+                          <Collapsible open={isExpanded} onOpenChange={() => toggleCommentExpansion(itemId)}>
+                            <CollapsibleContent className="mt-4 ml-7">
+                              <div className="space-y-3 p-3 bg-secondary/30 rounded-md">
+                                <Textarea
+                                  placeholder="Lägg till din kommentar här..."
+                                  value={comments[itemId] || ''}
+                                  onChange={(e) => setComments(prev => ({ ...prev, [itemId]: e.target.value }))}
+                                  className="min-h-[80px] text-sm"
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleCommentSave(itemId)}
+                                    disabled={saving}
+                                    className="h-8"
+                                  >
+                                    <Save className="h-3 w-3 mr-1" />
+                                    {saving ? 'Sparar...' : 'Spara'}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => toggleCommentExpansion(itemId)}
+                                    className="h-8"
+                                  >
+                                    Avbryt
+                                  </Button>
+                                </div>
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
                         </div>
                       );
                     })}
