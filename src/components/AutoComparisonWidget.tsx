@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -18,7 +19,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from 'recharts';
+import { RadialBarChart, RadialBar, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { Evaluation } from '@/components/comparison/types';
 
 type ComparisonBase = 'last-month' | 'similar-price';
@@ -41,6 +42,13 @@ interface AutoComparisonWidgetProps {
   evaluationId: string;
 }
 
+interface ChartField {
+  key: string;
+  label: string;
+  type: 'currency' | 'number' | 'percentage' | 'stars';
+  unit?: string;
+}
+
 const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationId }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -48,6 +56,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   const [comparisonEvaluations, setComparisonEvaluations] = useState<Evaluation[]>([]);
   const [comparisonBase, setComparisonBase] = useState<ComparisonBase>('last-month');
   const [expandedMetric, setExpandedMetric] = useState<string | null>(null);
+  const chartRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Fetch current evaluation
   useEffect(() => {
@@ -306,6 +315,31 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     return `${value.toFixed(1)}${unit}`;
   };
 
+  const getChartField = (metricName: string): ChartField | null => {
+    const fieldMap: { [key: string]: ChartField } = {
+      'Pris per kvm': { key: 'price_per_sqm', label: 'Pris per kvm', type: 'currency', unit: 'SEK/kvm' },
+      'Avgift per kvm': { key: 'fee_per_sqm', label: 'Avgift per kvm', type: 'currency', unit: 'SEK/kvm' },
+      'Skuld per kvm': { key: 'debt_per_sqm', label: 'Skuld per kvm', type: 'currency', unit: 'SEK/kvm' },
+      'Kassaflöde per kvm': { key: 'cashflow_per_sqm', label: 'Kassaflöde per kvm', type: 'currency', unit: 'SEK/kvm' },
+      'Fysisk bedömning': { key: 'physical_average', label: 'Fysisk bedömning', type: 'stars' }
+    };
+    return fieldMap[metricName] || null;
+  };
+
+  const handleMetricToggle = (metricName: string) => {
+    const newExpanded = expandedMetric === metricName ? null : metricName;
+    setExpandedMetric(newExpanded);
+    
+    if (newExpanded && chartRefs.current[metricName]) {
+      setTimeout(() => {
+        chartRefs.current[metricName]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }, 300);
+    }
+  };
+
   const getPerformanceColor = (metric: ComparisonMetric): string => {
     const { percentile, higherIsBetter } = metric;
     // För lägre-är-bättre mått (pris, avgift, skuld): hög percentil = dåligt
@@ -428,129 +462,220 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
             const performanceColor = getPerformanceColor(metric);
             const circleColor = getCircleColor(metric);
             
+            const chartField = getChartField(metric.name);
+            
             return (
-              <div 
-                key={index} 
-                className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer"
-                onClick={() => setExpandedMetric(isExpanded ? null : metric.name)}
+              <Collapsible
+                key={index}
+                open={isExpanded}
+                onOpenChange={() => handleMetricToggle(metric.name)}
               >
-                {/* Main Content */}
-                <div className="p-5">
-                  <div className="flex items-center justify-between">
-                    {/* Left Side - Main Content */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-lg bg-app-primary/10 text-app-primary">
-                          {metric.icon}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-foreground text-sm">{metric.name}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            {getPerformanceIcon(metric)}
-                            <span className={`text-xs font-medium ${performanceColor}`}>
-                              {getComparisonText(metric)}
-                            </span>
+                <CollapsibleTrigger asChild>
+                  <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer">
+                    {/* Main Content */}
+                    <div className="p-5">
+                      <div className="flex items-center justify-between">
+                        {/* Left Side - Main Content */}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              {metric.icon}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-foreground text-sm">{metric.name}</h3>
+                              <div className="flex items-center gap-2 mt-1">
+                                {getPerformanceIcon(metric)}
+                                <span className={`text-xs font-medium ${performanceColor}`}>
+                                  {getComparisonText(metric)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Primary Value - Prominent */}
+                          <div className="mb-2">
+                            <div className="text-2xl font-bold text-foreground">
+                              {formatValue(metric.value, metric.unit)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Snitt: {formatValue(metric.average, metric.unit)}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      {/* Primary Value - Prominent */}
-                      <div className="mb-2">
-                        <div className="text-2xl font-bold text-foreground">
-                          {formatValue(metric.value, metric.unit)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Snitt: {formatValue(metric.average, metric.unit)}
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Right Side - Visual Indicator */}
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="relative w-16 h-16">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RadialBarChart 
-                            cx="50%" 
-                            cy="50%" 
-                            innerRadius="70%" 
-                            outerRadius="90%" 
-                            data={[{ value: metric.higherIsBetter ? metric.percentile : 100 - metric.percentile }]}
-                            startAngle={90}
-                            endAngle={-270}
-                          >
-                            <RadialBar 
-                              dataKey="value" 
-                              fill={circleColor}
-                              cornerRadius={10}
-                            />
-                          </RadialBarChart>
-                        </ResponsiveContainer>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className={`text-xs font-bold ${performanceColor}`}>
-                            {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Expand/Collapse Icon */}
-                      <div className="text-muted-foreground">
-                        {isExpanded ? 
-                          <ChevronUp className="h-4 w-4" /> : 
-                          <ChevronDown className="h-4 w-4" />
-                        }
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                        {/* Right Side - Visual Indicator */}
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="relative w-16 h-16">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <RadialBarChart 
+                                cx="50%" 
+                                cy="50%" 
+                                innerRadius="70%" 
+                                outerRadius="90%" 
+                                data={[{ value: metric.higherIsBetter ? metric.percentile : 100 - metric.percentile }]}
+                                startAngle={90}
+                                endAngle={-270}
+                              >
+                                <RadialBar 
+                                  dataKey="value" 
+                                  fill={circleColor}
+                                  cornerRadius={10}
+                                />
+                              </RadialBarChart>
+                            </ResponsiveContainer>
+                             <div className="absolute inset-0 flex items-center justify-center">
+                               <span className={`text-xs font-bold ${performanceColor}`}>
+                                 {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
+                               </span>
+                             </div>
+                           </div>
+                           
+                           {/* Expand/Collapse Icon */}
+                           <div className="text-muted-foreground">
+                             {isExpanded ? 
+                               <ChevronUp className="h-4 w-4" /> : 
+                               <ChevronDown className="h-4 w-4" />
+                             }
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </CollapsibleTrigger>
 
-                {/* Expanded Content */}
-                {isExpanded && (
-                  <div className="border-t border-border bg-secondary/20 p-5 animate-accordion-down">
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="space-y-2">
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Bästa värde:</span>
-                          <span className="ml-2 font-medium text-semantic-good">
-                            {formatValue(metric.best, metric.unit)}
-                          </span>
-                        </div>
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Sämsta värde:</span>
-                          <span className="ml-2 font-medium text-semantic-bad">
-                            {formatValue(metric.worst, metric.unit)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Jämförelsegrupp:</span>
-                          <span className="ml-2 font-medium">{metric.total} lägenheter</span>
-                        </div>
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Ranking:</span>
-                          <span className={`ml-2 font-medium ${performanceColor}`}>
-                            {metric.betterCount + 1} av {metric.total + 1}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Description */}
-                    <div className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded">
-                      {metric.name === 'Pris per kvm' && 'Priset per kvadratmeter jämfört med liknande lägenheter. Lägre värde är bättre.'}
-                      {metric.name === 'Avgift per kvm' && 'Månadskostnaden per kvadratmeter. Lägre avgift ger lägre löpande kostnader.'}
-                      {metric.name === 'Skuld per kvm' && 'Föreningens skuldsättning per kvadratmeter. Lägre skuld innebär mindre risk.'}
-                      {metric.name === 'Kassaflöde per kvm' && 'Nettoflödet per kvadratmeter. Högre värde innebär bättre ekonomi.'}
-                      {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper. Högre betyg är bättre.'}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </Card>
+                 <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                   <div 
+                     ref={(el) => chartRefs.current[metric.name] = el}
+                     className="border-t border-border bg-secondary/20 p-5"
+                   >
+                     <div className="grid grid-cols-2 gap-4 mb-4">
+                       <div className="space-y-2">
+                         <div className="text-sm">
+                           <span className="text-muted-foreground">Bästa värde:</span>
+                           <span className="ml-2 font-medium text-semantic-good">
+                             {formatValue(metric.best, metric.unit)}
+                           </span>
+                         </div>
+                         <div className="text-sm">
+                           <span className="text-muted-foreground">Sämsta värde:</span>
+                           <span className="ml-2 font-medium text-semantic-bad">
+                             {formatValue(metric.worst, metric.unit)}
+                           </span>
+                         </div>
+                       </div>
+                       <div className="space-y-2">
+                         <div className="text-sm">
+                           <span className="text-muted-foreground">Jämförelsegrupp:</span>
+                           <span className="ml-2 font-medium">{metric.total} lägenheter</span>
+                         </div>
+                         <div className="text-sm">
+                           <span className="text-muted-foreground">Ranking:</span>
+                           <span className={`ml-2 font-medium ${performanceColor}`}>
+                             {metric.betterCount + 1} av {metric.total + 1}
+                           </span>
+                         </div>
+                       </div>
+                     </div>
+                     
+                     {/* Description */}
+                     <div className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded mb-4">
+                       {metric.name === 'Pris per kvm' && 'Priset per kvadratmeter jämfört med liknande lägenheter. Lägre värde är bättre.'}
+                       {metric.name === 'Avgift per kvm' && 'Månadskostnaden per kvadratmeter. Lägre avgift ger lägre löpande kostnader.'}
+                       {metric.name === 'Skuld per kvm' && 'Föreningens skuldsättning per kvadratmeter. Lägre skuld innebär mindre risk.'}
+                       {metric.name === 'Kassaflöde per kvm' && 'Nettoflödet per kvadratmeter. Högre värde innebär bättre ekonomi.'}
+                       {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper. Högre betyg är bättre.'}
+                     </div>
+
+                      {/* Chart */}
+                      {chartField && (() => {
+                        const allEvaluations = [currentEvaluation, ...comparisonEvaluations];
+                        const chartData = allEvaluations.map((evaluation, index) => {
+                          let value: number;
+                          
+                          if (chartField.key === 'physical_average') {
+                            value = calculatePhysicalAverage(evaluation);
+                          } else if (chartField.key === 'fee_per_sqm') {
+                            value = getFeePerSqm(evaluation) || 0;
+                          } else {
+                            value = evaluation[chartField.key as keyof Evaluation] as number || 0;
+                          }
+                          
+                          return {
+                            name: index === 0 ? 'Aktuell' : `Lägenhet ${index}`,
+                            value: value,
+                            isCurrent: index === 0,
+                            address: evaluation.address || `Lägenhet ${index + 1}`
+                          };
+                        }).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
+
+                        const formatChartValue = (value: number) => {
+                          if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()} SEK/kvm`;
+                          if (chartField.type === 'stars') return `${value.toFixed(1)}/5`;
+                          return value.toFixed(1);
+                        };
+
+                        return (
+                          <div className="w-full h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart
+                                data={chartData}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                layout="horizontal"
+                              >
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                <XAxis 
+                                  type="number" 
+                                  stroke="hsl(var(--muted-foreground))"
+                                  fontSize={12}
+                                  tickFormatter={formatChartValue}
+                                />
+                                <YAxis 
+                                  type="category" 
+                                  dataKey="name" 
+                                  stroke="hsl(var(--muted-foreground))"
+                                  fontSize={12}
+                                  width={80}
+                                />
+                                <Tooltip
+                                  formatter={(value: number, name: string, props: any) => [
+                                    formatChartValue(value),
+                                    chartField.label
+                                  ]}
+                                  labelFormatter={(label: string, payload: any) => {
+                                    const data = payload?.[0]?.payload;
+                                    return data?.address || label;
+                                  }}
+                                  contentStyle={{
+                                    backgroundColor: 'hsl(var(--popover))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '6px',
+                                    fontSize: '12px'
+                                  }}
+                                />
+                                 <Bar 
+                                   dataKey="value" 
+                                   radius={[0, 4, 4, 0]}
+                                 >
+                                   {chartData.map((entry, index) => (
+                                     <Cell 
+                                       key={`cell-${index}`} 
+                                       fill={entry.isCurrent ? 'hsl(var(--primary))' : 'hsl(var(--muted))'} 
+                                     />
+                                   ))}
+                                 </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        );
+                      })()}
+                   </div>
+                 </CollapsibleContent>
+               </Collapsible>
+             );
+           })}
+         </div>
+       </div>
+     </Card>
   );
 };
 
