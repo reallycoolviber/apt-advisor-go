@@ -131,8 +131,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
           .from('apartment_evaluations')
           .select('*')
           .eq('user_id', user.id)
-          .neq('id', currentEvaluationId)
-          .eq('is_draft', false);
+          .neq('id', currentEvaluationId);
 
         if (comparisonBase === 'last-month') {
           const oneMonthAgo = new Date();
