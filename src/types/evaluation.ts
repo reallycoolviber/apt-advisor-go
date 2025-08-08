@@ -10,8 +10,8 @@ export interface EvaluationFormData {
   financial: {
     debtPerSqm: string;
     cashflowPerSqm: string;
-    majorMaintenanceDone: boolean;
-    ownsLand: boolean;
+    majorMaintenanceDone: boolean | null;
+    ownsLand: boolean | null;
     underhållsplan: string;
   };
   physical: {

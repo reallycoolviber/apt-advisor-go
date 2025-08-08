@@ -229,7 +229,11 @@ const ChecklistSection = () => {
                       const isExpanded = expandedComments[itemId] || false;
                       
                       return (
-                        <div key={itemIndex} className="border rounded-lg p-4 bg-background/50">
+                        <div 
+                          key={itemIndex} 
+                          className="border rounded-lg p-4 bg-background/50 cursor-pointer transition-all duration-200 hover:bg-background/70 hover:border-primary/30"
+                          onClick={() => handleCheckboxChange(itemId, !isChecked)}
+                        >
                           {/* Top row: Checkbox + Title + Comment Icon */}
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
@@ -237,7 +241,7 @@ const ChecklistSection = () => {
                                 id={itemId}
                                 checked={isChecked}
                                 onCheckedChange={(checked) => handleCheckboxChange(itemId, checked as boolean)}
-                                className="flex-shrink-0"
+                                className="flex-shrink-0 pointer-events-none" // Prevent double trigger
                               />
                               <span className={`font-medium text-body ${
                                 isChecked ? 'line-through text-muted-foreground' : 'text-foreground'
@@ -248,7 +252,10 @@ const ChecklistSection = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => toggleCommentExpansion(itemId)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent triggering checkbox change
+                                toggleCommentExpansion(itemId);
+                              }}
                               className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground opacity-60 hover:opacity-100"
                             >
                               <MessageSquare className="h-4 w-4" />
@@ -268,16 +275,18 @@ const ChecklistSection = () => {
                           {/* Collapsible comment section */}
                           <Collapsible open={isExpanded} onOpenChange={() => toggleCommentExpansion(itemId)}>
                             <CollapsibleContent className="mt-4 ml-7">
-                              <StandardizedTextarea
-                                id={`comment-${itemId}`}
-                                label="Kommentar (valfritt)"
-                                value={comment}
-                                onChange={(e) => handleCommentChange(itemId, e.target.value)}
-                                onBlur={(e) => handleCommentBlur(itemId, e.target.value)}
-                                placeholder="Lägg till din kommentar här..."
-                                rows={3}
-                                className="mb-2"
-                              />
+                              <div onClick={(e) => e.stopPropagation()}> {/* Prevent triggering checkbox change when clicking in textarea area */}
+                                <StandardizedTextarea
+                                  id={`comment-${itemId}`}
+                                  label="Kommentar (valfritt)"
+                                  value={comment}
+                                  onChange={(e) => handleCommentChange(itemId, e.target.value)}
+                                  onBlur={(e) => handleCommentBlur(itemId, e.target.value)}
+                                  placeholder="Lägg till din kommentar här..."
+                                  rows={3}
+                                  className="mb-2"
+                                />
+                              </div>
                             </CollapsibleContent>
                           </Collapsible>
                         </div>

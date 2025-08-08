@@ -49,8 +49,8 @@ const defaultData: EvaluationFormData = {
   financial: {
     debtPerSqm: '',
     cashflowPerSqm: '',
-    majorMaintenanceDone: false,
-    ownsLand: false,
+    majorMaintenanceDone: null, // Changed from false to null - no pre-filled value
+    ownsLand: null, // Changed from false to null - no pre-filled value
     underhållsplan: ''
   },
   physical: {
