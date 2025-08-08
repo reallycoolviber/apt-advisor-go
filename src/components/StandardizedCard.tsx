@@ -15,7 +15,7 @@ export const StandardizedCard = React.forwardRef<
   StandardizedCardProps
 >(({ children, variant = 'default', size = 'default', hover = false, className, ...props }, ref) => {
   const variantClasses = {
-    default: 'bg-card border-border',
+    default: 'bg-app-background-secondary border-border',
     secondary: 'bg-secondary border-border',
     success: 'bg-success/5 border-success/20',
     warning: 'bg-warning/5 border-warning/20',

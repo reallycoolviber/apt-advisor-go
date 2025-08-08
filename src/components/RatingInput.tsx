@@ -81,7 +81,7 @@ export const RatingInput = ({
             value={comment}
             onChange={(e) => onCommentChange(e.target.value)}
             placeholder="Lägg till en kommentar för detta betyg..."
-            className="resize-none w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0"
+            className="resize-none w-full rounded-lg border border-input bg-input px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0"
             rows={3}
           />
         </div>

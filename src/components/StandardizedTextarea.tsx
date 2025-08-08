@@ -65,7 +65,7 @@ export const StandardizedTextarea = React.forwardRef<
         rows={rows}
         disabled={disabled}
         className={cn(
-          "w-full rounded-lg border bg-background px-3.5 py-2.5 text-sm transition-colors",
+          "w-full rounded-lg border bg-input px-3.5 py-2.5 text-sm transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0",
           "resize-none",
           error && "border-destructive bg-destructive/5 focus:ring-destructive",

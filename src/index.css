@@ -24,6 +24,7 @@ All colors MUST be HSL.
     /* Bakgrundsfärger */
     --app-background-primary: 60 8% 96%; /* #F5F5F3 - Ljusgrå huvudbakgrund */
     --app-background-secondary: 0 0% 100%; /* #FFFFFF - Vit för kort och ytor */
+    --app-background-input: 0 0% 94%; /* #F0F0F0 - Ljusgrå för textfält */
     
     /* Textfärg */
     --app-text-primary: 0 0% 20%;       /* #333333 - Mörkgrå/svart för primär text */
@@ -63,7 +64,7 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
 
     --border: 60 5% 85%;
-    --input: 60 5% 90%;
+    --input: var(--app-background-input);
     --ring: var(--app-primary);
 
     --hover: var(--app-primary-light);
@@ -123,6 +124,7 @@ All colors MUST be HSL.
     /* Bakgrunder anpassade för mörkt läge */
     --app-background-primary: 0 0% 15%;
     --app-background-secondary: 0 0% 18%;
+    --app-background-input: 0 0% 22%; /* Ljusare grå för inputs i dark mode */
     --app-text-primary: 0 0% 95%;
     
     /* Primärfärg justerad för mörkt läge */
@@ -166,7 +168,7 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 95%;
 
     --border: 0 0% 25%;
-    --input: 0 0% 25%;
+    --input: var(--app-background-input);
     --ring: var(--app-primary);
     
     --hover: var(--app-primary-dark);

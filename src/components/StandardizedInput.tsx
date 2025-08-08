@@ -63,7 +63,7 @@ export const StandardizedInput = React.forwardRef<
         placeholder={placeholder}
         disabled={disabled}
         className={cn(
-          "w-full rounded-lg border bg-background transition-colors",
+          "w-full rounded-lg border bg-input transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0",
           inputSizeClasses[size],
           error && "border-destructive bg-destructive/5 focus:ring-destructive",

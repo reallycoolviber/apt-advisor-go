@@ -34,6 +34,7 @@ export default {
 				/* Bakgrundsfärger */
 				'app-background-primary': 'hsl(var(--app-background-primary))',
 				'app-background-secondary': 'hsl(var(--app-background-secondary))',
+				'app-background-input': 'hsl(var(--app-background-input))',
 				
 				/* Textfärg */
 				'app-text-primary': 'hsl(var(--app-text-primary))',
