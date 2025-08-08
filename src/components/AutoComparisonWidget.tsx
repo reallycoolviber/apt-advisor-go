@@ -12,7 +12,9 @@ import {
   Euro, 
   Home,
   BarChart3,
-  Filter
+  Filter,
+  Banknote,
+  Wallet
 } from 'lucide-react';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from 'recharts';
 import { Evaluation } from '@/components/comparison/types';
@@ -28,6 +30,9 @@ interface ComparisonMetric {
   percentile: number;
   unit: string;
   icon: React.ReactNode;
+  betterCount: number;
+  total: number;
+  higherIsBetter: boolean;
 }
 
 interface AutoComparisonWidgetProps {
@@ -132,112 +137,151 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     return ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
   };
 
-  const calculateEconomicIndex = (evaluation: Evaluation): number => {
-    let score = 0;
-    let factors = 0;
+  // Hjälpfunktioner
+  const getFeePerSqm = (e: Evaluation): number | null => {
+    if (e.fee_per_sqm !== null && e.fee_per_sqm !== undefined) return e.fee_per_sqm;
+    if (e.monthly_fee && e.size) return e.monthly_fee / e.size;
+    return null;
+  };
 
-    if (evaluation.debt_per_sqm !== null && evaluation.debt_per_sqm !== undefined) {
-      score += Math.max(0, 5 - (evaluation.debt_per_sqm / 10000));
-      factors++;
-    }
-
-    if (evaluation.fee_per_sqm !== null && evaluation.fee_per_sqm !== undefined) {
-      score += Math.max(0, 5 - (evaluation.fee_per_sqm / 100));
-      factors++;
-    }
-
-    if (evaluation.cashflow_per_sqm !== null && evaluation.cashflow_per_sqm !== undefined) {
-      score += Math.min(5, Math.max(0, (evaluation.cashflow_per_sqm + 500) / 100));
-      factors++;
-    }
-
-    return factors > 0 ? score / factors : 0;
+  const computeStats = (
+    values: number[],
+    current: number,
+    higherIsBetter: boolean
+  ) => {
+    const clean = values.filter(v => Number.isFinite(v));
+    const total = clean.length;
+    if (total === 0) return null as any;
+    const average = clean.reduce((s, v) => s + v, 0) / total;
+    const best = higherIsBetter ? Math.max(...clean) : Math.min(...clean);
+    const worst = higherIsBetter ? Math.min(...clean) : Math.max(...clean);
+    const betterCount = higherIsBetter
+      ? clean.filter(v => v < current).length
+      : clean.filter(v => v > current).length;
+    const percentile = (betterCount / total) * 100;
+    return { average, best, worst, betterCount, total, percentile };
   };
 
   const comparisonMetrics = useMemo(() => {
-    if (!currentEvaluation || comparisonEvaluations.length === 0) return [];
+    if (!currentEvaluation || comparisonEvaluations.length === 0) return [] as ComparisonMetric[];
 
     const metrics: ComparisonMetric[] = [];
 
-    // Price per sqm metric
+    // 1) Pris per kvm (lägre är bättre)
     if (currentEvaluation.price_per_sqm) {
-      const pricesPerSqm = comparisonEvaluations
-        .map(e => e.price_per_sqm)
-        .filter(p => p !== null && p !== undefined) as number[];
-      
-      if (pricesPerSqm.length > 0) {
-        const average = pricesPerSqm.reduce((sum, p) => sum + p, 0) / pricesPerSqm.length;
-        const best = Math.min(...pricesPerSqm);
-        const worst = Math.max(...pricesPerSqm);
-        const sorted = [...pricesPerSqm].sort((a, b) => a - b);
-        const rank = sorted.filter(p => p <= currentEvaluation.price_per_sqm!).length;
-        const percentile = (rank / sorted.length) * 100;
-
+      const arr = comparisonEvaluations
+        .map(e => e.price_per_sqm as number | null)
+        .filter((v): v is number => v !== null && v !== undefined);
+      const stats = computeStats(arr, currentEvaluation.price_per_sqm, false);
+      if (stats) {
         metrics.push({
           name: 'Pris per kvm',
           value: currentEvaluation.price_per_sqm,
-          average,
-          best,
-          worst,
-          percentile,
+          average: stats.average,
+          best: stats.best,
+          worst: stats.worst,
+          percentile: stats.percentile,
           unit: 'SEK/kvm',
-          icon: <Euro className="h-4 w-4" />
+          icon: <Euro className="h-4 w-4" />,
+          betterCount: stats.betterCount,
+          total: stats.total,
+          higherIsBetter: false,
         });
       }
     }
 
-    // Physical rating metric
+    // 2) Avgift per kvm (lägre är bättre)
+    const currentFee = getFeePerSqm(currentEvaluation);
+    if (currentFee !== null) {
+      const arr = comparisonEvaluations
+        .map(getFeePerSqm)
+        .filter((v): v is number => v !== null);
+      const stats = computeStats(arr, currentFee, false);
+      if (stats) {
+        metrics.push({
+          name: 'Avgift per kvm',
+          value: currentFee,
+          average: stats.average,
+          best: stats.best,
+          worst: stats.worst,
+          percentile: stats.percentile,
+          unit: 'SEK/kvm',
+          icon: <Home className="h-4 w-4" />,
+          betterCount: stats.betterCount,
+          total: stats.total,
+          higherIsBetter: false,
+        });
+      }
+    }
+
+    // 3) Skuld per kvm (lägre är bättre)
+    if (currentEvaluation.debt_per_sqm !== null && currentEvaluation.debt_per_sqm !== undefined) {
+      const currentDebt = currentEvaluation.debt_per_sqm as number;
+      const arr = comparisonEvaluations
+        .map(e => e.debt_per_sqm as number | null)
+        .filter((v): v is number => v !== null && v !== undefined);
+      const stats = computeStats(arr, currentDebt, false);
+      if (stats) {
+        metrics.push({
+          name: 'Skuld per kvm',
+          value: currentDebt,
+          average: stats.average,
+          best: stats.best,
+          worst: stats.worst,
+          percentile: stats.percentile,
+          unit: 'SEK/kvm',
+          icon: <Banknote className="h-4 w-4" />,
+          betterCount: stats.betterCount,
+          total: stats.total,
+          higherIsBetter: false,
+        });
+      }
+    }
+
+    // 4) Kassaflöde per kvm (högre är bättre)
+    if (currentEvaluation.cashflow_per_sqm !== null && currentEvaluation.cashflow_per_sqm !== undefined) {
+      const currentCash = currentEvaluation.cashflow_per_sqm as number;
+      const arr = comparisonEvaluations
+        .map(e => e.cashflow_per_sqm as number | null)
+        .filter((v): v is number => v !== null && v !== undefined);
+      const stats = computeStats(arr, currentCash, true);
+      if (stats) {
+        metrics.push({
+          name: 'Kassaflöde per kvm',
+          value: currentCash,
+          average: stats.average,
+          best: stats.best,
+          worst: stats.worst,
+          percentile: stats.percentile,
+          unit: 'SEK/kvm',
+          icon: <Wallet className="h-4 w-4" />,
+          betterCount: stats.betterCount,
+          total: stats.total,
+          higherIsBetter: true,
+        });
+      }
+    }
+
+    // 5) Fysisk bedömning (högre är bättre)
     const currentPhysical = calculatePhysicalAverage(currentEvaluation);
     if (currentPhysical > 0) {
-      const physicalRatings = comparisonEvaluations
+      const arr = comparisonEvaluations
         .map(calculatePhysicalAverage)
-        .filter(r => r > 0);
-      
-      if (physicalRatings.length > 0) {
-        const average = physicalRatings.reduce((sum, r) => sum + r, 0) / physicalRatings.length;
-        const best = Math.max(...physicalRatings);
-        const worst = Math.min(...physicalRatings);
-        const sorted = [...physicalRatings].sort((a, b) => b - a);
-        const rank = sorted.filter(r => r <= currentPhysical).length;
-        const percentile = ((sorted.length - rank) / sorted.length) * 100;
-
+        .filter(v => v > 0);
+      const stats = computeStats(arr, currentPhysical, true);
+      if (stats) {
         metrics.push({
           name: 'Fysisk bedömning',
           value: currentPhysical,
-          average,
-          best,
-          worst,
-          percentile,
+          average: stats.average,
+          best: stats.best,
+          worst: stats.worst,
+          percentile: stats.percentile,
           unit: '/5',
-          icon: <Star className="h-4 w-4" />
-        });
-      }
-    }
-
-    // Economic index metric
-    const currentEconomic = calculateEconomicIndex(currentEvaluation);
-    if (currentEconomic > 0) {
-      const economicRatings = comparisonEvaluations
-        .map(calculateEconomicIndex)
-        .filter(r => r > 0);
-      
-      if (economicRatings.length > 0) {
-        const average = economicRatings.reduce((sum, r) => sum + r, 0) / economicRatings.length;
-        const best = Math.max(...economicRatings);
-        const worst = Math.min(...economicRatings);
-        const sorted = [...economicRatings].sort((a, b) => b - a);
-        const rank = sorted.filter(r => r <= currentEconomic).length;
-        const percentile = ((sorted.length - rank) / sorted.length) * 100;
-
-        metrics.push({
-          name: 'Ekonomisk bedömning',
-          value: currentEconomic,
-          average,
-          best,
-          worst,
-          percentile,
-          unit: '/5',
-          icon: <BarChart3 className="h-4 w-4" />
+          icon: <Star className="h-4 w-4" />,
+          betterCount: stats.betterCount,
+          total: stats.total,
+          higherIsBetter: true,
         });
       }
     }
@@ -245,12 +289,11 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     return metrics;
   }, [currentEvaluation, comparisonEvaluations]);
 
-  const getPercentileText = (percentile: number, totalCount: number): string => {
-    if (percentile >= 99) {
-      const betterThan = Math.floor((percentile / 100) * totalCount);
-      return `bättre än ${betterThan} av ${totalCount}`;
+  const getComparisonText = (metric: ComparisonMetric): string => {
+    if (metric.total <= 10) {
+      return `bättre än ${metric.betterCount} av ${metric.total}`;
     }
-    return `${percentile.toFixed(0)}:e percentilen`;
+    return `${Math.round(metric.percentile)}:e percentilen`;
   };
 
   const formatValue = (value: number, unit: string): string => {
@@ -260,7 +303,9 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     return `${value.toFixed(1)}${unit}`;
   };
 
-  const getTrendIcon = (value: number, average: number, isHigherBetter: boolean = false) => {
+  const getTrendIcon = (metric: ComparisonMetric) => {
+    const value = metric.value;
+    const average = metric.average;
     const diff = Math.abs(value - average);
     const threshold = average * 0.05; // 5% threshold
     
@@ -268,7 +313,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
       return <Minus className="h-4 w-4 text-muted-foreground" />;
     }
     
-    const isBetter = isHigherBetter ? value > average : value < average;
+    const isBetter = metric.higherIsBetter ? value > average : value < average;
     return isBetter 
       ? <TrendingUp className="h-4 w-4 text-green-500" />
       : <TrendingDown className="h-4 w-4 text-red-500" />;
@@ -356,7 +401,6 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
         {/* Metrics Grid */}
         <div className="grid gap-4">
           {comparisonMetrics.map((metric, index) => {
-            const isHigherBetter = metric.name === 'Fysisk bedömning' || metric.name === 'Ekonomisk bedömning';
             const chartData = [{
               name: metric.name,
               value: metric.percentile,
@@ -370,7 +414,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                     {metric.icon}
                     <span className="text-sm font-medium">{metric.name}</span>
                   </div>
-                  {getTrendIcon(metric.value, metric.average, isHigherBetter)}
+                  {getTrendIcon(metric)}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -382,7 +426,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                       Snitt: {formatValue(metric.average, metric.unit)}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {getPercentileText(metric.percentile, comparisonEvaluations.length + 1)}
+                      {getComparisonText(metric)}
                     </div>
                   </div>
                   
