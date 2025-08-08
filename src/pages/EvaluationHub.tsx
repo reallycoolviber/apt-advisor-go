@@ -78,7 +78,7 @@ const EvaluationHub = () => {
   // Load existing evaluation if edit mode or direct URL with ID
   useEffect(() => {
     const editId = searchParams.get('edit') || urlEvaluationId;
-    if (editId && user && editId !== evaluationId) {
+    if (editId && user && editId !== currentEvaluationId) {
       setLoading(true);
       
       const fetchEvaluation = async () => {
@@ -95,7 +95,7 @@ const EvaluationHub = () => {
 
       fetchEvaluation();
     }
-  }, [searchParams, urlEvaluationId, user, evaluationId, loadEvaluation]);
+  }, [searchParams, urlEvaluationId, user?.id, currentEvaluationId]);
 
   // Helper function to calculate progress for a section
   const calculateSectionProgress = (section: 'general' | 'financial' | 'physical' | 'checklist') => {
