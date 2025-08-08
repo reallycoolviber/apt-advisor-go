@@ -609,12 +609,18 @@ const EvaluationHub = () => {
                             <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.finalPrice, 'price')}</span>
                           </div>
                         )}
-                        {data.general?.monthlyFee && (
-                          <div className="flex justify-between py-2">
-                            <span className="text-sm text-muted-foreground">Avgift:</span>
-                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.monthlyFee, 'fee')}</span>
-                          </div>
-                        )}
+                         {data.general?.monthlyFee && (
+                           <div className="flex justify-between py-2 border-b border-border/30">
+                             <span className="text-sm text-muted-foreground">Avgift:</span>
+                             <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.monthlyFee, 'fee')}</span>
+                           </div>
+                         )}
+                         {data.general?.monthlyFee && data.general?.size && (
+                           <div className="flex justify-between py-2">
+                             <span className="text-sm text-muted-foreground">Avgift per kvm:</span>
+                             <span className="text-sm font-medium text-foreground">{formatDisplayValue(Math.round(parseInt(data.general.monthlyFee.replace(/\s/g, '')) / parseInt(data.general.size)), 'fee_per_sqm')}</span>
+                           </div>
+                         )}
                       </div>
                     ) : (
                       <p className="text-sm text-muted-foreground text-center py-4">Ingen information tillagd</p>
