@@ -673,14 +673,14 @@ const EvaluationHub = () => {
            {activeTab === 'evaluation' && (
               <div className="space-y-4 mb-8">
                 {/* Lägenhetsdata */}
-                <Card className="bg-card border shadow-md">
-                  <div className="p-4">
-                     <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                       <div className="p-2 rounded-lg bg-primary/10">
-                         <Building className="h-5 w-5 text-primary" />
-                       </div>
-                       Lägenhetsdata
-                     </h3>
+                 <Card className="bg-card border shadow-sm">
+                   <div className="p-4">
+                      <h3 className="text-small font-semibold text-foreground mb-4 flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Building className="h-5 w-5 text-primary" />
+                        </div>
+                        Lägenhetsdata
+                      </h3>
                     {hasLägenhetsdata() ? (
                       <div className="space-y-2">
                         {data.address && (
@@ -739,14 +739,14 @@ const EvaluationHub = () => {
                 </Card>
 
                 {/* Föreningsinformation */}
-                <Card className="bg-card border shadow-md">
-                  <div className="p-4">
-                     <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                       <div className="p-2 rounded-lg bg-primary/10">
-                         <BarChart3 className="h-5 w-5 text-primary" />
-                       </div>
-                       Föreningsinformation
-                     </h3>
+                 <Card className="bg-card border shadow-sm">
+                   <div className="p-4">
+                      <h3 className="text-small font-semibold text-foreground mb-4 flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <BarChart3 className="h-5 w-5 text-primary" />
+                        </div>
+                        Föreningsinformation
+                      </h3>
                     {hasFöreningsinformation() ? (
                       <div className="space-y-2">
                         {data.financial?.debtPerSqm && (
@@ -787,9 +787,9 @@ const EvaluationHub = () => {
                 </Card>
 
                  {/* Lägenhetsbedömning */}
-                 <Card className="bg-card border shadow-md">
+                 <Card className="bg-card border shadow-sm">
                    <div className="p-4">
-                       <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                       <h3 className="text-small font-semibold text-foreground mb-4 flex items-center gap-3">
                          <div className="p-2 rounded-lg bg-primary/10">
                            <FileText className="h-5 w-5 text-primary" />
                          </div>
@@ -866,7 +866,7 @@ const EvaluationHub = () => {
 
                 {/* Comments input */}
                 {hasBedömning() && (
-                  <Card className="bg-card border shadow-md">
+                   <Card className="bg-card border shadow-sm">
                     <div className="p-4">
                       <div className="space-y-2">
                         <Label htmlFor="comments" className="text-sm font-medium text-foreground">

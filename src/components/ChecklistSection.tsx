@@ -261,14 +261,16 @@ const ChecklistSection = () => {
           </Card>
 
           {/* Checklist */}
-          <div className="space-y-6">
+          <div className="space-y-3">
             {checklistItems.map((category, categoryIndex) => {
               const CategoryIcon = category.icon;
               return (
-                <Card key={categoryIndex} className="bg-card border shadow-md">
+                <Card key={categoryIndex} className="bg-card border shadow-sm">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-3">
-                      <CategoryIcon className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-small font-semibold text-foreground flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <CategoryIcon className="h-5 w-5 text-primary" />
+                      </div>
                       {category.category}
                     </CardTitle>
                   </CardHeader>

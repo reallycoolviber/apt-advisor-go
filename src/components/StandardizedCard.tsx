@@ -15,8 +15,8 @@ export const StandardizedCard = React.forwardRef<
   StandardizedCardProps
 >(({ children, variant = 'default', size = 'default', hover = false, className, ...props }, ref) => {
   const variantClasses = {
-    default: 'bg-app-background-secondary border-border',
-    secondary: 'bg-secondary border-border',
+    default: 'bg-card border',
+    secondary: 'bg-secondary border',
     success: 'bg-success/5 border-success/20',
     warning: 'bg-warning/5 border-warning/20',
     destructive: 'bg-destructive/5 border-destructive/20'
@@ -24,7 +24,7 @@ export const StandardizedCard = React.forwardRef<
 
   const sizeClasses = {
     sm: 'p-3',
-    default: 'p-4',
+    default: 'p-4', 
     lg: 'p-6'
   };
 
@@ -32,10 +32,10 @@ export const StandardizedCard = React.forwardRef<
     <Card
       ref={ref}
       className={cn(
-        "rounded-xl border shadow-sm transition-all duration-200",
+        "border transition-all duration-300 shadow-sm",
         variantClasses[variant],
         sizeClasses[size],
-        hover && "hover:shadow-md hover:scale-[1.01] hover:bg-hover",
+        hover && "hover:shadow-md hover:bg-hover hover:border-hover",
         className
       )}
       {...props}

@@ -24,14 +24,16 @@ export const StandardizedFieldGroup: React.FC<StandardizedFieldGroupProps> = ({
     <StandardizedCard variant={variant} className={cn("space-y-4", className)}>
       <div className="flex items-start gap-3">
         {Icon && (
-          <Icon className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+          <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="text-body font-semibold text-foreground">
+          <h3 className="text-small font-semibold text-foreground">
             {title}
           </h3>
           {description && (
-            <p className="text-body text-muted-foreground mt-1">
+            <p className="text-small text-muted-foreground mt-1">
               {description}
             </p>
           )}

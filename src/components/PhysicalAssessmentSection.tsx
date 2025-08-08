@@ -43,7 +43,7 @@ export const PhysicalAssessmentSection = ({ data, updateData }: PhysicalAssessme
         <p className="text-muted-foreground">Betygsätt olika aspekter av lägenhetens fysiska tillstånd (1-5)</p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-3">
         {assessmentFields.map((field) => {
           return (
             <StandardizedFieldGroup

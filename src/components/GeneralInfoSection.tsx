@@ -58,8 +58,8 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
         <p className="text-muted-foreground">Grundläggande uppgifter om lägenheten</p>
       </div>
 
-      <div className="space-y-6">
-        <div className="grid md:grid-cols-2 gap-6">
+      <div className="space-y-3">
+        <div className="grid md:grid-cols-1 gap-3">
           <StandardizedFieldGroup
             title="Storlek (kvm)"
             description="Lägenhetens yta i kvadratmeter"
@@ -93,7 +93,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
           </StandardizedFieldGroup>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-1 gap-3">
           <StandardizedFieldGroup
             title="Utgångspris (SEK)"
             description="Ursprungligt utgångspris"
@@ -122,8 +122,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
               placeholder="3 200 000"
               validation={data.validationResults?.finalPrice}
             />
-          </StandardizedFieldGroup>
-        </div>
+        </StandardizedFieldGroup>
 
         <StandardizedFieldGroup
           title="Månadsavgift (SEK)"
@@ -167,6 +166,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
             </div>
           </StandardizedCard>
         )}
+        </div>
       </div>
     </div>
   );

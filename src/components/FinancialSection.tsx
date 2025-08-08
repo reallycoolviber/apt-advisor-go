@@ -35,7 +35,7 @@ export const FinancialSection = ({ data, updateData }: FinancialSectionProps) =>
         <p className="text-muted-foreground">Finansiella nyckeltal för lägenheten och bostadsrättsföreningen</p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-3">
         <StandardizedFieldGroup
           title="Skuld per kvm (SEK)"
           description="Föreningens totala skuld dividerat med total yta"
