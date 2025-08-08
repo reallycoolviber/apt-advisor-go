@@ -312,9 +312,9 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     // För högre-är-bättre mått (fysisk, kassaflöde): hög percentil = bra
     const effectivePercentile = higherIsBetter ? percentile : 100 - percentile;
     
-    if (effectivePercentile >= 70) return 'text-green-600';
-    if (effectivePercentile >= 40) return 'text-yellow-600';
-    return 'text-red-600';
+    if (effectivePercentile >= 70) return 'text-semantic-good';
+    if (effectivePercentile >= 40) return 'text-semantic-average';
+    return 'text-semantic-bad';
   };
 
   const getPerformanceIcon = (metric: ComparisonMetric) => {
@@ -327,7 +327,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     }
     
     const isBetter = higherIsBetter ? value > average : value < average;
-    const colorClass = isBetter ? 'text-green-600' : 'text-red-600';
+    const colorClass = isBetter ? 'text-semantic-good' : 'text-semantic-bad';
     const IconComponent = isBetter ? TrendingUp : TrendingDown;
     
     return <IconComponent className={`h-4 w-4 ${colorClass}`} />;
@@ -337,9 +337,9 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
     const { percentile, higherIsBetter } = metric;
     const effectivePercentile = higherIsBetter ? percentile : 100 - percentile;
     
-    if (effectivePercentile >= 70) return '#10b981'; // green
-    if (effectivePercentile >= 40) return '#f59e0b'; // yellow
-    return '#ef4444'; // red
+    if (effectivePercentile >= 70) return 'hsl(var(--semantic-good))';
+    if (effectivePercentile >= 40) return 'hsl(var(--semantic-average))';
+    return 'hsl(var(--semantic-bad))';
   };
 
   const getComparisonBaseLabel = (base: ComparisonBase): string => {
@@ -440,7 +440,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                     {/* Left Side - Main Content */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-lg bg-green-100">
+                        <div className="p-2 rounded-lg bg-app-primary/10 text-app-primary">
                           {metric.icon}
                         </div>
                         <div>
@@ -510,13 +510,13 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                       <div className="space-y-2">
                         <div className="text-sm">
                           <span className="text-muted-foreground">Bästa värde:</span>
-                          <span className="ml-2 font-medium text-green-600">
+                          <span className="ml-2 font-medium text-semantic-good">
                             {formatValue(metric.best, metric.unit)}
                           </span>
                         </div>
                         <div className="text-sm">
                           <span className="text-muted-foreground">Sämsta värde:</span>
-                          <span className="ml-2 font-medium text-red-600">
+                          <span className="ml-2 font-medium text-semantic-bad">
                             {formatValue(metric.worst, metric.unit)}
                           </span>
                         </div>

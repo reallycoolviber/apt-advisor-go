@@ -9,46 +9,70 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Nature-toned color palette - Dämpad Harmoni med Naturtoner */
-    --color-light-grey: 0 0% 96%;
-    --color-subtle-beige: 60 25% 97%;
-    --color-calm-green: 105 19% 72%;
-    --color-dark-terracotta: 0 32% 54%;
+    /* ==================== GLOBAL COLOR PALETTE ==================== */
+    
+    /* Primärfärg - Huvudfärg för varumärket */
+    --app-primary: 104 19% 50%;         /* #78A381 - Grön från aktiva flikar/knappar */
+    --app-primary-light: 104 25% 65%;   /* Ljusare variant för hover-effekter */
+    --app-primary-dark: 104 25% 35%;    /* Mörkare variant för hover-effekter */
+    
+    /* Accentfärg - För sekundära handlingar och varningar */
+    --app-accent: 4 59% 58%;            /* #D9534F - Röd från ikoner/notiser */
+    --app-accent-light: 4 59% 70%;      /* Ljusare variant */
+    --app-accent-dark: 4 59% 45%;       /* Mörkare variant */
+    
+    /* Bakgrundsfärger */
+    --app-background-primary: 60 8% 96%; /* #F5F5F3 - Ljusgrå huvudbakgrund */
+    --app-background-secondary: 0 0% 100%; /* #FFFFFF - Vit för kort och ytor */
+    
+    /* Textfärg */
+    --app-text-primary: 0 0% 20%;       /* #333333 - Mörkgrå/svart för primär text */
+    
+    /* ==================== SEMANTISK TRAFIKLJUSPALETT ==================== */
+    
+    /* För status och jämförelser - bra/medel/dåligt */
+    --semantic-good: 134 61% 41%;       /* #28a745 - Positiv grön */
+    --semantic-average: 45 100% 51%;    /* #ffc107 - Neutral gul/orange */
+    --semantic-bad: 354 70% 54%;        /* #dc3545 - Varnande röd */
+    
+    /* ==================== SHADCN SYSTEM MAPPING ==================== */
+    
+    /* Mappar app-färgerna till shadcn systemet */
+    --background: var(--app-background-primary);
+    --foreground: var(--app-text-primary);
 
-    --background: 0 0% 96%;
-    --foreground: 0 0% 20%;
+    --card: var(--app-background-secondary);
+    --card-foreground: var(--app-text-primary);
 
-    --card: 60 25% 97%;
-    --card-foreground: 0 0% 20%;
+    --popover: var(--app-background-secondary);
+    --popover-foreground: var(--app-text-primary);
 
-    --popover: 60 25% 97%;
-    --popover-foreground: 0 0% 20%;
-
-    --primary: 105 19% 72%;
+    --primary: var(--app-primary);
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 60 25% 97%;
-    --secondary-foreground: 0 0% 20%;
+    --secondary: 60 8% 94%;
+    --secondary-foreground: var(--app-text-primary);
 
-    --muted: 0 0% 93%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 60 5% 90%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 0 32% 54%;
+    --accent: var(--app-accent);
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 32% 54%;
+    --destructive: var(--app-accent);
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 93%;
-    --ring: 105 19% 72%;
+    --border: 60 5% 85%;
+    --input: 60 5% 90%;
+    --ring: var(--app-primary);
 
-    --hover: 105 19% 85%;
+    --hover: var(--app-primary-light);
     --hover-foreground: 0 0% 10%;
 
     --radius: 0.5rem;
 
-    /* Design System Tokens */
+    /* ==================== DESIGN SYSTEM TOKENS ==================== */
+    
     --field-height: 2.75rem;        /* 44px - Standard field height */
     --field-height-sm: 2.25rem;     /* 36px - Small field height */
     --field-height-lg: 3.25rem;     /* 52px - Large field height */
@@ -73,63 +97,90 @@ All colors MUST be HSL.
     --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     
     /* Success/Warning colors for validation */
-    --success: 142 76% 36%;         /* Green for success */
+    --success: var(--semantic-good);
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;          /* Amber for warnings */
-    --warning-foreground: 0 0% 100%;
+    --warning: var(--semantic-average);
+    --warning-foreground: 0 0% 0%;
     
     /* Prominent address field variant */
-    --address-field: 105 45% 45%;   /* Deeper green for prominence */
+    --address-field: var(--app-primary-dark);
     --address-field-foreground: 0 0% 100%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 20%;
-    --sidebar-primary: 0 0% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 105 19% 72%;
+    /* Sidebar colors */
+    --sidebar-background: var(--app-background-secondary);
+    --sidebar-foreground: var(--app-text-primary);
+    --sidebar-primary: var(--app-primary);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 60 8% 96%;
+    --sidebar-accent-foreground: var(--app-text-primary);
+    --sidebar-border: 60 5% 85%;
+    --sidebar-ring: var(--app-primary);
   }
 
   .dark {
-    --background: 0 0% 15%;
-    --foreground: 0 0% 95%;
+    /* ==================== DARK MODE ADAPTATIONS ==================== */
+    
+    /* Bakgrunder anpassade för mörkt läge */
+    --app-background-primary: 0 0% 15%;
+    --app-background-secondary: 0 0% 18%;
+    --app-text-primary: 0 0% 95%;
+    
+    /* Primärfärg justerad för mörkt läge */
+    --app-primary: 104 15% 60%;
+    --app-primary-light: 104 20% 75%;
+    --app-primary-dark: 104 20% 45%;
+    
+    /* Accentfärg justerad för mörkt läge */
+    --app-accent: 4 45% 55%;
+    --app-accent-light: 4 45% 70%;
+    --app-accent-dark: 4 45% 40%;
+    
+    /* Semantiska färger justerade för mörkt läge */
+    --semantic-good: 134 45% 50%;
+    --semantic-average: 45 90% 60%;
+    --semantic-bad: 354 60% 60%;
+    
+    /* Shadcn system mappning för mörkt läge */
+    --background: var(--app-background-primary);
+    --foreground: var(--app-text-primary);
 
-    --card: 0 0% 18%;
-    --card-foreground: 0 0% 95%;
+    --card: var(--app-background-secondary);
+    --card-foreground: var(--app-text-primary);
 
-    --popover: 0 0% 18%;
-    --popover-foreground: 0 0% 95%;
+    --popover: var(--app-background-secondary);
+    --popover-foreground: var(--app-text-primary);
 
-    --primary: 105 15% 60%;
+    --primary: var(--app-primary);
     --primary-foreground: 0 0% 10%;
 
     --secondary: 0 0% 22%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary-foreground: var(--app-text-primary);
 
     --muted: 0 0% 22%;
     --muted-foreground: 0 0% 70%;
 
-    --accent: 0 25% 45%;
+    --accent: var(--app-accent);
     --accent-foreground: 0 0% 95%;
 
-    --destructive: 0 25% 45%;
+    --destructive: var(--app-accent);
     --destructive-foreground: 0 0% 95%;
 
     --border: 0 0% 25%;
     --input: 0 0% 25%;
-    --ring: 105 15% 60%;
-    --hover: 105 15% 40%;
-    --hover-foreground: 0 0% 10%;
+    --ring: var(--app-primary);
+    
+    --hover: var(--app-primary-dark);
+    --hover-foreground: 0 0% 95%;
+    
+    /* Sidebar colors för mörkt läge */
     --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 0% 95%;
+    --sidebar-foreground: var(--app-text-primary);
+    --sidebar-primary: var(--app-primary);
     --sidebar-primary-foreground: 0 0% 10%;
     --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-accent-foreground: var(--app-text-primary);
     --sidebar-border: 0 0% 25%;
-    --sidebar-ring: 105 15% 60%;
+    --sidebar-ring: var(--app-primary);
   }
 }
 

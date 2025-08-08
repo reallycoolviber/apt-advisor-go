@@ -19,6 +19,32 @@ export default {
 		},
 		extend: {
 			colors: {
+				/* ==================== GLOBAL APP COLORS ==================== */
+				
+				/* Primärfärg med varianter */
+				'app-primary': 'hsl(var(--app-primary))',
+				'app-primary-light': 'hsl(var(--app-primary-light))',
+				'app-primary-dark': 'hsl(var(--app-primary-dark))',
+				
+				/* Accentfärg med varianter */
+				'app-accent': 'hsl(var(--app-accent))',
+				'app-accent-light': 'hsl(var(--app-accent-light))',
+				'app-accent-dark': 'hsl(var(--app-accent-dark))',
+				
+				/* Bakgrundsfärger */
+				'app-background-primary': 'hsl(var(--app-background-primary))',
+				'app-background-secondary': 'hsl(var(--app-background-secondary))',
+				
+				/* Textfärg */
+				'app-text-primary': 'hsl(var(--app-text-primary))',
+				
+				/* Semantiska trafikljusfärger */
+				'semantic-good': 'hsl(var(--semantic-good))',
+				'semantic-average': 'hsl(var(--semantic-average))',
+				'semantic-bad': 'hsl(var(--semantic-bad))',
+				
+				/* ==================== SHADCN SYSTEM COLORS ==================== */
+				
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
