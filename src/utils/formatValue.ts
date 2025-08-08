@@ -1,4 +1,4 @@
-export type FormatValueType = 'price' | 'fee' | 'area' | 'debt_per_sqm' | 'rooms' | 'fee_per_sqm';
+export type FormatValueType = 'price' | 'fee' | 'area' | 'debt_per_sqm' | 'rooms' | 'fee_per_sqm' | 'price_per_sqm';
 
 const svNumber = (value: number, options?: Intl.NumberFormatOptions) =>
   new Intl.NumberFormat('sv-SE', options).format(value);
@@ -31,7 +31,8 @@ export function formatValue(value: number | string | null | undefined, type: str
       return `${svNumber(Math.round(n))} kvm`;
     }
     case 'debt_per_sqm':
-    case 'fee_per_sqm': {
+    case 'fee_per_sqm':
+    case 'price_per_sqm': {
       return `${svNumber(Math.round(n))} kr/kvm`;
     }
     case 'rooms': {

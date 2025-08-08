@@ -615,16 +615,16 @@ const EvaluationHub = () => {
                              <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.monthlyFee, 'fee')}</span>
                            </div>
                          )}
-                         {data.general?.monthlyFee && data.general?.size && (
+                         {data.general?.price && data.general?.size && (
                            <div className="flex justify-between py-2 border-b border-border/30">
-                             <span className="text-sm text-muted-foreground italic">Avgift per kvm:</span>
-                             <span className="text-sm font-medium text-foreground italic">{formatDisplayValue(Math.round(parseInt(data.general.monthlyFee.replace(/\s/g, '')) / parseInt(data.general.size)), 'fee_per_sqm')}</span>
+                             <span className="text-sm font-medium text-foreground">Pris per kvm:</span>
+                             <span className="text-sm font-bold text-foreground">{formatDisplayValue(Math.round(parseInt(data.general.price.replace(/\s/g, '')) / parseInt(data.general.size)), 'price_per_sqm')}</span>
                            </div>
                          )}
-                         {data.general?.price && data.general?.size && (
+                         {data.general?.monthlyFee && data.general?.size && (
                            <div className="flex justify-between py-2">
-                             <span className="text-sm text-muted-foreground italic">Pris per kvm:</span>
-                             <span className="text-sm font-medium text-foreground italic">{formatDisplayValue(Math.round(parseInt(data.general.price.replace(/\s/g, '')) / parseInt(data.general.size)), 'price_per_sqm')}</span>
+                             <span className="text-sm font-medium text-foreground">Avgift per kvm:</span>
+                             <span className="text-sm font-bold text-foreground">{formatDisplayValue(Math.round(parseInt(data.general.monthlyFee.replace(/\s/g, '')) / parseInt(data.general.size)), 'fee_per_sqm')}</span>
                            </div>
                          )}
                       </div>
