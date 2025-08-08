@@ -65,7 +65,7 @@ const EvaluationSection = () => {
   });
 
   const { user } = useAuth();
-  const { data: contextData, updateGeneralData, updateFinancialData, updatePhysicalData, getCompletionStatus } = useEvaluation();
+  const { data: contextData, updateField, getCompletionStatus } = useEvaluation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { section } = useParams<{ section: string }>();
@@ -136,14 +136,20 @@ const EvaluationSection = () => {
   const updateData = (newData: Partial<typeof apartmentData>) => {
     setApartmentData(prev => ({ ...prev, ...newData }));
     
-    // Update context based on section
-    if (section === 'general') {
-      updateGeneralData(newData);
-    } else if (section === 'financial') {
-      updateFinancialData(newData);
-    } else if (section === 'physical') {
-      updatePhysicalData(newData);
-    }
+    // Update context using the modern updateField method that triggers auto-save
+    Object.entries(newData).forEach(([key, value]) => {
+      if (section === 'general') {
+        if (key === 'address') {
+          updateField('address' as any, '', value);
+        } else {
+          updateField('general', key, value);
+        }
+      } else if (section === 'financial') {
+        updateField('financial', key, value);
+      } else if (section === 'physical') {
+        updateField('physical', key, value);
+      }
+    });
   };
 
   const saveCurrentData = async () => {

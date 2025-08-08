@@ -22,7 +22,7 @@ const EvaluationHub = () => {
   console.log('EvaluationHub component starting to render');
   
   const { user } = useAuth();
-  const { data, updateAddress, loadEvaluation, getCompletionStatus, updatePhysicalData } = useEvaluation();
+  const { data, updateField, evaluationId, setEvaluationId, loadEvaluation, getCompletionStatus } = useEvaluation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -77,24 +77,13 @@ const EvaluationHub = () => {
   // Load existing evaluation if edit mode
   useEffect(() => {
     const editId = searchParams.get('edit');
-    if (editId && user && !currentEvaluationId) {
+    if (editId && user && !evaluationId) {
       setLoading(true);
-      setCurrentEvaluationId(editId);
       
       const fetchEvaluation = async () => {
         try {
-          const { data: evaluation, error } = await supabase
-            .from('apartment_evaluations')
-            .select('*')
-            .eq('id', editId)
-            .eq('user_id', user.id)
-            .single();
-
-          if (error) throw error;
-          
-          if (evaluation) {
-            loadEvaluation(evaluation.id);
-          }
+          await loadEvaluation(editId);
+          setCurrentEvaluationId(editId);
         } catch (err) {
           console.error('Error loading evaluation for editing:', err);
           setError('Kunde inte ladda utvärderingen. Försök igen senare.');
@@ -105,7 +94,7 @@ const EvaluationHub = () => {
 
       fetchEvaluation();
     }
-  }, [searchParams, user, currentEvaluationId]); // Removed loadEvaluation from deps
+  }, [searchParams, user, evaluationId, loadEvaluation]);
 
   // Helper function to calculate progress for a section
   const calculateSectionProgress = (section: 'general' | 'financial' | 'physical' | 'checklist') => {
@@ -198,102 +187,7 @@ const EvaluationHub = () => {
            data.physical?.ljusinsläpp || data.physical?.balcony || data.physical?.comments;
   };
 
-  // Auto-save effect - saves whenever there's data and user is present
-  useEffect(() => {
-    const autoSave = async () => {
-      if (!user || !hasAnyData || !data.address || hasAutoSaved) return;
-      
-      try {
-        if (currentEvaluationId) {
-          // Update existing evaluation as draft
-          await supabase
-            .from('apartment_evaluations')
-            .update({
-              address: data.address,
-              size: data.general?.size ? toBase(data.general.size) : null,
-              rooms: data.general?.rooms || null,
-              price: toBase(data.general?.price),
-              final_price: toBase(data.general?.finalPrice),
-              monthly_fee: toBase(data.general?.monthlyFee),
-              debt_per_sqm: toBase(data.financial?.debtPerSqm),
-              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
-              major_maintenance_done: data.financial?.majorMaintenanceDone,
-              owns_land: data.financial?.ownsLand,
-              underhållsplan: data.financial?.underhållsplan,
-              planlösning: data.physical?.planlösning || null,
-              kitchen: data.physical?.kitchen || null,
-              bathroom: data.physical?.bathroom || null,
-              bedrooms: data.physical?.bedrooms || null,
-              surfaces: data.physical?.surfaces || null,
-              förvaring: data.physical?.förvaring || null,
-              ljusinsläpp: data.physical?.ljusinsläpp || null,
-              balcony: data.physical?.balcony || null,
-              planlösning_comment: data.physical?.planlösning_comment,
-              kitchen_comment: data.physical?.kitchen_comment,
-              bathroom_comment: data.physical?.bathroom_comment,
-              bedrooms_comment: data.physical?.bedrooms_comment,
-              surfaces_comment: data.physical?.surfaces_comment,
-              förvaring_comment: data.physical?.förvaring_comment,
-              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
-              balcony_comment: data.physical?.balcony_comment,
-              comments: data.physical?.comments,
-              is_draft: true
-            })
-            .eq('id', currentEvaluationId)
-            .eq('user_id', user.id);
-        } else {
-          // Create new evaluation as draft
-          const { data: newEvaluation } = await supabase
-            .from('apartment_evaluations')
-            .insert({
-              user_id: user.id,
-              address: data.address,
-              size: data.general?.size ? toBase(data.general.size) : null,
-              rooms: data.general?.rooms || null,
-              price: toBase(data.general?.price),
-              final_price: toBase(data.general?.finalPrice),
-              monthly_fee: toBase(data.general?.monthlyFee),
-              debt_per_sqm: toBase(data.financial?.debtPerSqm),
-              cashflow_per_sqm: toBase(data.financial?.cashflowPerSqm),
-              major_maintenance_done: data.financial?.majorMaintenanceDone,
-              owns_land: data.financial?.ownsLand,
-              underhållsplan: data.financial?.underhållsplan,
-              planlösning: data.physical?.planlösning || null,
-              kitchen: data.physical?.kitchen || null,
-              bathroom: data.physical?.bathroom || null,
-              bedrooms: data.physical?.bedrooms || null,
-              surfaces: data.physical?.surfaces || null,
-              förvaring: data.physical?.förvaring || null,
-              ljusinsläpp: data.physical?.ljusinsläpp || null,
-              balcony: data.physical?.balcony || null,
-              planlösning_comment: data.physical?.planlösning_comment,
-              kitchen_comment: data.physical?.kitchen_comment,
-              bathroom_comment: data.physical?.bathroom_comment,
-              bedrooms_comment: data.physical?.bedrooms_comment,
-              surfaces_comment: data.physical?.surfaces_comment,
-              förvaring_comment: data.physical?.förvaring_comment,
-              ljusinsläpp_comment: data.physical?.ljusinsläpp_comment,
-              balcony_comment: data.physical?.balcony_comment,
-              comments: data.physical?.comments,
-              is_draft: true
-            })
-            .select('id')
-            .single();
-          
-          if (newEvaluation) {
-            setCurrentEvaluationId(newEvaluation.id);
-          }
-        }
-        setHasAutoSaved(true);
-        console.log('Auto-saved evaluation');
-      } catch (error) {
-        console.error('Auto-save failed:', error);
-      }
-    };
-
-    const timer = setTimeout(autoSave, 2000); // Auto-save after 2 seconds
-    return () => clearTimeout(timer);
-  }, [user, hasAnyData, data, currentEvaluationId, hasAutoSaved]);
+  // Remove legacy auto-save logic - now handled by EvaluationContext
 
   const handleSave = async () => {
     await executeWithLoading(async () => {
@@ -395,7 +289,7 @@ const EvaluationHub = () => {
 
   const handleSaveAddress = () => {
     if (editedAddress.trim()) {
-      updateAddress(editedAddress.trim());
+      updateField('address' as any, '', editedAddress.trim());
     }
     setIsEditingAddress(false);
   };
@@ -876,7 +770,7 @@ const EvaluationHub = () => {
                           id="comments"
                           value={data.physical?.comments || ''}
                           onChange={(e) => {
-                            updatePhysicalData({ comments: e.target.value });
+                            updateField('physical', 'comments', e.target.value);
                           }}
                           placeholder="Lägg till dina reflektioner och slutsatser om lägenheten..."
                           className="min-h-[80px] resize-none text-sm"

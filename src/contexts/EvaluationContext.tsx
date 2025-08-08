@@ -134,15 +134,23 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Konvertering mellan form data och database format
   const formDataToEvaluationData = useCallback((formData: EvaluationFormData): Partial<EvaluationData> => {
+    const parseFormattedNumber = (value: string): number | undefined => {
+      if (!value || value.trim() === '') return undefined;
+      // Remove spaces and handle comma as decimal separator
+      const cleanValue = value.replace(/\s+/g, '').replace(',', '.');
+      const num = parseFloat(cleanValue);
+      return isNaN(num) ? undefined : num;
+    };
+    
     return {
       address: formData.address,
-      size: formData.general.size ? parseFloat(formData.general.size) : undefined,
+      size: parseFormattedNumber(formData.general.size),
       rooms: formData.general.rooms,
-      price: formData.general.price ? parseFloat(formData.general.price) : undefined,
-      monthly_fee: formData.general.monthlyFee ? parseFloat(formData.general.monthlyFee) : undefined,
-      final_price: formData.general.finalPrice ? parseFloat(formData.general.finalPrice) : undefined,
-      debt_per_sqm: formData.financial.debtPerSqm ? parseFloat(formData.financial.debtPerSqm) : undefined,
-      cashflow_per_sqm: formData.financial.cashflowPerSqm ? parseFloat(formData.financial.cashflowPerSqm) : undefined,
+      price: parseFormattedNumber(formData.general.price),
+      monthly_fee: parseFormattedNumber(formData.general.monthlyFee),
+      final_price: parseFormattedNumber(formData.general.finalPrice),
+      debt_per_sqm: parseFormattedNumber(formData.financial.debtPerSqm),
+      cashflow_per_sqm: parseFormattedNumber(formData.financial.cashflowPerSqm),
       major_maintenance_done: formData.financial.majorMaintenanceDone,
       owns_land: formData.financial.ownsLand,
       underhållsplan: formData.financial.underhållsplan,
@@ -171,7 +179,19 @@ export const EvaluationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { triggerSave, forceSave, status: autoSaveStatus } = useAutoSave(
     data,
     async (formData: EvaluationFormData) => {
-      if (!evaluationId) return;
+      // If no evaluation ID, create one first
+      if (!evaluationId && formData.address) {
+        console.log('Creating new evaluation for auto-save');
+        const sourceId = generateSourceId(undefined, formData.address);
+        const newEvaluationId = await getOrCreateBySource(sourceId, formData);
+        console.log('Created evaluation with ID:', newEvaluationId);
+        return;
+      }
+      
+      if (!evaluationId) {
+        console.log('No evaluation ID and no address, skipping auto-save');
+        return;
+      }
       
       const evaluationData = formDataToEvaluationData(formData);
       await saveEvaluation(evaluationId, evaluationData);
