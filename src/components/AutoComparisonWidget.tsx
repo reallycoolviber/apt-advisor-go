@@ -210,11 +210,12 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
 
     // 2) Avgift per kvm (lägre är bättre)
     const currentFee = getFeePerSqm(currentEvaluation);
-    if (currentFee !== null) {
-      const arr = comparisonEvaluations
-        .map(getFeePerSqm)
-        .filter((v): v is number => v !== null);
-      const stats = computeStats(arr, currentFee, false);
+    const feeComparisonArray = comparisonEvaluations
+      .map(getFeePerSqm)
+      .filter((v): v is number => v !== null);
+    
+    if (currentFee !== null && feeComparisonArray.length > 0) {
+      const stats = computeStats(feeComparisonArray, currentFee, false);
       if (stats) {
         metrics.push({
           name: 'Avgift per kvm',
@@ -230,19 +231,39 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
           higherIsBetter: false,
         });
       }
+    } else if (currentFee === null && feeComparisonArray.length > 0) {
+      // Show comparison data even if current evaluation doesn't have fee data
+      const average = feeComparisonArray.reduce((s, v) => s + v, 0) / feeComparisonArray.length;
+      const best = Math.min(...feeComparisonArray);
+      const worst = Math.max(...feeComparisonArray);
+      
+      metrics.push({
+        name: 'Avgift per kvm',
+        value: 0,
+        average: average,
+        best: best,
+        worst: worst,
+        percentile: 0,
+        unit: 'SEK/kvm',
+        icon: <Home className="h-4 w-4" />,
+        betterCount: 0,
+        total: feeComparisonArray.length,
+        higherIsBetter: false,
+      });
     }
 
     // 3) Skuld per kvm (lägre är bättre)
-    if (currentEvaluation.debt_per_sqm !== null && currentEvaluation.debt_per_sqm !== undefined) {
-      const currentDebt = currentEvaluation.debt_per_sqm as number;
-      const arr = comparisonEvaluations
-        .map(e => e.debt_per_sqm as number | null)
-        .filter((v): v is number => v !== null && v !== undefined);
-      const stats = computeStats(arr, currentDebt, false);
+    const currentDebt = currentEvaluation.debt_per_sqm;
+    const debtComparisonArray = comparisonEvaluations
+      .map(e => e.debt_per_sqm as number | null)
+      .filter((v): v is number => v !== null && v !== undefined);
+    
+    if (currentDebt !== null && currentDebt !== undefined && debtComparisonArray.length > 0) {
+      const stats = computeStats(debtComparisonArray, currentDebt as number, false);
       if (stats) {
         metrics.push({
           name: 'Skuld per kvm',
-          value: currentDebt,
+          value: currentDebt as number,
           average: stats.average,
           best: stats.best,
           worst: stats.worst,
@@ -254,6 +275,25 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
           higherIsBetter: false,
         });
       }
+    } else if ((currentDebt === null || currentDebt === undefined) && debtComparisonArray.length > 0) {
+      // Show comparison data even if current evaluation doesn't have debt data
+      const average = debtComparisonArray.reduce((s, v) => s + v, 0) / debtComparisonArray.length;
+      const best = Math.min(...debtComparisonArray);
+      const worst = Math.max(...debtComparisonArray);
+      
+      metrics.push({
+        name: 'Skuld per kvm',
+        value: 0,
+        average: average,
+        best: best,
+        worst: worst,
+        percentile: 0,
+        unit: 'SEK/kvm',
+        icon: <Banknote className="h-4 w-4" />,
+        betterCount: 0,
+        total: debtComparisonArray.length,
+        higherIsBetter: false,
+      });
     }
 
     // 4) Kassaflöde per kvm (högre är bättre)
