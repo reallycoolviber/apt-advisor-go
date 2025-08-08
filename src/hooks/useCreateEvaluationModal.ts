@@ -19,9 +19,13 @@ export const useCreateEvaluationModal = () => {
     setShowCreateModal(false);
   };
 
-  const handleCreateEvaluation = (address: string) => {
+  const handleCreateEvaluation = async (address: string) => {
+    // Update address first, then save to ensure it's persisted
     updateAddress(address);
     setShowCreateModal(false);
+    
+    // Navigate to hub - the EvaluationHub will create a new evaluation if none exists
+    // and the address will be set
     navigate('/hub');
   };
 

@@ -145,14 +145,14 @@ const ComparisonView = () => {
     fetchEvaluations();
   }, [user, toast]);
 
-  // Category configurations in the specified order
+  // Category configurations in the EXACT specified order
   const categories = [
     {
       title: 'Pris per kvm',
       fields: COMPARISON_FIELDS_WITH_COMPUTED.filter(f => f.key === 'price_per_sqm')
     },
     {
-      title: 'Avgift per kvm',
+      title: 'Avgift per kvm', 
       fields: COMPARISON_FIELDS_WITH_COMPUTED.filter(f => f.key === 'fee_per_sqm')
     },
     {

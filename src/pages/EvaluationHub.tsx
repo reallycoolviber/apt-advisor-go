@@ -716,11 +716,14 @@ const EvaluationHub = () => {
            {activeTab === 'comparison' && currentEvaluationId && (
              <div className="mb-8">
                 <h3 className="text-lg font-semibold text-foreground mb-4">Jämförelse</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Jämför denna utvärdering med alla dina andra utvärderingar i detaljerade kategorier.
+                </p>
                 <Button 
                   onClick={() => navigate('/comparison')} 
                   className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Gå till jämförelse
+                  Gå till detaljerad jämförelse
                 </Button>
               </div>
            )}
