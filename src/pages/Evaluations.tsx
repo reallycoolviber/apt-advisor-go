@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useEvaluationStore } from '@/stores/evaluationStore';
 import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -38,66 +38,41 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-
-interface Evaluation {
-  id: string;
-  address: string | null;
-  size: number | null;
-  price: number | null;
-  rooms: string | null;
-  monthly_fee: number | null;
-  planlösning: number | null;
-  kitchen: number | null;
-  bathroom: number | null;
-  bedrooms: number | null;
-  surfaces: number | null;
-  förvaring: number | null;
-  ljusinsläpp: number | null;
-  balcony: number | null;
-  created_at: string;
-  comments: string | null;
-  is_draft: boolean | null;
-}
+import { EvaluationData } from '@/types/evaluation';
 
 const ITEMS_PER_PAGE = 10;
 
 const Evaluations = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    evaluations, 
+    evaluationsLoading, 
+    evaluationsError, 
+    fetchEvaluations, 
+    deleteEvaluation,
+    clearCurrentEvaluation 
+  } = useEvaluationStore();
+  
   const [filter, setFilter] = useState<'all' | 'completed' | 'drafts'>('all');
   const [selectedEvaluations, setSelectedEvaluations] = useState<string[]>([]);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
+  // Fetch evaluations when component mounts or user changes
   useEffect(() => {
-    const fetchEvaluations = async () => {
-      if (!user) return;
+    if (user) {
+      fetchEvaluations(user.id);
+    }
+  }, [user, fetchEvaluations]);
 
-      try {
-        const { data, error } = await supabase
-          .from('apartment_evaluations')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+  // Clear current evaluation when navigating to evaluations list
+  useEffect(() => {
+    clearCurrentEvaluation();
+  }, [clearCurrentEvaluation]);
 
-        if (error) throw error;
-        setEvaluations(data || []);
-      } catch (err) {
-        console.error('Error fetching evaluations:', err);
-        setError('Kunde inte ladda dina utvärderingar. Försök igen senare.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvaluations();
-  }, [user]);
-
-  const calculatePhysicalAverage = (evaluation: Evaluation) => {
+  const calculatePhysicalAverage = (evaluation: EvaluationData) => {
     const ratings = [
       evaluation.planlösning,
       evaluation.kitchen,
@@ -163,62 +138,43 @@ const Evaluations = () => {
     }
   };
 
-  const handleDeleteSingle = async (evaluationId: string) => {
+  const handleDeleteEvaluation = async (evaluationId: string) => {
     try {
-      const { error } = await supabase
-        .from('apartment_evaluations')
-        .delete()
-        .eq('id', evaluationId)
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setEvaluations(evaluations.filter(evaluation => evaluation.id !== evaluationId));
-      setSelectedEvaluations(selectedEvaluations.filter(id => id !== evaluationId));
-      
+      await deleteEvaluation(evaluationId);
+      setSelectedEvaluations(prev => prev.filter(id => id !== evaluationId));
       toast({
-        title: "Utvärdering borttagen",
-        description: "Utvärderingen har tagits bort.",
+        title: "Borttagen",
+        description: "Utvärderingen har tagits bort",
       });
-    } catch (err) {
-      console.error('Error deleting evaluation:', err);
+    } catch (error) {
+      console.error('Error deleting evaluation:', error);
       toast({
         title: "Fel",
-        description: "Kunde inte ta bort utvärderingen. Försök igen.",
+        description: "Kunde inte ta bort utvärderingen",
         variant: "destructive",
       });
     }
   };
 
-  const handleDeleteSelected = async () => {
+  const handleBulkDelete = async () => {
     try {
-      const { error } = await supabase
-        .from('apartment_evaluations')
-        .delete()
-        .in('id', selectedEvaluations)
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setEvaluations(evaluations.filter(evaluation => !selectedEvaluations.includes(evaluation.id)));
-      const deletedCount = selectedEvaluations.length;
+      await Promise.all(selectedEvaluations.map(id => deleteEvaluation(id)));
       setSelectedEvaluations([]);
-      
       toast({
-        title: "Utvärderingar borttagna",
-        description: `${deletedCount} utvärdering${deletedCount > 1 ? 'ar' : ''} har tagits bort.`,
+        title: "Borttagna",
+        description: `${selectedEvaluations.length} utvärderingar har tagits bort`,
       });
-    } catch (err) {
-      console.error('Error deleting evaluations:', err);
+    } catch (error) {
+      console.error('Error deleting evaluations:', error);
       toast({
-        title: "Fel",
-        description: "Kunde inte ta bort utvärderingarna. Försök igen.",
+        title: "Fel", 
+        description: "Kunde inte ta bort utvärderingarna",
         variant: "destructive",
       });
     }
   };
 
-  if (loading) {
+  if (evaluationsLoading) {
     return (
       <div className="min-h-screen bg-app-background relative">
         {/* Background cityscape */}
@@ -258,14 +214,7 @@ const Evaluations = () => {
     );
   }
 
-  if (error) {
-    const handleRetry = () => {
-      setError(null);
-      setLoading(true);
-      // Trigger re-fetch by updating a dependency
-      window.location.reload();
-    };
-
+  if (evaluationsError) {
     return (
       <div className="min-h-screen bg-app-background relative">
         {/* Background cityscape */}
@@ -300,8 +249,8 @@ const Evaluations = () => {
         <div className="container mx-auto p-6 relative z-10">
           <ErrorState 
             title="Kunde inte ladda utvärderingar"
-            message={error}
-            onRetry={handleRetry}
+            message={evaluationsError}
+            onRetry={() => user && fetchEvaluations(user.id)}
             size="lg"
           />
         </div>
@@ -407,7 +356,7 @@ const Evaluations = () => {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Avbryt</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={handleDeleteSelected}
+                          onClick={handleBulkDelete}
                           className="bg-destructive hover:bg-destructive/90"
                         >
                           Ta bort
@@ -630,7 +579,7 @@ const Evaluations = () => {
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Avbryt</AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleDeleteSingle(evaluation.id)}
+                                    onClick={() => handleDeleteEvaluation(evaluation.id)}
                                     className="bg-destructive hover:bg-destructive/90"
                                   >
                                     Ta bort
