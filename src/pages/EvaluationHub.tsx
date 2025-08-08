@@ -374,9 +374,9 @@ const EvaluationHub = () => {
            {/* Address display using new component */}
            <EvaluationAddressEditor />
 
-           {/* Navigation Toggle - samma stil som Evaluations */}
-           <div className="mb-6">
-             <div className="flex bg-muted p-1 rounded-full max-w-fit">
+           {/* Navigation Toggle - centrerad som Evaluations */}
+           <div className="flex justify-center mb-6">
+             <div className="flex bg-muted p-1 rounded-full">
                <Button
                  variant={activeTab === 'input' ? 'default' : 'ghost'}
                  size="sm"

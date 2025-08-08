@@ -379,8 +379,8 @@ const Evaluations = () => {
             )}
           </div>
 
-          {/* Equal-sized Filter Pills */}
-          <div className="flex bg-muted p-1 rounded-full max-w-fit">
+          <div className="flex justify-center mb-6">
+            <div className="flex bg-muted p-1 rounded-full"  >
             <Button
               variant={filter === 'all' ? 'default' : 'ghost'}
               size="sm"
@@ -417,6 +417,7 @@ const Evaluations = () => {
             >
               Utkast
             </Button>
+            </div>
           </div>
         </div>
 
