@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -498,27 +499,17 @@ const comparisonMetrics = useMemo(() => {
                     </div>
 
                     <div className="pt-2">
-                      <div className="w-full h-20">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RadialBarChart
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="60%"
-                            outerRadius="90%"
-                            data={[{ value: metric.percentile, max: 100 }]}
-                            startAngle={180}
-                            endAngle={0}
-                          >
-                            <RadialBar
-                              dataKey="value"
-                              cornerRadius={10}
-                              fill={metric.percentile >= 70 ? '#22c55e' : metric.percentile >= 30 ? '#f59e0b' : '#ef4444'}
-                            />
-                          </RadialBarChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1 text-center">
-                        {metric.total <= 10 ? `Bättre än ${metric.betterCount} av ${metric.total} lägenheter` : `${Math.round(metric.percentile)}:e percentilen`}
+                      <div className="text-center">
+                        <div className="text-2xl font-bold mb-1" style={{
+                          color: metric.percentile >= 70 ? 'hsl(var(--semantic-good))' : 
+                                 metric.percentile >= 30 ? 'hsl(var(--semantic-average))' : 
+                                 'hsl(var(--semantic-bad))'
+                        }}>
+                          {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {metric.total <= 10 ? `Bättre än ${metric.betterCount} av ${metric.total} lägenheter` : `${Math.round(metric.percentile)}:e percentilen`}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -552,18 +543,114 @@ const comparisonMetrics = useMemo(() => {
         )}
 
         {/* Detailed View */}
-        {selectedMetric && (
-          <StandardizedCard>
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              Detaljerad vy: {selectedMetric}
-            </h3>
-            <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">
-                Kommer snart: Detaljerad lista över alla jämförelseobjekt med rangordning och exakta värden.
+        {selectedMetric && (() => {
+          const metric = comparisonMetrics.find(m => m.name === selectedMetric);
+          if (!metric) return null;
+
+          const chartField = {
+            'Pris per kvm': { key: 'price_per_sqm', label: 'Pris per kvm', type: 'currency', unit: 'SEK/kvm' },
+            'Avgift per kvm': { key: 'fee_per_sqm', label: 'Avgift per kvm', type: 'currency', unit: 'SEK/kvm' },
+            'Skuld per kvm': { key: 'debt_per_sqm', label: 'Skuld per kvm', type: 'currency', unit: 'SEK/kvm' },
+            'Kassaflöde per kvm': { key: 'cashflow_per_sqm', label: 'Kassaflöde per kvm', type: 'currency', unit: 'SEK/kvm' },
+            'Fysisk bedömning': { key: 'physical_average', label: 'Fysisk bedömning', type: 'stars', unit: '/5' }
+          }[selectedMetric];
+
+          if (!chartField) return null;
+
+          const allEvaluations = [currentEvaluation, ...comparisonEvaluations];
+          const tableData = allEvaluations.map((evaluation, index) => {
+            let value: number;
+            
+            if (chartField.key === 'physical_average') {
+              value = calculatePhysicalAverage(evaluation);
+            } else if (chartField.key === 'fee_per_sqm') {
+              value = getFeePerSqm(evaluation) || 0;
+            } else {
+              value = evaluation[chartField.key as keyof Evaluation] as number || 0;
+            }
+
+            // Calculate percentage difference vs current evaluation
+            const currentValue = index === 0 ? value : metric.value;
+            let percentageDiff: string = '';
+            
+            if (index === 0) {
+              percentageDiff = '0%';
+            } else if (currentValue === 0) {
+              percentageDiff = '–';
+            } else {
+              const diff = ((value - currentValue) / currentValue) * 100;
+              const sign = diff >= 0 ? '+' : '';
+              percentageDiff = `${sign}${diff.toFixed(1)}%`;
+            }
+            
+            return {
+              id: evaluation.id,
+              address: evaluation.address || `Lägenhet ${index + 1}`,
+              value: value,
+              percentageDiff: percentageDiff,
+              isCurrent: index === 0
+            };
+          }).filter(item => item.value > 0);
+
+          // Sort the data by value (best values first based on metric type)
+          const sortedData = [...tableData].sort((a, b) => {
+            return metric.higherIsBetter ? b.value - a.value : a.value - b.value;
+          });
+
+          const formatTableValue = (value: number) => {
+            if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()}`;
+            if (chartField.type === 'stars') return `${value.toFixed(1)}`;
+            return value.toFixed(1);
+          };
+
+          return (
+            <StandardizedCard>
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Detaljerad vy: {selectedMetric}
+              </h3>
+              <div className="w-full">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-left">Adress</TableHead>
+                      <TableHead className="text-right">{metric.name}</TableHead>
+                      <TableHead className="text-right">Skillnad (%)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedData.map((row) => (
+                      <TableRow 
+                        key={row.id}
+                        className={row.isCurrent ? 'bg-primary/5 border-primary/20' : ''}
+                      >
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            {row.isCurrent && <Badge variant="secondary" className="text-xs">Aktuell</Badge>}
+                            <span className={row.isCurrent ? 'font-semibold' : ''}>{row.address}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-mono">
+                          {formatTableValue(row.value)} {chartField.unit}
+                        </TableCell>
+                        <TableCell className="text-right font-mono">
+                          <span className={
+                            row.percentageDiff === '0%' ? 'text-muted-foreground' :
+                            row.percentageDiff === '–' ? 'text-muted-foreground' :
+                            row.percentageDiff.startsWith('+') ? 
+                              (metric.higherIsBetter ? 'text-semantic-good' : 'text-semantic-bad') :
+                              (metric.higherIsBetter ? 'text-semantic-bad' : 'text-semantic-good')
+                          }>
+                            {row.percentageDiff}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-            </div>
-          </StandardizedCard>
-        )}
+            </StandardizedCard>
+          );
+        })()}
       </div>
     </div>
   );
