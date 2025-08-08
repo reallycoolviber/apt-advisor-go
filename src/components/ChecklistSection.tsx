@@ -43,7 +43,7 @@ const ChecklistSection = () => {
   };
 
   const getTotalItems = () => {
-    return checklistItems.reduce((total, category) => total + category.items.length, 0);
+    return 12; // Fixed to 12 questions as requested
   };
 
   const getCheckedCount = () => {
