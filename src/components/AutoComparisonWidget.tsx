@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -17,7 +18,10 @@ import {
   Banknote,
   Wallet,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { Evaluation } from '@/components/comparison/types';
@@ -56,6 +60,8 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   const [comparisonEvaluations, setComparisonEvaluations] = useState<Evaluation[]>([]);
   const [comparisonBase, setComparisonBase] = useState<ComparisonBase>('last-month');
   const [expandedMetric, setExpandedMetric] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'value' | 'difference'>('value');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const chartRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Fetch current evaluation
@@ -586,88 +592,137 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
                        {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper. Högre betyg är bättre.'}
                      </div>
 
-                      {/* Chart */}
-                      {chartField && (() => {
-                        const allEvaluations = [currentEvaluation, ...comparisonEvaluations];
-                        const chartData = allEvaluations.map((evaluation, index) => {
-                          let value: number;
-                          
-                          if (chartField.key === 'physical_average') {
-                            value = calculatePhysicalAverage(evaluation);
-                          } else if (chartField.key === 'fee_per_sqm') {
-                            value = getFeePerSqm(evaluation) || 0;
-                          } else {
-                            value = evaluation[chartField.key as keyof Evaluation] as number || 0;
-                          }
-                          
-                          return {
-                            name: index === 0 ? 'Aktuell' : `Lägenhet ${index}`,
-                            value: value,
-                            isCurrent: index === 0,
-                            address: evaluation.address || `Lägenhet ${index + 1}`
-                          };
-                        }).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
+                       {/* Comparison Table */}
+                       {chartField && (() => {
+                         const allEvaluations = [currentEvaluation, ...comparisonEvaluations];
+                         const tableData = allEvaluations.map((evaluation, index) => {
+                           let value: number;
+                           
+                           if (chartField.key === 'physical_average') {
+                             value = calculatePhysicalAverage(evaluation);
+                           } else if (chartField.key === 'fee_per_sqm') {
+                             value = getFeePerSqm(evaluation) || 0;
+                           } else {
+                             value = evaluation[chartField.key as keyof Evaluation] as number || 0;
+                           }
 
-                        const formatChartValue = (value: number) => {
-                          if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()} SEK/kvm`;
-                          if (chartField.type === 'stars') return `${value.toFixed(1)}/5`;
-                          return value.toFixed(1);
-                        };
+                           // Calculate percentage difference vs current evaluation
+                           const currentValue = index === 0 ? value : metric.value;
+                           let percentageDiff: string = '';
+                           
+                           if (index === 0) {
+                             percentageDiff = '0%';
+                           } else if (currentValue === 0) {
+                             percentageDiff = '–';
+                           } else {
+                             const diff = ((value - currentValue) / currentValue) * 100;
+                             const sign = diff >= 0 ? '+' : '';
+                             percentageDiff = `${sign}${diff.toFixed(1)}%`;
+                           }
+                           
+                           return {
+                             id: evaluation.id,
+                             address: evaluation.address || `Lägenhet ${index + 1}`,
+                             value: value,
+                             percentageDiff: percentageDiff,
+                             isCurrent: index === 0
+                           };
+                         }).filter(item => item.value > 0);
 
-                        return (
-                          <div className="w-full h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart
-                                data={chartData}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                                layout="horizontal"
-                              >
-                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                <XAxis 
-                                  type="number" 
-                                  stroke="hsl(var(--muted-foreground))"
-                                  fontSize={12}
-                                  tickFormatter={formatChartValue}
-                                />
-                                <YAxis 
-                                  type="category" 
-                                  dataKey="name" 
-                                  stroke="hsl(var(--muted-foreground))"
-                                  fontSize={12}
-                                  width={80}
-                                />
-                                <Tooltip
-                                  formatter={(value: number, name: string, props: any) => [
-                                    formatChartValue(value),
-                                    chartField.label
-                                  ]}
-                                  labelFormatter={(label: string, payload: any) => {
-                                    const data = payload?.[0]?.payload;
-                                    return data?.address || label;
-                                  }}
-                                  contentStyle={{
-                                    backgroundColor: 'hsl(var(--popover))',
-                                    border: '1px solid hsl(var(--border))',
-                                    borderRadius: '6px',
-                                    fontSize: '12px'
-                                  }}
-                                />
-                                 <Bar 
-                                   dataKey="value" 
-                                   radius={[0, 4, 4, 0]}
-                                 >
-                                   {chartData.map((entry, index) => (
-                                     <Cell 
-                                       key={`cell-${index}`} 
-                                       fill={entry.isCurrent ? 'hsl(var(--primary))' : 'hsl(var(--muted))'} 
-                                     />
-                                   ))}
-                                 </Bar>
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        );
-                      })()}
+                         // Sort the data
+                         const sortedData = [...tableData].sort((a, b) => {
+                           if (sortBy === 'value') {
+                             // For better values first, sort desc if higher is better, asc if lower is better
+                             const defaultOrder = metric.higherIsBetter ? 'desc' : 'asc';
+                             const actualOrder = sortOrder || defaultOrder;
+                             return actualOrder === 'desc' ? b.value - a.value : a.value - b.value;
+                           } else {
+                             // Sort by percentage difference
+                             const aNum = parseFloat(a.percentageDiff.replace(/[+%–]/g, '')) || 0;
+                             const bNum = parseFloat(b.percentageDiff.replace(/[+%–]/g, '')) || 0;
+                             return sortOrder === 'desc' ? bNum - aNum : aNum - bNum;
+                           }
+                         });
+
+                         const formatTableValue = (value: number) => {
+                           if (chartField.type === 'currency') return `${Math.round(value).toLocaleString()}`;
+                           if (chartField.type === 'stars') return `${value.toFixed(1)}`;
+                           return value.toFixed(1);
+                         };
+
+                         const handleSort = (column: 'value' | 'difference') => {
+                           if (sortBy === column) {
+                             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                           } else {
+                             setSortBy(column);
+                             setSortOrder(column === 'value' ? (metric.higherIsBetter ? 'desc' : 'asc') : 'desc');
+                           }
+                         };
+
+                         const getSortIcon = (column: 'value' | 'difference') => {
+                           if (sortBy !== column) return <ArrowUpDown className="h-3 w-3" />;
+                           return sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
+                         };
+
+                         return (
+                           <div className="w-full">
+                             <Table>
+                               <TableHeader>
+                                 <TableRow>
+                                   <TableHead className="text-left">Adress</TableHead>
+                                   <TableHead 
+                                     className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
+                                     onClick={() => handleSort('value')}
+                                   >
+                                     <div className="flex items-center justify-end gap-1">
+                                       {metric.name}
+                                       {getSortIcon('value')}
+                                     </div>
+                                   </TableHead>
+                                   <TableHead 
+                                     className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
+                                     onClick={() => handleSort('difference')}
+                                   >
+                                     <div className="flex items-center justify-end gap-1">
+                                       Skillnad (%)
+                                       {getSortIcon('difference')}
+                                     </div>
+                                   </TableHead>
+                                 </TableRow>
+                               </TableHeader>
+                               <TableBody>
+                                 {sortedData.map((row) => (
+                                   <TableRow 
+                                     key={row.id}
+                                     className={row.isCurrent ? 'bg-primary/5 border-primary/20' : ''}
+                                   >
+                                     <TableCell className="font-medium">
+                                       <div className="flex items-center gap-2">
+                                         {row.isCurrent && <Badge variant="secondary" className="text-xs">Aktuell</Badge>}
+                                         <span className={row.isCurrent ? 'font-semibold' : ''}>{row.address}</span>
+                                       </div>
+                                     </TableCell>
+                                     <TableCell className="text-right font-mono">
+                                       {formatTableValue(row.value)} {chartField.unit}
+                                     </TableCell>
+                                     <TableCell className="text-right font-mono">
+                                       <span className={
+                                         row.percentageDiff === '0%' ? 'text-muted-foreground' :
+                                         row.percentageDiff === '–' ? 'text-muted-foreground' :
+                                         row.percentageDiff.startsWith('+') ? 
+                                           (metric.higherIsBetter ? 'text-semantic-good' : 'text-semantic-bad') :
+                                           (metric.higherIsBetter ? 'text-semantic-bad' : 'text-semantic-good')
+                                       }>
+                                         {row.percentageDiff}
+                                       </span>
+                                     </TableCell>
+                                   </TableRow>
+                                 ))}
+                               </TableBody>
+                             </Table>
+                           </div>
+                         );
+                       })()}
                    </div>
                  </CollapsibleContent>
                </Collapsible>
