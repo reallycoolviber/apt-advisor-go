@@ -574,9 +574,9 @@ const EvaluationHub = () => {
                 {/* Lägenhetsdata */}
                 <Card className="bg-card border shadow-md">
                   <div className="p-4">
-                    <h3 className="font-semibold text-foreground mb-4 text-center">
-                      Lägenhetsdata
-                    </h3>
+                     <h3 className="font-semibold text-foreground mb-4">
+                       Lägenhetsdata
+                     </h3>
                     {hasLägenhetsdata() ? (
                       <div className="space-y-2">
                         {data.address && (
@@ -637,9 +637,9 @@ const EvaluationHub = () => {
                 {/* Föreningsinformation */}
                 <Card className="bg-card border shadow-md">
                   <div className="p-4">
-                    <h3 className="font-semibold text-foreground mb-4 text-center">
-                      Föreningsinformation
-                    </h3>
+                     <h3 className="font-semibold text-foreground mb-4">
+                       Föreningsinformation
+                     </h3>
                     {hasFöreningsinformation() ? (
                       <div className="space-y-2">
                         {data.financial?.debtPerSqm && (
@@ -682,9 +682,9 @@ const EvaluationHub = () => {
                 {/* Din bedömning av lägenheten */}
                 <Card className="bg-card border shadow-md">
                   <div className="p-4">
-                    <h3 className="font-semibold text-foreground mb-4 text-center">
-                      Din bedömning av lägenheten
-                    </h3>
+                     <h3 className="font-semibold text-foreground mb-4">
+                       Din bedömning av lägenheten
+                     </h3>
                     {hasBedömning() ? (
                       <div className="space-y-2">
                         {data.physical?.planlösning && (
