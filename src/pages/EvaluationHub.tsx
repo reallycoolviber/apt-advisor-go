@@ -374,31 +374,50 @@ const EvaluationHub = () => {
            {/* Address display using new component */}
            <EvaluationAddressEditor />
 
-           {/* Navigation Toggle */}
-           <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="w-full mb-6">
-             <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto rounded-lg">
-               <TabsTrigger 
-                 value="input"
-                 className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md py-2 px-4 text-sm font-medium transition-all"
+           {/* Navigation Toggle - samma stil som Evaluations */}
+           <div className="mb-6">
+             <div className="flex bg-muted p-1 rounded-full max-w-fit">
+               <Button
+                 variant={activeTab === 'input' ? 'default' : 'ghost'}
+                 size="sm"
+                 onClick={() => setActiveTab('input')}
+                 className={`rounded-full w-24 ${
+                   activeTab === 'input' 
+                     ? 'bg-primary text-primary-foreground shadow-sm' 
+                     : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+                 }`}
                >
                  Input
-               </TabsTrigger>
-               <TabsTrigger 
-                 value="evaluation"
-                 className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md py-2 px-4 text-sm font-medium transition-all"
+               </Button>
+               <Button
+                 variant={activeTab === 'evaluation' ? 'default' : 'ghost'}
+                 size="sm"
+                 onClick={() => setActiveTab('evaluation')}
+                 className={`rounded-full w-24 ${
+                   activeTab === 'evaluation' 
+                     ? 'bg-primary text-primary-foreground shadow-sm' 
+                     : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+                 }`}
                >
                  Utvärdering
-               </TabsTrigger>
-               <TabsTrigger 
-                 value="comparison"
-                 className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md py-2 px-4 text-sm font-medium transition-all"
+               </Button>
+               <Button
+                 variant={activeTab === 'comparison' ? 'default' : 'ghost'}
+                 size="sm"
+                 onClick={() => setActiveTab('comparison')}
+                 className={`rounded-full w-24 ${
+                   activeTab === 'comparison' 
+                     ? 'bg-primary text-primary-foreground shadow-sm' 
+                     : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+                 }`}
                >
                  Jämförelse
-               </TabsTrigger>
-             </TabsList>
+               </Button>
+             </div>
+           </div>
            
            {/* Content based on active tab */}
-            <TabsContent value="input" className="mt-0">
+           {activeTab === 'input' && (
               <div className="space-y-3 mb-8">
                {evaluationSections.map((section, index) => {
                  const IconComponent = section.icon;
@@ -442,10 +461,10 @@ const EvaluationHub = () => {
                    </Card>
                  );
                 })}
-              </div>
-            </TabsContent>
+             </div>
+           )}
 
-           <TabsContent value="evaluation" className="mt-0">
+           {activeTab === 'evaluation' && (
               <div className="space-y-4 mb-8">
                 {/* Lägenhetsdata */}
                  <Card className="bg-card border shadow-sm">
@@ -691,23 +710,21 @@ const EvaluationHub = () => {
                      </div>
                     </Card>
                   )}
-               </div>
-            </TabsContent>
-
-            <TabsContent value="comparison" className="mt-0">
-              {currentEvaluationId && (
-                <div className="mb-8">
-                   <h3 className="text-lg font-semibold text-foreground mb-4">Jämförelse</h3>
-                   <Button 
-                     onClick={() => navigate('/comparison')} 
-                     className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
-                   >
-                     Gå till jämförelse
-                   </Button>
                 </div>
-              )}
-            </TabsContent>
-          </Tabs>
+           )}
+
+           {activeTab === 'comparison' && currentEvaluationId && (
+             <div className="mb-8">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Jämförelse</h3>
+                <Button 
+                  onClick={() => navigate('/comparison')} 
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  Gå till jämförelse
+                </Button>
+              </div>
+           )}
+          
            
           {/* Action buttons */}
           <div className="flex gap-4 mt-6">
