@@ -60,7 +60,7 @@ const Index = () => {
       title: 'Jämför lägenheter',
       description: 'Analysera nyckeltal och få detaljerade jämförelser mellan lägenheter',
       icon: BarChart3,
-      path: '/comparison',
+      path: '/compare',
       primary: false
     }
   ];

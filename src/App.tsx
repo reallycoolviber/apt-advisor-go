@@ -19,7 +19,7 @@ import ChecklistSection from "./components/ChecklistSection";
 import Evaluations from "./pages/Evaluations";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import Compare from "./pages/Compare";
-import ComparisonView from "./pages/ComparisonView";
+// Removed ComparisonView - using AutoComparisonWidget instead
 import AutoComparison from "./pages/AutoComparison";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -141,7 +141,7 @@ const AppContent = () => {
                   } />
                   <Route path="/comparison" element={
                     <ProtectedRoute>
-                      <ComparisonView />
+                      <Compare />
                     </ProtectedRoute>
                   } />
                   <Route path="/auto-comparison/:id" element={
