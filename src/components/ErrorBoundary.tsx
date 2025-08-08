@@ -29,7 +29,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       return this.props.fallback || (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
           <div className="max-w-md mx-auto text-center">
-            <h1 className="text-2xl font-bold text-foreground mb-4">Något gick fel</h1>
+            <h1 className="mb-4">Något gick fel</h1>
             <p className="text-muted-foreground mb-6">
               Det uppstod ett oväntat fel. Försök att ladda om sidan.
             </p>

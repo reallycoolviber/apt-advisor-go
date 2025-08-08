@@ -400,7 +400,7 @@ const Compare = () => {
             >
               <Home className="h-6 w-6" />
             </Button>
-            <h1 className="text-xl font-bold">Jämför lägenheter</h1>
+            <h1>Jämför lägenheter</h1>
           </div>
         </div>
         <div className="p-4 relative z-10">
@@ -441,7 +441,7 @@ const Compare = () => {
             >
               <Home className="h-6 w-6" />
             </Button>
-            <h1 className="text-xl font-bold">Jämför lägenheter</h1>
+            <h1>Jämför lägenheter</h1>
           </div>
         </div>
         <div className="p-4 relative z-10">
@@ -490,7 +490,7 @@ const Compare = () => {
           >
             <Home className="h-6 w-6" />
           </Button>
-          <h1 className="text-xl font-bold">Jämför lägenheter</h1>
+          <h1>Jämför lägenheter</h1>
         </div>
       </div>
 

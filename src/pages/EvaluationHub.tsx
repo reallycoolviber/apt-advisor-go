@@ -435,7 +435,7 @@ const EvaluationHub = () => {
               >
                 <Home className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-bold text-foreground">Lägenhetsutvärdering</h1>
+              <h1>Lägenhetsutvärdering</h1>
             </div>
           </div>
         </div>
@@ -482,7 +482,7 @@ const EvaluationHub = () => {
               >
                 <Home className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-bold text-foreground">Lägenhetsutvärdering</h1>
+              <h1>Lägenhetsutvärdering</h1>
             </div>
           </div>
         </div>

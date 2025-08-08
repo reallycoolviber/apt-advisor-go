@@ -72,6 +72,24 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
+    /* ==================== GLOBAL TYPOGRAPHY SYSTEM ==================== */
+    
+    /* Typografisk skala baserad på 16px med 1.25 skalningsfaktor */
+    --font-size-xxl: 39px;    /* H1 - Största sidtitlar */
+    --font-size-xl: 31px;     /* H2 - Stora sektionsrubriker */
+    --font-size-lg: 25px;     /* H3 - Mellanstora rubriker, kort */
+    --font-size-md: 20px;     /* Framträdande text som inte är rubrik */
+    --font-size-base: 16px;   /* Standard brödtext */
+    --font-size-sm: 13px;     /* Mindre text, metadata, hjälptexter */
+    
+    /* Associerade line-heights för optimal läsbarhet */
+    --line-height-xxl: 1.2;   /* 46.8px - Tight för stora rubriker */
+    --line-height-xl: 1.25;   /* 38.75px - Tight för rubriker */
+    --line-height-lg: 1.3;    /* 32.5px - Tight för mellanrubriker */
+    --line-height-md: 1.4;    /* 28px - Comfortable för framträdande text */
+    --line-height-base: 1.5;  /* 24px - Optimal för läsning */
+    --line-height-sm: 1.4;    /* 18.2px - Compact för mindre text */
+    
     /* ==================== DESIGN SYSTEM TOKENS ==================== */
     
     --field-height: 2.75rem;        /* 44px - Standard field height */
@@ -83,15 +101,6 @@ All colors MUST be HSL.
     
     --field-border-radius: 0.5rem;  /* 8px - Field border radius */
     --card-border-radius: 0.75rem;  /* 12px - Card border radius */
-    
-    --field-font-size: 0.875rem;    /* 14px - Standard field text */
-    --field-font-size-lg: 1rem;     /* 16px - Large field text */
-    
-    --label-font-size: 0.875rem;    /* 14px - Label text */
-    --label-font-weight: 500;       /* Medium weight for labels */
-    
-    --spacing-field: 1rem;          /* 16px - Space between fields */
-    --spacing-section: 1.5rem;      /* 24px - Space between sections */
     
     --shadow-field: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -193,5 +202,83 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+  }
+
+  /* ==================== GLOBAL TYPOGRAPHY ELEMENTS ==================== */
+  
+  h1 {
+    font-size: var(--font-size-xxl);
+    line-height: var(--line-height-xxl);
+    font-weight: 700;
+    color: hsl(var(--foreground));
+  }
+
+  h2 {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-xl);
+    font-weight: 700;
+    color: hsl(var(--foreground));
+  }
+
+  h3 {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-lg);
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  h4 {
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-md);
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  p, li, span, div {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+  }
+
+  small, .caption, .text-caption {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-sm);
+  }
+
+  /* ==================== TYPOGRAPHY UTILITY CLASSES ==================== */
+  
+  .text-display {
+    font-size: var(--font-size-xxl);
+    line-height: var(--line-height-xxl);
+    font-weight: 700;
+  }
+
+  .text-title {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-xl);
+    font-weight: 700;
+  }
+
+  .text-heading {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-lg);
+    font-weight: 600;
+  }
+
+  .text-prominent {
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-md);
+    font-weight: 500;
+  }
+
+  .text-body {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+  }
+
+  .text-small {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-sm);
   }
 }
