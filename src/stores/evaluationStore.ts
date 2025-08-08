@@ -456,30 +456,47 @@ export const useEvaluationStore = create<EvaluationStore>()(
           set({ checklistLoading: true, checklistError: null });
           
           try {
-            let query = supabase
-              .from('checklist_items')
-              .select('*')
-              .eq('user_id', userId);
-            
-            // If evaluationId is provided, filter by it. If not, get all user items.
             if (evaluationId) {
-              query = query.eq('evaluation_id', evaluationId);
+              // Load checklist from the evaluation's checklist field
+              const { data: evaluation, error } = await supabase
+                .from('apartment_evaluations')
+                .select('checklist')
+                .eq('id', evaluationId)
+                .single();
+
+              if (error) throw error;
+
+              const checklist = Array.isArray(evaluation?.checklist) ? evaluation.checklist : [];
+              const checklistItems: Record<string, ChecklistItem> = {};
+
+              // Convert checklist items to the expected format
+              (checklist as any[]).forEach((item: any) => {
+                const itemId = `${item.category}-${item.index}`;
+                checklistItems[itemId] = {
+                  id: `${evaluationId}-${itemId}`,
+                  user_id: userId,
+                  evaluation_id: evaluationId,
+                  item_index: item.index,
+                  is_checked: item.checked || false,
+                  comment: item.comment || null,
+                  item_category: item.category === 0 ? 'Föreningen - Viktiga Frågor till Mäklaren & Styrelsen' : 'Lägenheten - Din Personliga Inspektion',
+                  item_text: item.text || '',
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                };
+              });
+
+              set({ 
+                checklistItems,
+                checklistLoading: false 
+              });
+            } else {
+              // Clear checklist if no evaluation specified
+              set({ 
+                checklistItems: {},
+                checklistLoading: false 
+              });
             }
-
-            const { data: items, error } = await query;
-
-            if (error) throw error;
-
-            const checklistItems: Record<string, ChecklistItem> = {};
-            items?.forEach(item => {
-              const itemId = `${item.item_category}-${item.item_index}`;
-              checklistItems[itemId] = item;
-            });
-
-            set({ 
-              checklistItems,
-              checklistLoading: false 
-            });
           } catch (error) {
             console.error('Error loading checklist items:', error);
             set({
@@ -493,86 +510,100 @@ export const useEvaluationStore = create<EvaluationStore>()(
           const state = get();
           const [categoryIndex, itemIndex] = itemId.split('-').map(Number);
           
-          // Pre-defined checklist structure for mapping
-          const checklistCategories = [
-            'Föreningen - Viktiga Frågor till Mäklaren & Styrelsen',
-            'Lägenheten - Din Personliga Inspektion'
-          ];
-          
-          const checklistTexts = [
-            // Category 0: Föreningen
-            ['När gjordes stambyte senast? När är nästa planerat?', 'När byttes fönster/tak/fasad senast?', 'Finns några stora planerade renoveringar eller avgiftshöjningar?', 'Vad ingår i avgiften (värme, vatten, TV, bredband)?', 'Finns det några kända problem med skadedjur, fukt eller buller i fastigheten?', 'Hur är situationen med förråd, tvättstuga, cykelrum och parkering?', 'Vilka regler gäller för husdjur, uthyrning och renovering?', 'Har föreningen några ekonomiska utmaningar eller skulder?'],
-            // Category 1: Lägenheten
-            ['Kontrollera badrummet noggrant: Finns tecken på fukt/mögel? Hur ser golvbrunnen ut? Fråga efter kvalitetsdokument/våtrumsintyg.', 'Kontrollera köket: Testa alla vitvaror. Kolla trycket i vattenkranen.', 'Öppna och stäng fönster och dörrar. Är de i gott skick?', 'Lyssna efter störande ljud från grannar, trapphus eller utifrån.', 'Kontrollera elen: Finns jordade uttag i alla rum? Ser elcentralen modern ut?', 'Undersök golv, väggar och tak efter sprickor, fläckar eller skador.', 'Testa ventilationen i badrum och kök. Fungerar den korrekt?', 'Kontrollera värmesystemet: Radiatorernas skick och temperaturkontroll.']
-          ];
-          
+          if (!state.currentEvaluationId) {
+            throw new Error('No current evaluation - checklist items must be linked to an evaluation');
+          }
+
           try {
             // Get current user from auth context
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
 
-            // CRITICAL: Must be linked to current evaluation
-            if (!state.currentEvaluationId) {
-              throw new Error('No current evaluation - checklist items must be linked to an evaluation');
+            // Get the current evaluation's checklist
+            const { data: currentEval, error: fetchError } = await supabase
+              .from('apartment_evaluations')
+              .select('checklist')
+              .eq('id', state.currentEvaluationId)
+              .single();
+
+            if (fetchError) throw fetchError;
+
+            // Initialize checklist if it doesn't exist
+            let checklist = currentEval?.checklist || [];
+            
+            // Ensure checklist is an array
+            if (!Array.isArray(checklist)) {
+              checklist = [];
             }
 
-            const category = checklistCategories[categoryIndex];
-            const itemText = checklistTexts[categoryIndex]?.[itemIndex] || '';
+            // Find existing item or create new one
+            const existingItemIndex = checklist.findIndex(
+              (item: any) => item.category === categoryIndex && item.index === itemIndex
+            );
 
-            // Check if item exists
-            const existingItem = state.checklistItems[itemId];
+            const checklistCategories = [
+              'Föreningen - Viktiga Frågor till Mäklaren & Styrelsen',
+              'Lägenheten - Din Personliga Inspektion'
+            ];
             
-            if (existingItem) {
+            const checklistTexts = [
+              // Category 0: Föreningen
+              ['När gjordes stambyte senast? När är nästa planerat?', 'När byttes fönster/tak/fasad senast?', 'Finns några stora planerade renoveringar eller avgiftshöjningar?', 'Vad ingår i avgiften (värme, vatten, TV, bredband)?', 'Finns det några kända problem med skadedjur, fukt eller buller i fastigheten?', 'Hur är situationen med förråd, tvättstuga, cykelrum och parkering?', 'Vilka regler gäller för husdjur, uthyrning och renovering?', 'Har föreningen några ekonomiska utmaningar eller skulder?'],
+              // Category 1: Lägenheten
+              ['Kontrollera badrummet noggrant: Finns tecken på fukt/mögel? Hur ser golvbrunnen ut? Fråga efter kvalitetsdokument/våtrumsintyg.', 'Kontrollera köket: Testa alla vitvaror. Kolla trycket i vattenkranen.', 'Öppna och stäng fönster och dörrar. Är de i gott skick?', 'Lyssna efter störande ljud från grannar, trapphus eller utifrån.', 'Kontrollera elen: Finns jordade uttag i alla rum? Ser elcentralen modern ut?', 'Undersök golv, väggar och tak efter sprickor, fläckar eller skador.', 'Testa ventilationen i badrum och kök. Fungerar den korrekt?', 'Kontrollera värmesystemet: Radiatorernas skick och temperaturkontroll.']
+            ];
+
+            const itemText = checklistTexts[categoryIndex]?.[itemIndex] || '';
+            const category = checklistCategories[categoryIndex];
+
+            const checklistItem = {
+              category: categoryIndex,
+              index: itemIndex,
+              text: itemText,
+              checked: isChecked,
+              comment: comment || null
+            };
+
+            if (existingItemIndex >= 0) {
               // Update existing item
-              const { error } = await supabase
-                .from('checklist_items')
-                .update({
-                  is_checked: isChecked,
-                  comment: comment || null,
-                  updated_at: new Date().toISOString()
-                })
-                .eq('id', existingItem.id);
-
-              if (error) throw error;
-
-              // Update local state
-              set(state => ({
-                checklistItems: {
-                  ...state.checklistItems,
-                  [itemId]: {
-                    ...existingItem,
-                    is_checked: isChecked,
-                    comment: comment || null,
-                    updated_at: new Date().toISOString()
-                  }
-                }
-              }));
+              checklist[existingItemIndex] = checklistItem;
             } else {
-              // Create new item
-              const { data: newItem, error } = await supabase
-                .from('checklist_items')
-                .insert({
+              // Add new item
+              checklist.push(checklistItem);
+            }
+
+            // Update the evaluation with the new checklist
+            const { error: updateError } = await supabase
+              .from('apartment_evaluations')
+              .update({
+                checklist: checklist,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', state.currentEvaluationId);
+
+            if (updateError) throw updateError;
+
+            // Update local state to reflect the change
+            set(state => ({
+              checklistItems: {
+                ...state.checklistItems,
+                [itemId]: {
+                  id: `${state.currentEvaluationId}-${itemId}`,
                   user_id: user.id,
-                  evaluation_id: state.currentEvaluationId, // Link to current evaluation
+                  evaluation_id: state.currentEvaluationId,
                   item_index: itemIndex,
                   is_checked: isChecked,
                   comment: comment || null,
                   item_category: category,
-                  item_text: itemText
-                })
-                .select()
-                .single();
-
-              if (error) throw error;
-
-              // Update local state
-              set(state => ({
-                checklistItems: {
-                  ...state.checklistItems,
-                  [itemId]: newItem
+                  item_text: itemText,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
                 }
-              }));
-            }
+              },
+              hasUnsavedChanges: true
+            }));
+
+            console.log('Successfully updated checklist item in evaluation');
           } catch (error) {
             console.error('Error updating checklist item:', error);
             throw new Error('Kunde inte spara checklistobjekt');

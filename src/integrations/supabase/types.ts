@@ -26,6 +26,7 @@ export type Database = {
           bedrooms: number | null
           bedrooms_comment: string | null
           cashflow_per_sqm: number | null
+          checklist: Json | null
           comments: string | null
           created_at: string
           debt_per_sqm: number | null
@@ -65,6 +66,7 @@ export type Database = {
           bedrooms?: number | null
           bedrooms_comment?: string | null
           cashflow_per_sqm?: number | null
+          checklist?: Json | null
           comments?: string | null
           created_at?: string
           debt_per_sqm?: number | null
@@ -104,6 +106,7 @@ export type Database = {
           bedrooms?: number | null
           bedrooms_comment?: string | null
           cashflow_per_sqm?: number | null
+          checklist?: Json | null
           comments?: string | null
           created_at?: string
           debt_per_sqm?: number | null
