@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Home, Plus, MapPin, Euro, Star, Calendar, Edit, FileText, Download, Trash2 } from 'lucide-react';
+import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -440,8 +441,8 @@ const Evaluations = () => {
                           {evaluation.address || 'Ingen adress'}
                         </h3>
                         <p className="text-muted-foreground text-sm">
-                          {evaluation.size && `${evaluation.size} kvm`}
-                          {evaluation.rooms && ` • ${evaluation.rooms} rum`}
+                          {evaluation.size && formatDisplayValue(evaluation.size, 'area')}
+                          {evaluation.rooms && ` • ${formatDisplayValue(evaluation.rooms, 'rooms')}`}
                         </p>
                       </div>
                     </div>
@@ -451,16 +452,16 @@ const Evaluations = () => {
                       <div className="flex items-center gap-2 mb-4 p-3 bg-primary/10 rounded-lg">
                         <Euro className="h-5 w-5 text-primary" />
                         <div>
-                           {evaluation.price && (
-                             <p className="font-semibold text-primary">
-                               {Number(evaluation.price).toLocaleString('sv-SE')} SEK
-                             </p>
-                           )}
-                          {evaluation.monthly_fee && (
-                            <p className="text-sm text-primary/80">
-                              {parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån
-                            </p>
-                          )}
+                             {evaluation.price && (
+                               <p className="font-semibold text-primary">
+                                 {formatDisplayValue(evaluation.price, 'price')}
+                               </p>
+                             )}
+                            {evaluation.monthly_fee && (
+                              <p className="text-sm text-primary/80">
+                                {formatDisplayValue(evaluation.monthly_fee, 'fee')}
+                              </p>
+                            )}
                         </div>
                       </div>
                     )}

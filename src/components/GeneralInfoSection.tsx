@@ -3,6 +3,7 @@ import { StandardizedCard } from '@/components/StandardizedCard';
 import { StandardizedFieldGroup } from '@/components/StandardizedFieldGroup';
 import { ValidatedInput } from '@/components/ValidatedInput';
 import { MapPin, Home, CreditCard, Users, Calculator, DollarSign } from 'lucide-react';
+import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 
 interface GeneralInfoSectionProps {
   data: any;
@@ -144,7 +145,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
                   <Calculator className="h-5 w-5 text-primary mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground mb-1">Pris per kvm</p>
                   <p className="text-2xl font-bold text-primary">
-                    {formatNumber(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)).toString())} SEK
+                    {formatDisplayValue(Math.round(parseInt(data.price.replace(/\s/g, '')) / parseInt(data.size)), 'fee_per_sqm')}
                   </p>
                 </div>
               )}
@@ -154,7 +155,7 @@ export const GeneralInfoSection = ({ data, updateData }: GeneralInfoSectionProps
                   <DollarSign className="h-5 w-5 text-primary mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground mb-1">Avgift per kvm</p>
                   <p className="text-2xl font-bold text-primary">
-                    {formatNumber(feePerSqm.toString())} SEK/månad
+                    {formatDisplayValue(feePerSqm, 'fee_per_sqm')}
                   </p>
                 </div>
               )}

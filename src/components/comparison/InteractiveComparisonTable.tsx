@@ -7,7 +7,7 @@ interface InteractiveComparisonTableProps {
   evaluations: Evaluation[];
   fields: ComparisonField[];
   calculatePhysicalAverage: (evaluation: Evaluation) => number;
-  formatValue: (value: any, type: ComparisonField['type']) => React.ReactNode;
+  formatValue: (value: any, field: ComparisonField) => React.ReactNode;
 }
 
 const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
@@ -157,14 +157,14 @@ const InteractiveComparisonTable: React.FC<InteractiveComparisonTableProps> = ({
                        className={`overflow-hidden text-ellipsis ${isNumeric ? 'text-right' : 'text-center'}`}
                        title={value ? String(value) : 'Ej angivet'}
                      >
-                       {formatValue(value, field.type)}
+                        {formatValue(value, field)}
                      </div>
                    </TableCell>
                  );
                })}
                <TableCell className="text-center bg-secondary px-3">
                  <div className="flex items-center justify-center">
-                   {formatValue(calculatePhysicalAverage(evaluation), 'rating')}
+                   {formatValue(calculatePhysicalAverage(evaluation), { key: 'physicalAverage', label: 'Genomsnittligt fysiskt betyg', type: 'rating', category: 'physical' })}
                  </div>
                </TableCell>
             </TableRow>

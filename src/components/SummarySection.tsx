@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Save, Home, MapPin, Euro, Star } from 'lucide-react';
+import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -109,8 +110,8 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
           </div>
           <p className="text-sm text-foreground">{data.address || 'Ingen adress angiven'}</p>
           <p className="text-sm text-muted-foreground">
-            {data.size && `${data.size} kvm`} 
-            {data.rooms && ` • ${data.rooms} rum`}
+            {data.size && formatDisplayValue(data.size, 'area')}
+            {data.rooms && ` • ${formatDisplayValue(data.rooms, 'rooms')}`}
           </p>
         </Card>
 
@@ -120,10 +121,10 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
             <h3 className="font-semibold text-foreground">Ekonomi</h3>
           </div>
           <p className="text-sm text-foreground">
-            {data.price ? `${parseInt(data.price).toLocaleString()} SEK` : 'Inget pris angivet'}
+            {data.price ? formatDisplayValue(data.price, 'price') : 'Inget pris angivet'}
           </p>
           <p className="text-sm text-muted-foreground">
-            {data.monthlyFee && `${parseInt(data.monthlyFee).toLocaleString()} SEK/mån`}
+            {data.monthlyFee && formatDisplayValue(data.monthlyFee, 'fee')}
           </p>
         </Card>
       </div>

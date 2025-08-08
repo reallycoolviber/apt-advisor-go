@@ -13,6 +13,7 @@ import AutoComparisonWidget from '@/components/AutoComparisonWidget';
 import EvaluationNavigationToggle from '@/components/EvaluationNavigationToggle';
 import { supabase } from '@/integrations/supabase/client';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
+import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 
 const EvaluationHub = () => {
   console.log('EvaluationHub component starting to render');
@@ -583,31 +584,31 @@ const EvaluationHub = () => {
                         {data.general?.size && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Boarea:</span>
-                            <span className="text-sm font-medium text-foreground">{data.general.size} kvm</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.size, 'area')}</span>
                           </div>
                         )}
                         {data.general?.rooms && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Antal rum:</span>
-                            <span className="text-sm font-medium text-foreground">{data.general.rooms}</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.rooms, 'rooms')}</span>
                           </div>
                         )}
                         {data.general?.price && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Pris:</span>
-                            <span className="text-sm font-medium text-foreground">{parseInt(data.general.price).toLocaleString()} SEK</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.price, 'price')}</span>
                           </div>
                         )}
                         {data.general?.finalPrice && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Slutpris:</span>
-                            <span className="text-sm font-medium text-foreground">{parseInt(data.general.finalPrice).toLocaleString()} SEK</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.finalPrice, 'price')}</span>
                           </div>
                         )}
                         {data.general?.monthlyFee && (
                           <div className="flex justify-between py-2">
                             <span className="text-sm text-muted-foreground">Avgift:</span>
-                            <span className="text-sm font-medium text-foreground">{parseInt(data.general.monthlyFee).toLocaleString()} SEK/mån</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.general.monthlyFee, 'fee')}</span>
                           </div>
                         )}
                       </div>
@@ -628,19 +629,19 @@ const EvaluationHub = () => {
                         {data.financial?.debtPerSqm && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Skuldsättning:</span>
-                            <span className="text-sm font-medium text-foreground">{parseInt(data.financial.debtPerSqm).toLocaleString()} SEK/kvm</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.financial.debtPerSqm, 'debt_per_sqm')}</span>
                           </div>
                         )}
                         {data.financial?.feePerSqm && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Avgift per kvm:</span>
-                            <span className="text-sm font-medium text-foreground">{parseInt(data.financial.feePerSqm).toLocaleString()} SEK/kvm</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.financial.feePerSqm, 'fee_per_sqm')}</span>
                           </div>
                         )}
                         {data.financial?.cashflowPerSqm && (
                           <div className="flex justify-between py-2 border-b border-border/30">
                             <span className="text-sm text-muted-foreground">Kassaflöde per kvm:</span>
-                            <span className="text-sm font-medium text-foreground">{parseInt(data.financial.cashflowPerSqm).toLocaleString()} SEK/kvm</span>
+                            <span className="text-sm font-medium text-foreground">{formatDisplayValue(data.financial.cashflowPerSqm, 'fee_per_sqm')}</span>
                           </div>
                         )}
                         {data.financial?.majorMaintenanceDone !== undefined && (

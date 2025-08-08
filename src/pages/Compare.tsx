@@ -28,6 +28,7 @@ import InteractiveComparisonTable from '@/components/comparison/InteractiveCompa
 import { SaveComparisonModal } from '@/components/comparison/SaveComparisonModal';
 import { ComparisonFilters, FilterValues } from '@/components/comparison/ComparisonFilters';
 import { SavedComparisons } from '@/components/comparison/SavedComparisons';
+import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 
 type ViewMode = 'method-selection' | 'new-comparison' | 'saved-comparisons' | 'comparison-result';
 type NewComparisonStep = 'apartment-selection' | 'criteria-selection' | 'results';
@@ -143,54 +144,67 @@ const Compare = () => {
     });
   };
 
-  const formatValue = (value: any, type: ComparisonField['type']) => {
+  const formatValue = (value: any, field: ComparisonField) => {
     if (value === null || value === undefined) {
       return <span className="text-muted-foreground text-sm">—</span>;
     }
-    
-    switch (type) {
-      case 'currency':
-        const numericValue = typeof value === 'number' ? value : parseInt(value.toString());
-        return (
-          <span className="font-medium text-emerald-700">
-            {numericValue.toLocaleString('sv-SE')} kr
-          </span>
-        );
-      case 'rating':
-        const numValue = typeof value === 'number' ? value : 0;
-        return (
-          <div className="flex items-center gap-2 justify-center">
-            <span className="font-semibold text-sm min-w-8">{numValue.toFixed(1)}</span>
-            <div className="flex gap-0.5">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`h-3 w-3 ${
-                    star <= numValue 
-                      ? 'text-yellow-500 fill-yellow-500' 
-                      : 'text-gray-300 fill-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
+
+    if (field.type === 'rating') {
+      const numValue = typeof value === 'number' ? value : 0;
+      return (
+        <div className="flex items-center gap-2 justify-center">
+          <span className="font-semibold text-sm min-w-8">{numValue.toFixed(1)}</span>
+          <div className="flex gap-0.5">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`h-3 w-3 ${
+                  star <= numValue 
+                    ? 'text-yellow-500 fill-yellow-500' 
+                    : 'text-gray-300 fill-gray-300'
+                }`}
+              />
+            ))}
           </div>
-        );
-      case 'boolean':
-        return value ? (
-          <span className="text-emerald-600 font-medium">Ja</span>
-        ) : (
-          <span className="text-red-500 font-medium">Nej</span>
-        );
-      case 'number':
-        const numberValue = typeof value === 'number' ? value : parseFloat(value);
-        return (
-          <span className="font-medium">
-            {!isNaN(numberValue) ? numberValue.toLocaleString('sv-SE') : value}
-          </span>
-        );
-      default:
-        return <span className="text-left">{value}</span>;
+        </div>
+      );
     }
+
+    if (field.type === 'boolean') {
+      return value ? (
+        <span className="text-emerald-600 font-medium">Ja</span>
+      ) : (
+        <span className="text-red-500 font-medium">Nej</span>
+      );
+    }
+
+    const mapKeyToType = (key: string): string => {
+      switch (key) {
+        case 'price': return 'price';
+        case 'monthly_fee': return 'fee';
+        case 'size': return 'area';
+        case 'rooms': return 'rooms';
+        case 'debt_per_sqm': return 'debt_per_sqm';
+        case 'fee_per_sqm':
+        case 'cashflow_per_sqm':
+        case 'price_per_sqm':
+          return 'fee_per_sqm';
+        default:
+          return 'number';
+      }
+    };
+
+    const display = formatDisplayValue(value, mapKeyToType(field.key as string));
+
+    if (field.type === 'currency') {
+      return <span className="font-medium text-emerald-700">{display}</span>;
+    }
+
+    if (field.type === 'number') {
+      return <span className="font-medium">{display}</span>;
+    }
+
+    return <span className="text-left">{display}</span>;
   };
 
   // Data fetching

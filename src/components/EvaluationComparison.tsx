@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Evaluation, ComparisonField, SortConfig, SortDirection } from '@/components/comparison/types';
 import { useNavigate } from 'react-router-dom';
+import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 
 interface EvaluationComparisonProps {
   currentEvaluationId?: string | null;
@@ -171,48 +172,65 @@ const EvaluationComparison: React.FC<EvaluationComparisonProps> = ({
       : <ChevronDown className="h-3 w-3 ml-1" />;
   };
 
-  const formatValue = (value: any, type: ComparisonField['type']) => {
+  const formatValue = (value: any, type: ComparisonField['type'], key?: string) => {
     if (value === null || value === undefined) {
       return <span className="text-muted-foreground text-xs">—</span>;
     }
     
-    switch (type) {
-      case 'currency':
-        const numericValue = typeof value === 'number' ? value : parseInt(value.toString());
-        return (
-          <span className="font-medium text-emerald-700 text-xs">
-            {numericValue.toLocaleString('sv-SE')} kr
-          </span>
-        );
-      case 'rating':
-        const numValue = typeof value === 'number' ? value : 0;
-        return (
-          <div className="flex items-center gap-1 justify-center">
-            <span className="font-semibold text-xs min-w-6">{numValue.toFixed(1)}</span>
-            <div className="flex gap-0.5">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`h-2 w-2 ${
-                    star <= numValue 
-                      ? 'text-yellow-500 fill-yellow-500' 
-                      : 'text-gray-300 fill-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
+    if (type === 'rating') {
+      const numValue = typeof value === 'number' ? value : 0;
+      return (
+        <div className="flex items-center gap-1 justify-center">
+          <span className="font-semibold text-xs min-w-6">{numValue.toFixed(1)}</span>
+          <div className="flex gap-0.5">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`h-2 w-2 ${
+                  star <= numValue 
+                    ? 'text-yellow-500 fill-yellow-500' 
+                    : 'text-gray-300 fill-gray-300'
+                }`}
+              />
+            ))}
           </div>
-        );
-      case 'number':
-        const numberValue = typeof value === 'number' ? value : parseFloat(value);
-        return (
-          <span className="font-medium text-xs">
-            {!isNaN(numberValue) ? numberValue.toLocaleString('sv-SE') : value}
-          </span>
-        );
-      default:
-        return <span className="text-xs">{value}</span>;
+        </div>
+      );
     }
+
+    const mapKeyToType = (k?: string): string => {
+      switch (k) {
+        case 'price': return 'price';
+        case 'monthly_fee': return 'fee';
+        case 'size': return 'area';
+        case 'rooms': return 'rooms';
+        case 'debt_per_sqm': return 'debt_per_sqm';
+        case 'fee_per_sqm':
+        case 'cashflow_per_sqm':
+        case 'price_per_sqm':
+          return 'fee_per_sqm';
+        default:
+          return 'number';
+      }
+    };
+
+    const display = formatDisplayValue(value, mapKeyToType(key));
+
+    if (type === 'currency') {
+      return (
+        <span className="font-medium text-emerald-700 text-xs">
+          {display}
+        </span>
+      );
+    }
+    if (type === 'number') {
+      return (
+        <span className="font-medium text-xs">
+          {display}
+        </span>
+      );
+    }
+    return <span className="text-xs">{display}</span>;
   };
 
   if (loading) {
@@ -329,7 +347,7 @@ const EvaluationComparison: React.FC<EvaluationComparisonProps> = ({
                         </div>
                         {pricePerSqm && (
                           <div className="text-xs text-muted-foreground">
-                            {Math.round(pricePerSqm).toLocaleString()} kr/kvm
+                            {formatDisplayValue(Math.round(pricePerSqm), 'fee_per_sqm')}
                           </div>
                         )}
                       </div>
@@ -347,7 +365,7 @@ const EvaluationComparison: React.FC<EvaluationComparisonProps> = ({
                             className={`overflow-hidden text-ellipsis ${isNumeric ? 'text-right' : 'text-center'}`}
                             title={value ? String(value) : 'Ej angivet'}
                           >
-                            {formatValue(value, field.type)}
+                            {formatValue(value, field.type, field.key as string)}
                           </div>
                         </TableCell>
                       );

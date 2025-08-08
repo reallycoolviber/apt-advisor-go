@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, ChevronLeft, ChevronRight, Home, MapPin, Euro, Star } from 'lucide-react';
+import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 import { useToast } from '@/hooks/use-toast';
 
 interface Evaluation {
@@ -122,22 +123,22 @@ const EvaluationDetail = () => {
         
         <Card className="p-4">
           <label className="text-sm font-medium text-muted-foreground">Storlek</label>
-          <p className="text-lg text-foreground">{evaluation?.size ? `${evaluation.size} kvm` : 'Ej angiven'}</p>
+          <p className="text-lg text-foreground">{evaluation?.size ? formatDisplayValue(evaluation.size, 'area') : 'Ej angiven'}</p>
         </Card>
         
         <Card className="p-4">
           <label className="text-sm font-medium text-muted-foreground">Pris</label>
-          <p className="text-lg text-foreground">{evaluation?.price ? `${parseInt(evaluation.price.toString()).toLocaleString()} SEK` : 'Ej angivet'}</p>
+          <p className="text-lg text-foreground">{evaluation?.price ? formatDisplayValue(evaluation.price, 'price') : 'Ej angivet'}</p>
         </Card>
         
         <Card className="p-4">
           <label className="text-sm font-medium text-muted-foreground">Rum</label>
-          <p className="text-lg text-foreground">{evaluation?.rooms || 'Ej angivet'}</p>
+          <p className="text-lg text-foreground">{evaluation?.rooms ? formatDisplayValue(evaluation.rooms, 'rooms') : 'Ej angivet'}</p>
         </Card>
         
         <Card className="p-4">
           <label className="text-sm font-medium text-muted-foreground">Månadsavgift</label>
-          <p className="text-lg text-foreground">{evaluation?.monthly_fee ? `${parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån` : 'Ej angivet'}</p>
+          <p className="text-lg text-foreground">{evaluation?.monthly_fee ? formatDisplayValue(evaluation.monthly_fee, 'fee') : 'Ej angivet'}</p>
         </Card>
       </div>
     </div>
@@ -240,8 +241,8 @@ const EvaluationDetail = () => {
             </div>
             <p className="text-sm text-muted-foreground">{evaluation?.address || 'Ingen adress angiven'}</p>
             <p className="text-sm text-muted-foreground">
-              {evaluation?.size && `${evaluation.size} kvm`} 
-              {evaluation?.rooms && ` • ${evaluation.rooms} rum`}
+              {evaluation?.size && formatDisplayValue(evaluation.size, 'area')}
+              {evaluation?.rooms && ` • ${formatDisplayValue(evaluation.rooms, 'rooms')}`}
             </p>
           </Card>
 
@@ -251,10 +252,10 @@ const EvaluationDetail = () => {
               <h3 className="font-semibold text-accent">Ekonomi</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              {evaluation?.price ? `${parseInt(evaluation.price.toString()).toLocaleString()} SEK` : 'Inget pris angivet'}
+              {evaluation?.price ? formatDisplayValue(evaluation.price, 'price') : 'Inget pris angivet'}
             </p>
             <p className="text-sm text-muted-foreground">
-              {evaluation?.monthly_fee && `${parseInt(evaluation.monthly_fee.toString()).toLocaleString()} SEK/mån`}
+              {evaluation?.monthly_fee && formatDisplayValue(evaluation.monthly_fee, 'fee')}
             </p>
           </Card>
         </div>
