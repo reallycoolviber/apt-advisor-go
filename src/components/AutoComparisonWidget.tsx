@@ -57,6 +57,8 @@ interface ChartField {
 }
 
 const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationId }) => {
+  console.log('AutoComparisonWidget: Received evaluationId:', evaluationId);
+  
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [currentEvaluation, setCurrentEvaluation] = useState<Evaluation | null>(null);
@@ -70,7 +72,12 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
   // Fetch current evaluation
   useEffect(() => {
     const fetchCurrentEvaluation = async () => {
-      if (!user || !evaluationId) return;
+      console.log('AutoComparisonWidget: fetchCurrentEvaluation called with:', { user: !!user, evaluationId });
+      if (!user || !evaluationId) {
+        console.log('AutoComparisonWidget: Missing user or evaluationId, skipping fetch');
+        setLoading(false);
+        return;
+      }
 
       try {
         const { data: evaluation, error } = await supabase
@@ -80,14 +87,21 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = ({ evaluationI
           .eq('user_id', user.id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('AutoComparisonWidget: Error fetching current evaluation:', error);
+          throw error;
+        }
         
         if (evaluation) {
+          console.log('AutoComparisonWidget: Successfully fetched evaluation:', evaluation.address);
           const enhanced = enhanceEvaluationWithComputed(evaluation);
           setCurrentEvaluation(enhanced);
+        } else {
+          console.log('AutoComparisonWidget: No evaluation found for ID:', evaluationId);
         }
       } catch (error) {
-        console.error('Error fetching current evaluation:', error);
+        console.error('AutoComparisonWidget: Error in fetchCurrentEvaluation:', error);
+        setLoading(false);
       }
     };
 
