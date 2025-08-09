@@ -223,7 +223,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
           best: stats.best,
           worst: stats.worst,
           percentile: stats.percentile,
-          unit: 'price_per_sqm',
+          unit: 'SEK/kvm',
           icon: <Euro className="h-4 w-4" />,
           betterCount: stats.betterCount,
           total: stats.total,
