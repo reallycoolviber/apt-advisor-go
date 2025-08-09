@@ -99,7 +99,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
       förvaring: currentEvaluation.physical?.förvaring || null,
       ljusinsläpp: currentEvaluation.physical?.ljusinsläpp || null,
       balcony: currentEvaluation.physical?.balcony || null,
-      debt_per_sqm: parseFloat(currentEvaluation.financial?.debtPerSqm || '0') || null,
+      debt_per_sqm: parseFloat((currentEvaluation.financial?.debtPerSqm || '0').toString().replace(/\s/g, '').replace(',', '.')) || null,
       fee_per_sqm: null, // Will be computed below
       cashflow_per_sqm: parseFloat(currentEvaluation.financial?.cashflowPerSqm || '0') || null,
       // Add other required fields with defaults
@@ -223,7 +223,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
           best: stats.best,
           worst: stats.worst,
           percentile: stats.percentile,
-          unit: 'SEK/kvm',
+          unit: 'price_per_sqm',
           icon: <Euro className="h-4 w-4" />,
           betterCount: stats.betterCount,
           total: stats.total,
