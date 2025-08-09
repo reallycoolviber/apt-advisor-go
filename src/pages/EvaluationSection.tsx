@@ -13,6 +13,7 @@ import { PhysicalAssessmentSection } from '@/components/PhysicalAssessmentSectio
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvaluation } from '@/contexts/EvaluationContext';
+import { useEvaluationStore } from '@/stores/evaluationStore';
 import cityscapeNeutral from '@/assets/cityscape-neutral.png';
 
 const EvaluationSection = () => {
@@ -191,13 +192,9 @@ const EvaluationSection = () => {
         is_draft: true
       };
 
-      const { error } = await supabase
-        .from('apartment_evaluations')
-        .insert(saveData);
-
-      if (error) {
-        console.error('Error saving evaluation:', error);
-      }
+      // Use centralized store logic instead of direct insert to prevent duplicates
+      const { saveCurrentEvaluation } = useEvaluationStore();
+      await saveCurrentEvaluation();
     } catch (error) {
       console.error('Error saving evaluation:', error);
     } finally {

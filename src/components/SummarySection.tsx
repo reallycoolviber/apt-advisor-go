@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useEvaluationStore } from '@/stores/evaluationStore';
 
 interface SummarySectionProps {
   data: any; // This receives read-only data from SSOT
@@ -67,13 +68,9 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
         comments: data.comments || null,
       };
 
-      const { data: savedEvaluation, error } = await supabase
-        .from('apartment_evaluations')
-        .insert([evaluationData])
-        .select()
-        .single();
-
-      if (error) throw error;
+      // Use centralized store logic instead of direct insert to prevent duplicates
+      const { saveCurrentEvaluation } = useEvaluationStore();
+      await saveCurrentEvaluation();
 
       toast({
         title: "Utvärdering sparad",
@@ -82,7 +79,7 @@ export const SummarySection = ({ data, updateData, userId }: SummarySectionProps
 
       // Navigate to auto comparison page after successful save
       setTimeout(() => {
-        navigate(`/auto-comparison/${savedEvaluation.id}`);
+        navigate(`/auto-comparison`);
       }, 1500);
 
     } catch (error) {
