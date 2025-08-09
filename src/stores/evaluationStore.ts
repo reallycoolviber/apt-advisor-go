@@ -395,16 +395,36 @@ export const useEvaluationStore = create<EvaluationStore>()(
           try {
             let evaluationId = state.currentEvaluationId;
             const evaluationData = formDataToEvaluationData(state.currentEvaluation);
+            const address = state.currentEvaluation.address;
             
-            // Om vi redan har ett evaluationId, uppdatera befintlig utvärdering
-            if (evaluationId) {
-              await saveEvaluation(evaluationId, evaluationData);
-            } else {
-              // Skapa ny utvärdering endast om vi inte har ett ID
-              const address = state.currentEvaluation.address;
-              if (!address || address.trim() === '') {
-                throw new Error('Adress krävs för att spara utvärdering');
+            // Validera att adress finns
+            if (!address || address.trim() === '') {
+              throw new Error('Adress krävs för att spara utvärdering');
+            }
+            
+            // SINGLE SOURCE OF TRUTH LOGIC: 
+            // 1. If we have a REAL database ID (not temp), update existing
+            // 2. Otherwise, always use getOrCreateEvaluation for proper deduplication
+            const isRealDatabaseId = evaluationId && !evaluationId.startsWith('temp-');
+            
+            if (isRealDatabaseId) {
+              try {
+                // Try to update existing evaluation
+                await saveEvaluation(evaluationId, evaluationData);
+                console.log('Updated existing evaluation:', evaluationId);
+              } catch (updateError) {
+                console.error('Failed to update evaluation, falling back to getOrCreate:', updateError);
+                // If update fails (e.g., evaluation was deleted), fall back to create/find
+                const sourceId = generateSourceId(undefined, address);
+                const result = await getOrCreateEvaluation(sourceId, address, evaluationData);
+                evaluationId = result.data.id!;
+                
+                set({
+                  currentEvaluationId: evaluationId
+                });
               }
+            } else {
+              // No real ID or temp ID - use getOrCreateEvaluation for proper deduplication
               const sourceId = generateSourceId(undefined, address);
               const result = await getOrCreateEvaluation(sourceId, address, evaluationData);
               evaluationId = result.data.id!;
@@ -412,6 +432,8 @@ export const useEvaluationStore = create<EvaluationStore>()(
               set({
                 currentEvaluationId: evaluationId
               });
+              
+              console.log(result.created ? 'Created new evaluation:' : 'Found existing evaluation:', evaluationId);
             }
             
             // Update the evaluations list
