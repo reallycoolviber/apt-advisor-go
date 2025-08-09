@@ -406,6 +406,7 @@ export const useEvaluationStore = create<EvaluationStore>()(
             // 1. If we have a REAL database ID (not temp), update existing
             // 2. Otherwise, always use getOrCreateEvaluation for proper deduplication
             const isRealDatabaseId = evaluationId && !evaluationId.startsWith('temp-');
+            let wasCreateOperation = false;
             
             if (isRealDatabaseId) {
               try {
@@ -418,6 +419,7 @@ export const useEvaluationStore = create<EvaluationStore>()(
                 const sourceId = generateSourceId(undefined, address);
                 const result = await getOrCreateEvaluation(sourceId, address, evaluationData);
                 evaluationId = result.data.id!;
+                wasCreateOperation = result.created;
                 
                 set({
                   currentEvaluationId: evaluationId
@@ -428,6 +430,7 @@ export const useEvaluationStore = create<EvaluationStore>()(
               const sourceId = generateSourceId(undefined, address);
               const result = await getOrCreateEvaluation(sourceId, address, evaluationData);
               evaluationId = result.data.id!;
+              wasCreateOperation = result.created;
               
               set({
                 currentEvaluationId: evaluationId
@@ -436,21 +439,35 @@ export const useEvaluationStore = create<EvaluationStore>()(
               console.log(result.created ? 'Created new evaluation:' : 'Found existing evaluation:', evaluationId);
             }
             
-            // Update the evaluations list
-            const updatedEvaluations = state.evaluations.map(e => 
-              e.id === evaluationId 
-                ? { ...e, ...evaluationData, id: evaluationId }
-                : e
-            );
+            // Update the evaluations list intelligently
+            let updatedEvaluations = [...state.evaluations];
+            const existingIndex = updatedEvaluations.findIndex(e => e.id === evaluationId);
             
-            // If it's a new evaluation, add it to the list
-            if (!state.evaluations.find(e => e.id === evaluationId)) {
+            if (existingIndex >= 0) {
+              // Update existing evaluation in list
+              updatedEvaluations[existingIndex] = { 
+                ...updatedEvaluations[existingIndex], 
+                ...evaluationData, 
+                id: evaluationId,
+                updated_at: new Date().toISOString()
+              };
+              console.log('Updated evaluation in list:', evaluationId);
+            } else if (wasCreateOperation) {
+              // Only add to list if it was actually a new creation
               updatedEvaluations.unshift({ 
                 ...evaluationData, 
                 id: evaluationId,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
               });
+              console.log('Added new evaluation to list:', evaluationId);
+            } else {
+              console.log('Evaluation exists but not in current list, fetching latest list...');
+              // Refresh the evaluations list to get the latest state
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                get().fetchEvaluations(user.id);
+              }
             }
             
             set({
