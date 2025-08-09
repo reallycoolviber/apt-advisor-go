@@ -478,6 +478,28 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
     return 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800';
   };
 
+  // Status color logic: green for good performance, red for bad performance
+  const getStatusColor = (metric: ComparisonMetric): string => {
+    const { percentile, higherIsBetter, total, name } = metric;
+    
+    // If no comparison data, return neutral
+    if (total === 0) return 'text-muted-foreground';
+    
+    // Determine if this metric value is "good" based on the logic requirements
+    let isGood = false;
+    
+    // Apply the specific logic for each metric type
+    if (name === 'Pris per kvm' || name === 'Avgift per kvm' || name === 'Skuld per kvm') {
+      // Lower is better - good if in top 70% (meaning 70% have higher values)
+      isGood = (100 - percentile) >= 70;
+    } else if (name === 'Kassaflöde per kvm' || name === 'Fysisk bedömning') {
+      // Higher is better - good if in top 70%
+      isGood = percentile >= 70;
+    }
+    
+    return isGood ? 'text-success' : 'text-destructive';
+  };
+
   const getComparisonBaseLabel = (base: ComparisonBase): string => {
     switch (base) {
       case 'last-month': return 'Senaste månaden';
@@ -536,26 +558,6 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
           </Badge>
         </div>
 
-        {/* Comparison Base Selection */}
-        <div className="flex gap-2 mb-6">
-          <Button
-            variant={comparisonBase === 'last-month' ? "default" : "outline"}
-            size="sm"
-            onClick={() => setComparisonBase('last-month')}
-            className="text-xs"
-          >
-            Senaste månaden
-          </Button>
-          <Button
-            variant={comparisonBase === 'similar-price' ? "default" : "outline"}
-            size="sm"
-            onClick={() => setComparisonBase('similar-price')}
-            className="text-xs"
-            disabled={!enhancedCurrentEvaluation?.price}
-          >
-            Liknande pris
-          </Button>
-        </div>
 
         {/* Metrics Grid */}
         <div className="space-y-4">
@@ -573,85 +575,72 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
                 onOpenChange={() => handleMetricToggle(metric.name)}
               >
                 <CollapsibleTrigger asChild>
-                  <div className={`rounded-xl border transition-all duration-200 cursor-pointer hover:shadow-md ${performanceBgColor}`}>
+                  <div className="rounded-lg border transition-all duration-200 cursor-pointer hover:shadow-md bg-card">
                     {/* Main Content */}
-                    <div className="p-6">
-                      <div className="flex items-center justify-between">
-                        {/* Left Side - Content */}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 rounded-xl bg-background/60 backdrop-blur-sm">
-                              {metric.icon}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-foreground text-base mb-1">{metric.name}</h3>
-                              <div className="flex items-center gap-2">
-                                {getPerformanceIcon(metric)}
-                                <span className={`text-sm font-medium ${performanceColor}`}>
-                                  {getComparisonText(metric)}
+                    <div className="p-4">
+                      {/* Header Row: Title left, percentage indicator right */}
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-small font-semibold text-foreground">{metric.name}</h3>
+                        {/* Performance Gauge */}
+                        <div className="relative">
+                          {metric.total > 0 ? (
+                            <div className="relative w-12 h-12">
+                              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+                                {/* Background circle */}
+                                <path
+                                  className="text-muted/20"
+                                  stroke="currentColor"
+                                  strokeWidth="3"
+                                  fill="none"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                />
+                                {/* Progress circle */}
+                                <path
+                                  className={getStatusColor(metric)}
+                                  stroke="currentColor"
+                                  strokeWidth="3"
+                                  fill="none"
+                                  strokeDasharray={`${metric.higherIsBetter ? metric.percentile : 100 - metric.percentile}, 100`}
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                />
+                              </svg>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className={`text-xs font-bold ${getStatusColor(metric)}`}>
+                                  {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
                                 </span>
                               </div>
                             </div>
-                          </div>
-                          
-                          {/* Primary Value - Prominent */}
-                          <div className="mb-2">
-                            <div className="text-3xl font-bold text-foreground mb-1">
-                              {formatValue(metric.value, metric.unit)}
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-muted/20 flex items-center justify-center">
+                              <span className="text-xs font-bold text-muted-foreground">N/A</span>
                             </div>
-                            {metric.total > 0 && (
-                              <div className="text-sm text-muted-foreground">
-                                Snitt: {formatValue(metric.average, metric.unit)}
-                              </div>
-                            )}
-                          </div>
+                          )}
                         </div>
-
-                        {/* Right Side - Visual Indicator & Expand Button */}
-                        <div className="flex flex-col items-center gap-3 ml-4">
-                          {/* Performance Gauge */}
-                          <div className="relative">
-                            {metric.total > 0 ? (
-                              <div className="relative w-16 h-16">
-                                <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
-                                  {/* Background circle */}
-                                  <path
-                                    className="text-muted/20"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    fill="none"
-                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                  />
-                                  {/* Progress circle */}
-                                  <path
-                                    className={performanceColor}
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    fill="none"
-                                    strokeDasharray={`${metric.higherIsBetter ? metric.percentile : 100 - metric.percentile}, 100`}
-                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                  />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <span className={`text-xs font-bold ${performanceColor}`}>
-                                    {Math.round(metric.higherIsBetter ? metric.percentile : 100 - metric.percentile)}%
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center">
-                                <span className="text-xs font-bold text-muted-foreground">N/A</span>
-                              </div>
-                            )}
-                          </div>
-                           
-                          {/* Expand/Collapse Icon */}
-                          <div className="text-muted-foreground">
-                            {isExpanded ? 
-                              <ChevronUp className="h-4 w-4" /> : 
-                              <ChevronDown className="h-4 w-4" />
-                            }
-                          </div>
+                      </div>
+                      
+                      {/* Value Row: Primary value */}
+                      <div className="mb-3">
+                        <div className="text-title font-bold text-foreground mb-1">
+                          {formatValue(metric.value, metric.unit)}
+                        </div>
+                      </div>
+                      
+                      {/* Context Row: Ranking, average, expand arrow */}
+                      <div className="flex items-center justify-between text-small text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <span>Rank #{metric.betterCount + 1}/{metric.total + 1}</span>
+                          {metric.total > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>Snitt: {formatValue(metric.average, metric.unit)}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="text-muted-foreground">
+                          {isExpanded ? 
+                            <ChevronUp className="h-4 w-4" /> : 
+                            <ChevronDown className="h-4 w-4" />
+                          }
                         </div>
                       </div>
                     </div>
@@ -702,38 +691,6 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
                       {metric.name === 'Fysisk bedömning' && 'Genomsnittlig bedömning av lägenhetens fysiska egenskaper och skick. Högre betyg indikerar bättre standard och färre renoveringsbehov.'}
                     </div>
 
-                    {/* Visual Comparison Chart */}
-                    {metric.total > 0 && (
-                      <div className="mb-6">
-                        <h4 className="font-medium mb-3 text-foreground">Visuell jämförelse</h4>
-                        <div className="h-32">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={[
-                                { name: 'Bästa', value: metric.best, fill: '#10b981' },
-                                { name: 'Snitt', value: metric.average, fill: '#6b7280' },
-                                { name: 'Din', value: metric.value, fill: '#3b82f6' },
-                                { name: 'Sämsta', value: metric.worst, fill: '#ef4444' }
-                              ]}
-                            >
-                              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                              <YAxis tick={{ fontSize: 12 }} />
-                              <Tooltip 
-                                formatter={(value: number) => [formatValue(value, metric.unit), '']}
-                                labelStyle={{ color: 'hsl(var(--foreground))' }}
-                                contentStyle={{ 
-                                  backgroundColor: 'hsl(var(--popover))',
-                                  border: '1px solid hsl(var(--border))',
-                                  borderRadius: '6px'
-                                }}
-                              />
-                              <Bar dataKey="value" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    )}
 
                       {/* Comparison Table */}
                       {chartField && (() => {
