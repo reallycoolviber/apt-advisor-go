@@ -620,7 +620,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
                       
                       {/* Value Row: Primary value */}
                       <div className="mb-3">
-                        <div className="text-title font-bold text-foreground mb-1">
+                        <div className="text-base font-bold text-foreground mb-1">
                           {formatValue(metric.value, metric.unit)}
                         </div>
                       </div>
