@@ -33,7 +33,7 @@ export function formatValue(value: number | string | null | undefined, type: str
     case 'debt_per_sqm':
     case 'fee_per_sqm':
     case 'price_per_sqm': {
-      return `${svNumber(Math.round(n))} kr/kvm`;
+      return `${svNumber(Math.round(n), { useGrouping: true })} kr/kvm`;
     }
     case 'rooms': {
       return `${svNumber(Math.round(n))} rum`;
