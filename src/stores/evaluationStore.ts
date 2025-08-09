@@ -388,6 +388,16 @@ export const useEvaluationStore = create<EvaluationStore>()(
           const state = get();
           if (!state.currentEvaluation) return;
           
+          // Prevent concurrent saves
+          if (state.autoSaveStatus.saving) {
+            console.log('🔍 SAVE DEBUG: Already saving, skipping duplicate save');
+            return;
+          }
+          
+          console.log('🔍 SAVE DEBUG: Starting save operation');
+          console.log('🔍 SAVE DEBUG: Current evaluation ID:', state.currentEvaluationId);
+          console.log('🔍 SAVE DEBUG: Current evaluation address:', state.currentEvaluation.address);
+          
           set(state => ({
             autoSaveStatus: { saving: true, saved: false, error: null }
           }));

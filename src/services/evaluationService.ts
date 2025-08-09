@@ -88,8 +88,10 @@ export async function getOrCreateEvaluation(
   }
 
   try {
-    // Försök hitta befintlig utvärdering
-    const { data: existing, error: searchError } = await supabase
+    // FIRST: Try to find existing evaluation by source_id
+    let existing = null;
+    
+    const { data: existingBySourceId, error: searchError } = await supabase
       .from('apartment_evaluations')
       .select('*')
       .eq('user_id', user.id)
@@ -97,13 +99,47 @@ export async function getOrCreateEvaluation(
       .maybeSingle();
 
     if (searchError) {
-      console.error('Error searching for existing evaluation:', searchError);
-      throw new Error('Kunde inte söka efter befintlig utvärdering');
+      console.error('Error searching for existing evaluation by source_id:', searchError);
+    } else if (existingBySourceId) {
+      existing = existingBySourceId;
+      console.log('Found existing evaluation by source_id:', existing.id);
+    }
+
+    // FALLBACK: If no source_id match and it's an address-based sourceId, try by address
+    if (!existing && sourceId.startsWith('address:')) {
+      console.log('No source_id match, trying to find by address:', address);
+      
+      const { data: existingByAddress, error: addressSearchError } = await supabase
+        .from('apartment_evaluations')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('address', address)
+        .is('source_id', null) // Only match ones without source_id set
+        .maybeSingle();
+
+      if (addressSearchError) {
+        console.error('Error searching by address:', addressSearchError);
+      } else if (existingByAddress) {
+        existing = existingByAddress;
+        console.log('Found existing evaluation by address, will update source_id:', existing.id);
+        
+        // Update the existing evaluation to have the correct source_id
+        const { error: updateSourceError } = await supabase
+          .from('apartment_evaluations')
+          .update({ source_id: sourceId })
+          .eq('id', existing.id);
+          
+        if (updateSourceError) {
+          console.error('Error updating source_id:', updateSourceError);
+        } else {
+          console.log('Updated source_id for existing evaluation');
+        }
+      }
     }
 
     // Om utvärdering redan finns, returnera den
     if (existing) {
-      console.log('Found existing evaluation:', existing.id);
+      console.log('Returning existing evaluation:', existing.id);
       return { data: existing, created: false };
     }
 
