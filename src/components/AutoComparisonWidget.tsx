@@ -577,15 +577,15 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
                 <CollapsibleTrigger asChild>
                   <div className="rounded-lg border transition-all duration-200 cursor-pointer hover:shadow-md bg-card">
                     {/* Main Content */}
-                    <div className="p-4">
+                    <div className="p-3">
                       {/* Header Row: Title left, percentage indicator right */}
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center justify-between mb-2">
                         <h3 className="text-small font-semibold text-foreground">{metric.name}</h3>
                         {/* Performance Gauge */}
                         <div className="relative">
                           {metric.total > 0 ? (
-                            <div className="relative w-12 h-12">
-                              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+                            <div className="relative w-10 h-10">
+                              <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
                                 {/* Background circle */}
                                 <path
                                   className="text-muted/20"
@@ -611,7 +611,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
                               </div>
                             </div>
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-muted/20 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center">
                               <span className="text-xs font-bold text-muted-foreground">N/A</span>
                             </div>
                           )}
@@ -619,7 +619,7 @@ const AutoComparisonWidget: React.FC<AutoComparisonWidgetProps> = () => {
                       </div>
                       
                       {/* Value Row: Primary value */}
-                      <div className="mb-3">
+                      <div className="mb-2">
                         <div className="text-base font-bold text-foreground mb-1">
                           {formatValue(metric.value, metric.unit)}
                         </div>
