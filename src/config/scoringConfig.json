@@ -1,0 +1,97 @@
+{
+  "metrics": [
+    {
+      "key": "price_per_sqm",
+      "name": "Pris per kvm",
+      "weight": 0.15,
+      "lowerIsBetter": true,
+      "category": "financial"
+    },
+    {
+      "key": "debt_per_sqm", 
+      "name": "Skuld per kvm",
+      "weight": 0.12,
+      "lowerIsBetter": true,
+      "category": "financial"
+    },
+    {
+      "key": "fee_per_sqm",
+      "name": "Avgift per kvm", 
+      "weight": 0.10,
+      "lowerIsBetter": true,
+      "category": "financial"
+    },
+    {
+      "key": "cashflow_per_sqm",
+      "name": "Kassaflöde per kvm",
+      "weight": 0.08,
+      "lowerIsBetter": false,
+      "category": "financial"
+    },
+    {
+      "key": "planlösning",
+      "name": "Planlösning",
+      "weight": 0.12,
+      "lowerIsBetter": false,
+      "category": "physical"
+    },
+    {
+      "key": "kitchen",
+      "name": "Kök",
+      "weight": 0.10,
+      "lowerIsBetter": false,
+      "category": "physical"
+    },
+    {
+      "key": "bathroom", 
+      "name": "Badrum",
+      "weight": 0.08,
+      "lowerIsBetter": false,
+      "category": "physical"
+    },
+    {
+      "key": "bedrooms",
+      "name": "Sovrum",
+      "weight": 0.08,
+      "lowerIsBetter": false,
+      "category": "physical"
+    },
+    {
+      "key": "surfaces",
+      "name": "Ytor",
+      "weight": 0.06,
+      "lowerIsBetter": false,
+      "category": "physical"
+    },
+    {
+      "key": "förvaring",
+      "name": "Förvaring", 
+      "weight": 0.05,
+      "lowerIsBetter": false,
+      "category": "physical"
+    },
+    {
+      "key": "ljusinsläpp",
+      "name": "Ljusinsläpp",
+      "weight": 0.04,
+      "lowerIsBetter": false,
+      "category": "physical"
+    },
+    {
+      "key": "balcony",
+      "name": "Balkong/Uteplats",
+      "weight": 0.02,
+      "lowerIsBetter": false,
+      "category": "physical"
+    }
+  ],
+  "recommendationTiers": [
+    { "threshold": 90, "level": "Utmärkt köp" },
+    { "threshold": 80, "level": "Mycket bra köp" },
+    { "threshold": 70, "level": "Bra köp" },
+    { "threshold": 60, "level": "Godtagbart köp" },
+    { "threshold": 50, "level": "Genomsnittligt köp" },
+    { "threshold": 40, "level": "Under genomsnitt" },
+    { "threshold": 0, "level": "Undvik" }
+  ]
+}

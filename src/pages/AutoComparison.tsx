@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ScoringResultDisplay } from '@/components/scoring/ScoringResultDisplay';
+import { calculateScore } from '@/services/scoringService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -57,6 +59,7 @@ const AutoComparison = () => {
   const [comparisonEvaluations, setComparisonEvaluations] = useState<Evaluation[]>([]);
   const [comparisonBase, setComparisonBase] = useState<ComparisonBase>('last-month');
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+  const [scoringResult, setScoringResult] = useState<any>(null);
 
   // Fetch the current evaluation and comparison data
   useEffect(() => {
@@ -102,6 +105,14 @@ const AutoComparison = () => {
 
     fetchData();
   }, [user, id, comparisonBase]);
+
+  // Calculate scoring when data is available
+  useEffect(() => {
+    if (currentEvaluation && comparisonEvaluations.length > 0) {
+      const result = calculateScore(currentEvaluation, comparisonEvaluations);
+      setScoringResult(result);
+    }
+  }, [currentEvaluation, comparisonEvaluations]);
 
   const fetchComparisonEvaluations = async (currentEval: Evaluation) => {
     if (!user) return;
@@ -448,9 +459,12 @@ const comparisonMetrics = useMemo(() => {
           </div>
         </StandardizedCard>
 
-        {/* Metrics Overview */}
-        {comparisonMetrics.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Existing Metrics Overview */}
+          <div>
+            {comparisonMetrics.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6">
             {comparisonMetrics.map((metric, index) => (
               <StandardizedCard key={index} className="cursor-pointer hover:shadow-lg transition-shadow">
                 <div className="space-y-4">
@@ -541,6 +555,18 @@ const comparisonMetrics = useMemo(() => {
             </div>
           </StandardizedCard>
         )}
+          </div>
+          
+          {/* New Scoring Section */}
+          <div>
+            {scoringResult && (
+              <ScoringResultDisplay 
+                result={scoringResult}
+                apartmentAddress={currentEvaluation?.address || undefined}
+              />
+            )}
+          </div>
+        </div>
 
         {/* Detailed View */}
         {selectedMetric && (() => {
