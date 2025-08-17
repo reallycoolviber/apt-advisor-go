@@ -2,6 +2,7 @@ import { StandardizedInput } from '@/components/StandardizedInput';
 import { StandardizedCard } from '@/components/StandardizedCard';
 import { StandardizedFieldGroup } from '@/components/StandardizedFieldGroup';
 import { ValidatedInput } from '@/components/ValidatedInput';
+import { AutoSaveInput } from '@/components/form/AutoSaveInput';
 import { MapPin, Home, CreditCard, Users, Calculator, DollarSign } from 'lucide-react';
 import { formatValue as formatDisplayValue } from '@/utils/formatValue';
 

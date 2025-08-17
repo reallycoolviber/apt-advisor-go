@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,32 +29,40 @@ export function useAutoSave<T extends Record<string, any>>(
   const timeoutRef = useRef<NodeJS.Timeout>();
   const isMountedRef = useRef(true);
   const hasChangesRef = useRef(false);
+  const lastSavedDataRef = useRef<string>('');
   
-  // Ref för att hålla koll på sparstatus
-  const statusRef = useRef<AutoSaveStatus>({
+  // State för att hålla koll på sparstatus
+  const [status, setStatus] = useState<AutoSaveStatus>({
     saving: false,
     saved: false,
     error: null
   });
 
   const executeSave = useCallback(async () => {
-    if (!hasChangesRef.current) return;
+    const currentDataStr = JSON.stringify(data);
     
-    statusRef.current = { saving: true, saved: false, error: null };
+    // Skippa om ingen förändring sedan senaste sparning
+    if (currentDataStr === lastSavedDataRef.current) {
+      hasChangesRef.current = false;
+      return;
+    }
+    
+    setStatus({ saving: true, saved: false, error: null });
     onSaveStart?.();
     
     try {
       await saveFunction(data);
       
       if (isMountedRef.current) {
-        statusRef.current = { saving: false, saved: true, error: null };
+        lastSavedDataRef.current = currentDataStr;
+        setStatus({ saving: false, saved: true, error: null });
         hasChangesRef.current = false;
         onSaveSuccess?.();
         
         // Visa "Sparat ✓" i 2 sekunder
         setTimeout(() => {
           if (isMountedRef.current) {
-            statusRef.current = { saving: false, saved: false, error: null };
+            setStatus(prev => prev.saved ? { saving: false, saved: false, error: null } : prev);
           }
         }, 2000);
       }
@@ -63,7 +71,7 @@ export function useAutoSave<T extends Record<string, any>>(
       const errorMessage = error instanceof Error ? error.message : 'Kunde inte spara automatiskt';
       
       if (isMountedRef.current) {
-        statusRef.current = { saving: false, saved: false, error: errorMessage };
+        setStatus({ saving: false, saved: false, error: errorMessage });
         onSaveError?.(errorMessage);
         
         toast({
@@ -77,18 +85,23 @@ export function useAutoSave<T extends Record<string, any>>(
 
   // Funktion för att trigga sparning med debouncing
   const triggerSave = useCallback(() => {
-    hasChangesRef.current = true;
+    const currentDataStr = JSON.stringify(data);
     
-    // Rensa tidigare timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+    // Bara sätt hasChanges om datan faktiskt har ändrats
+    if (currentDataStr !== lastSavedDataRef.current) {
+      hasChangesRef.current = true;
+      
+      // Rensa tidigare timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      // Sätt nytt timeout
+      timeoutRef.current = setTimeout(() => {
+        executeSave();
+      }, delay);
     }
-    
-    // Sätt nytt timeout
-    timeoutRef.current = setTimeout(() => {
-      executeSave();
-    }, delay);
-  }, [executeSave, delay]);
+  }, [data, executeSave, delay]);
 
   // Funktion för att tvinga fram omedelbar sparning (vid navigering)
   const forceSave = useCallback(async () => {
@@ -112,6 +125,11 @@ export function useAutoSave<T extends Record<string, any>>(
       }
     };
   }, [executeSave]);
+  
+  // Auto-trigger save when data changes
+  useEffect(() => {
+    triggerSave();
+  }, [triggerSave]);
 
   // Cleanup timeouts
   useEffect(() => {
@@ -125,6 +143,7 @@ export function useAutoSave<T extends Record<string, any>>(
   return {
     triggerSave,
     forceSave,
-    status: statusRef.current
+    status,
+    hasUnsavedChanges: hasChangesRef.current
   };
 }

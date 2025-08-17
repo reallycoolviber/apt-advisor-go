@@ -10,6 +10,7 @@ import { EvaluationProvider } from "@/contexts/EvaluationContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { GlobalHeader } from "@/components/GlobalHeader";
 import { QualityOfLifeProvider } from "@/components/QualityOfLifeProvider";
+import { AutoSaveProvider } from "@/providers/AutoSaveProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EvaluationForm from "./pages/EvaluationForm";
@@ -64,9 +65,10 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppContent = () => {
   return (
-    <QualityOfLifeProvider>
-      <ErrorBoundary>
-        <SidebarProvider>
+    <AutoSaveProvider>
+      <QualityOfLifeProvider>
+        <ErrorBoundary>
+          <SidebarProvider>
           <div className="min-h-screen w-full bg-background text-foreground">
             <GlobalHeader />
           <div className="pt-14">
@@ -166,6 +168,7 @@ const AppContent = () => {
         </SidebarProvider>
       </ErrorBoundary>
     </QualityOfLifeProvider>
+    </AutoSaveProvider>
   );
 };
 
